@@ -76,7 +76,6 @@ export type { FeedTab, TopWindow, FeedCursor, FeedItem } from "./feed";
 export {
   getLeaderboardProjects,
   getLeaderboardBuilders,
-  LEADERBOARD_WINDOWS,
   LEADERBOARD_LIMIT,
 } from "./leaderboard";
 export type {
