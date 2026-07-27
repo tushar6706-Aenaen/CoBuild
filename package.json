@@ -1,0 +1,19 @@
+{
+  "name": "cobuild",
+  "private": true,
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "lint": "turbo run lint",
+    "seed": "pnpm --filter @cobuild/db run seed"
+  },
+  "devDependencies": {
+    "turbo": "2.10.7",
+    "typescript": "5.9.3"
+  },
+  "packageManager": "pnpm@10.11.0",
+  "engines": {
+    "node": ">=20"
+  }
+}

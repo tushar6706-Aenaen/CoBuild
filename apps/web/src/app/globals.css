@@ -1,0 +1,240 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+/*
+ ---break---
+ */
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Values here are the CSS mirror of packages/tokens/src/*.ts — Tailwind 4's
+ * @theme block needs literal CSS custom properties, so it can't import the
+ * TS source directly. If you change a value in packages/tokens, update it
+ * here too (mobile's tailwind.config.js reads the TS file directly).
+ *
+ * Neutrals are the design file's green-tinted near-blacks, sampled from
+ * colotheme/colortheme.png — see packages/tokens/src/colors.ts for the full
+ * note, including why the surfaces sit so close together on purpose and why
+ * borders did NOT move with them. Nothing in the chrome carries a blue cast:
+ * link-hover and status-archived both left the Slate/lavender family.
+ *
+ * `--color-bg-*-rgb` are the same colours as bare channels, so a scrim can be
+ * written `rgb(var(--color-bg-page-rgb)/0.72)` instead of hardcoding the page
+ * colour — which is how a batch of stale blue-black overlays survived the
+ * last palette change.
+ */
+:root {
+  --color-bg-page: #090a09;
+  --color-bg-panel: #0f110f;
+  --color-bg-panel-alt: #121412;
+  --color-bg-input: #111311;
+  --color-bg-raised: #181b18;
+  --color-bg-sidebar: #0c0e0c;
+
+  --color-bg-page-rgb: 9 10 9;
+  --color-bg-panel-rgb: 15 17 15;
+
+  --color-border-default: rgba(255, 255, 255, 0.12);
+  --color-border-subtle: rgba(255, 255, 255, 0.08);
+  --color-border-strong: rgba(255, 255, 255, 0.22);
+
+  --color-text-primary: #e8ede8;
+  --color-text-secondary: #8b8f8b;
+  --color-text-secondary-alt: #949994;
+  --color-text-tertiary: #6e736e;
+  --color-text-placeholder: #5a605a;
+
+  --color-accent: #3be38f;
+  --color-accent-hover: #55eaa1;
+  --color-accent-on: #04180e;
+  --color-accent-muted: #8deebb;
+  --color-accent-muted-strong: #a5f2c9;
+
+  --color-link-hover: #a5f2c9;
+
+  --color-status-shipped: #6fd2e8;
+  --color-status-in-progress: #f5b950;
+  --color-status-archived: #6e736e;
+  --color-status-danger: #ff7a7a;
+  --color-status-danger-strong: #ff9b9b;
+
+  --color-code-highlight: #dce86a;
+
+  --radius-control: 6px;
+  --radius-control-lg: 7px;
+  --radius-card: 10px;
+  --radius-card-lg: 11px;
+
+  /*
+   * shadcn/ui semantic tokens, mapped onto the palette above. CoBuild is
+   * dark-first with no light/dark toggle yet, so :root IS the dark theme —
+   * there is deliberately no separate `.dark` override block. Note
+   * shadcn's `--accent` (a subtle hover background for menus/dropdowns)
+   * is NOT the same thing as our brand `--color-accent` (green) — don't
+   * conflate them when styling new components.
+   */
+  --background: var(--color-bg-page);
+  --foreground: var(--color-text-primary);
+  --card: var(--color-bg-panel);
+  --card-foreground: var(--color-text-primary);
+  --popover: var(--color-bg-raised);
+  --popover-foreground: var(--color-text-primary);
+  --primary: var(--color-accent);
+  --primary-foreground: var(--color-accent-on);
+  --secondary: var(--color-bg-panel-alt);
+  --secondary-foreground: var(--color-text-primary);
+  --muted: var(--color-bg-panel-alt);
+  --muted-foreground: var(--color-text-secondary);
+  --accent: var(--color-bg-raised);
+  --accent-foreground: var(--color-text-primary);
+  --destructive: var(--color-status-danger);
+  --border: var(--color-border-default);
+  --input: var(--color-border-default);
+  --ring: var(--color-accent);
+  --chart-1: var(--color-accent);
+  --chart-2: var(--color-status-shipped);
+  --chart-3: var(--color-status-in-progress);
+  --chart-4: var(--color-accent-muted);
+  --chart-5: var(--color-text-secondary);
+  --radius: 8px;
+  --sidebar: var(--color-bg-sidebar);
+  --sidebar-foreground: var(--color-text-primary);
+  --sidebar-primary: var(--color-accent);
+  --sidebar-primary-foreground: var(--color-accent-on);
+  --sidebar-accent: var(--color-bg-raised);
+  --sidebar-accent-foreground: var(--color-text-primary);
+  --sidebar-border: var(--color-border-subtle);
+  --sidebar-ring: var(--color-accent);
+}
+
+@theme inline {
+  --color-bg-page: var(--color-bg-page);
+  --color-bg-panel: var(--color-bg-panel);
+  --color-bg-panel-alt: var(--color-bg-panel-alt);
+  --color-bg-input: var(--color-bg-input);
+  --color-bg-raised: var(--color-bg-raised);
+  --color-bg-sidebar: var(--color-bg-sidebar);
+  --color-bg-page-rgb: var(--color-bg-page-rgb);
+  --color-bg-panel-rgb: var(--color-bg-panel-rgb);
+
+  --color-border-default: var(--color-border-default);
+  --color-border-subtle: var(--color-border-subtle);
+  --color-border-strong: var(--color-border-strong);
+
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-text-secondary-alt: var(--color-text-secondary-alt);
+  --color-text-tertiary: var(--color-text-tertiary);
+  --color-text-placeholder: var(--color-text-placeholder);
+
+  --color-accent: var(--color-accent);
+  --color-accent-hover: var(--color-accent-hover);
+  --color-accent-on: var(--color-accent-on);
+  --color-accent-muted: var(--color-accent-muted);
+  --color-accent-muted-strong: var(--color-accent-muted-strong);
+
+  --color-link-hover: var(--color-link-hover);
+
+  --color-status-shipped: var(--color-status-shipped);
+  --color-status-in-progress: var(--color-status-in-progress);
+  --color-status-archived: var(--color-status-archived);
+  --color-status-danger: var(--color-status-danger);
+  --color-status-danger-strong: var(--color-status-danger-strong);
+
+  --color-code-highlight: var(--color-code-highlight);
+
+  --radius-control: var(--radius-control);
+  --radius-control-lg: var(--radius-control-lg);
+  --radius-card: var(--radius-card);
+  --radius-card-lg: var(--radius-card-lg);
+
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+body {
+  background: var(--color-bg-page);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+}
+
+/*
+ * These MUST stay inside `@layer base`. Written unlayered, a bare `a { color }`
+ * rule beats every Tailwind utility — unlayered styles win over layered ones
+ * regardless of specificity — so `text-[var(--color-bg-page)]` on a link was
+ * silently ignored and every anchor in the app rendered mint green: the
+ * detail page's primary CTA was accent-on-white at 1.33:1, and tag chips,
+ * nav items, author names, and "Back to feed" all flattened to one tone no
+ * matter which text tier they asked for. In `base` they are what they were
+ * meant to be — a default for unstyled links that components can override.
+ */
+@layer base {
+  a {
+    color: var(--color-accent-muted);
+    text-decoration: none;
+  }
+  a:hover {
+    color: var(--color-link-hover);
+  }
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-bg-raised);
+  border-radius: 4px;
+}
+/*
+ ---break---
+ */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "cobuild-web",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@cobuild/web", "run", "dev"],
+      "port": 3000
+    }
+  ]
+}

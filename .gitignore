@@ -1,0 +1,99 @@
+# =========================
+# Dependencies
+# =========================
+node_modules/
+
+# =========================
+# Next.js
+# =========================
+.next/
+out/
+
+# =========================
+# Build Output
+# =========================
+dist/
+build/
+.turbo/
+coverage/
+.nyc_output/
+*.tsbuildinfo
+
+# =========================
+# Expo / React Native
+# =========================
+.expo/
+.expo-shared/
+
+# =========================
+# Environment Variables
+# =========================
+.env
+.env.*
+!.env.example
+!.env*.example
+
+# =========================
+# Vercel / Netlify
+# =========================
+.vercel/
+.netlify/
+
+# =========================
+# Supabase
+# =========================
+supabase/.temp/
+supabase/.branches/
+
+# =========================
+# Logs
+# =========================
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# =========================
+# Editors
+# =========================
+.vscode/
+.idea/
+
+# =========================
+# OS Files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Temporary Files
+# =========================
+*.swp
+*.swo
+*.tmp
+*.temp
+
+# =========================
+# Cache
+# =========================
+.cache/
+.parcel-cache/
+.eslintcache
+
+# =========================
+# Testing
+# =========================
+playwright-report/
+test-results/
+
+# =========================
+# Misc
+# =========================
+*.pid
+*.seed
+
+# Design references
+CoBuild design system/
+colotheme/
+
