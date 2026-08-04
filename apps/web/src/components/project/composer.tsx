@@ -340,6 +340,48 @@ export function Composer({
     router.refresh();
   }
 
+  /*
+   * Everything the composer holds — title, tagline, a long description, up to
+   * eight uploads with their alt text and captions, tags, credits — lives in
+   * component state and nowhere else. Closing the tab used to take all of it
+   * with no warning.
+   *
+   * Dirtiness is a signature comparison rather than a per-field flag so that
+   * editing one image's alt text counts, and so that undoing an edit back to
+   * its original value correctly stops counting.
+   *
+   * Caveat: `beforeunload` only covers tab close, reload, and navigation off
+   * the origin. Next's App Router has no stable client-side route-change
+   * guard, so an in-app <Link> back to the feed still discards silently.
+   */
+  const signature = JSON.stringify({
+    title,
+    tagline,
+    description,
+    liveUrl,
+    repoUrl,
+    status,
+    coverIndex,
+    images: images.map((i) => ({ p: i.storagePath, a: i.alt, c: i.caption })),
+    tags: tags.map((t) => t.id),
+    crew: crew.map((c) => ({ p: c.profileId, n: c.invitedName, r: c.roleLabel })),
+  });
+  const initialSignature = useRef<string | null>(null);
+  if (initialSignature.current === null) initialSignature.current = signature;
+  const dirty = initialSignature.current !== signature;
+
+  useEffect(() => {
+    if (!dirty || saving) return;
+    const warn = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      // Older browsers require returnValue to be set; the string is ignored
+      // and the browser shows its own wording.
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [dirty, saving]);
+
   const panel =
     "flex flex-col gap-4 rounded-[10px] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] p-5";
   const field =

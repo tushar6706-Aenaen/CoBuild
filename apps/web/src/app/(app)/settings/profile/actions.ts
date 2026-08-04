@@ -3,9 +3,29 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { LOGIN_PATH } from "@/lib/auth/redirects";
-import { validateUsername, usernameIsTaken } from "@cobuild/shared";
+import {
+  validateUsername,
+  usernameIsTaken,
+  DISPLAY_NAME_MAX,
+  HEADLINE_MAX,
+  BIO_MAX,
+  LOCATION_MAX,
+  TIMEZONE_MAX,
+  COLLEGE_MAX,
+} from "@cobuild/shared";
 
-export type SettingsState = { error?: string };
+/**
+ * `savedUsername` is set on success instead of redirecting from the server.
+ *
+ * A server-side `redirect` gave the form no success moment to attach anything
+ * to, and routing the confirmation through a `?saved=1` param on the
+ * destination didn't work either: the toast has to be queued by a component
+ * that survives the navigation, and the profile page's own mount is the thing
+ * being replaced. Handing the username back lets the form show the toast and
+ * *then* navigate, so the message is queued in the shell layout that both
+ * routes share and outlives the transition.
+ */
+export type SettingsState = { error?: string; savedUsername?: string };
 
 const ROLE_OPTIONS = new Set(["developer", "designer", "founder", "other"]);
 const LINK_KEYS = ["github", "website", "x", "linkedin", "behance", "dribbble", "figma"] as const;
@@ -35,11 +55,11 @@ export async function updateProfile(
     return { error: "That username is taken." };
   }
 
-  const displayName = String(formData.get("displayName") ?? "").trim().slice(0, 80);
-  const headline = String(formData.get("headline") ?? "").trim().slice(0, 120);
-  const bio = String(formData.get("bio") ?? "").trim().slice(0, 280);
-  const location = String(formData.get("location") ?? "").trim().slice(0, 120);
-  const timezone = String(formData.get("timezone") ?? "").trim().slice(0, 60);
+  const displayName = String(formData.get("displayName") ?? "").trim().slice(0, DISPLAY_NAME_MAX);
+  const headline = String(formData.get("headline") ?? "").trim().slice(0, HEADLINE_MAX);
+  const bio = String(formData.get("bio") ?? "").trim().slice(0, BIO_MAX);
+  const location = String(formData.get("location") ?? "").trim().slice(0, LOCATION_MAX);
+  const timezone = String(formData.get("timezone") ?? "").trim().slice(0, TIMEZONE_MAX);
   const avatarPath = String(formData.get("avatarPath") ?? "").trim() || null;
 
   const roles = formData
@@ -48,7 +68,7 @@ export async function updateProfile(
     .filter((r) => ROLE_OPTIONS.has(r));
 
   const isStudent = formData.get("isStudent") === "on";
-  const college = isStudent ? String(formData.get("college") ?? "").trim().slice(0, 120) : null;
+  const college = isStudent ? String(formData.get("college") ?? "").trim().slice(0, COLLEGE_MAX) : null;
   const gradYearRaw = isStudent ? formData.get("gradYear") : null;
   const gradYear =
     isStudent && gradYearRaw ? Number.parseInt(String(gradYearRaw), 10) || null : null;
@@ -83,5 +103,5 @@ export async function updateProfile(
     return { error: "Something went wrong saving your profile. Try again." };
   }
 
-  redirect(`/u/${check.username}`);
+  return { savedUsername: check.username };
 }

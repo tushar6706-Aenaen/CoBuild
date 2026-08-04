@@ -238,3 +238,27 @@ body {
     @apply font-sans;
   }
 }
+
+/*
+ * Every animation in this app is decorative: skeleton pulses, button spinners,
+ * dialog and toast entrances, the vote button's press-scale. None of them
+ * carry information a static frame doesn't, so honouring the OS preference
+ * costs nothing — and without it the skeletons pulse on every single
+ * navigation for people who explicitly asked for stillness.
+ *
+ * Unlayered and `!important` on purpose: Tailwind's `animate-*`/`transition-*`
+ * are themselves utilities, and this has to beat all of them at once rather
+ * than being reapplied per component. Durations are near-zero rather than
+ * `none` so animation/transition end events still fire and nothing that waits
+ * on them hangs.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

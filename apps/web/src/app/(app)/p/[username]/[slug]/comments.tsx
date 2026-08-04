@@ -9,6 +9,7 @@ import { MAX_COMMENT_DEPTH, transformedStorageUrl, type CommentNode } from "@cob
 import { LOGIN_PATH } from "@/lib/auth/redirects";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/components/ui/toast";
 
 type ViewerInfo = { id: string; avatarUrl: string | null } | null;
 
@@ -51,6 +52,7 @@ function CommentItem({
   viewer,
   avatarUrlFor,
   depth,
+  votedCommentIds,
 }: {
   node: CommentNode;
   projectId: string;
@@ -58,14 +60,17 @@ function CommentItem({
   viewer: ViewerInfo;
   avatarUrlFor: (path: string | null) => string | null;
   depth: number;
+  /** Comment ids the viewer has already upvoted, resolved server-side. */
+  votedCommentIds: Set<string>;
 }) {
   const router = useRouter();
+  const toast = useToast();
   const [replying, setReplying] = useState(false);
   const [replyBody, setReplyBody] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [, startTransition] = useTransition();
 
-  const [voted, setVoted] = useState(false);
+  const [voted, setVoted] = useState(votedCommentIds.has(node.id));
   const [votes, setVotes] = useState(node.upvote_count);
   const [votePending, setVotePending] = useState(false);
 
@@ -85,18 +90,27 @@ function CommentItem({
     setVotePending(true);
 
     const supabase = createClient();
-    const { error } = next
-      ? await supabase.from("comment_votes").insert({ comment_id: node.id, profile_id: viewer.id })
-      : await supabase
-          .from("comment_votes")
-          .delete()
-          .eq("comment_id", node.id)
-          .eq("profile_id", viewer.id);
+    // A transport-level failure rejects rather than returning `{ error }`;
+    // both have to reach the rollback. See vote-button.tsx for the full note.
+    let failed = false;
+    try {
+      const { error } = next
+        ? await supabase.from("comment_votes").insert({ comment_id: node.id, profile_id: viewer.id })
+        : await supabase
+            .from("comment_votes")
+            .delete()
+            .eq("comment_id", node.id)
+            .eq("profile_id", viewer.id);
+      failed = !!error;
+    } catch {
+      failed = true;
+    }
 
     setVotePending(false);
-    if (error) {
+    if (failed) {
       setVoted(!next);
       setVotes((v) => v + (next ? -1 : 1));
+      toast("Couldn't save your upvote. Check your connection and try again.", "danger");
     }
   }
 
@@ -106,21 +120,29 @@ function CommentItem({
     setSubmitting(true);
 
     const supabase = createClient();
-    const { error } = await supabase.from("comments").insert({
-      project_id: projectId,
-      author_id: viewer.id,
-      parent_id: node.id,
-      // Clamp so a deep chain doesn't render past what the UI supports.
-      depth: Math.min(depth + 1, MAX_COMMENT_DEPTH),
-      body: replyBody.trim(),
-    });
+    let failed = false;
+    try {
+      const { error } = await supabase.from("comments").insert({
+        project_id: projectId,
+        author_id: viewer.id,
+        parent_id: node.id,
+        // Clamp so a deep chain doesn't render past what the UI supports.
+        depth: Math.min(depth + 1, MAX_COMMENT_DEPTH),
+        body: replyBody.trim(),
+      });
+      failed = !!error;
+    } catch {
+      failed = true;
+    }
 
     setSubmitting(false);
-    if (!error) {
-      setReplyBody("");
-      setReplying(false);
-      startTransition(() => router.refresh());
+    if (failed) {
+      toast("Your reply didn't post — the draft is still here. Try again.", "danger");
+      return;
     }
+    setReplyBody("");
+    setReplying(false);
+    startTransition(() => router.refresh());
   }
 
   const avatarSize = depth === 0 ? 34 : 30;
@@ -152,6 +174,8 @@ function CommentItem({
             <button
               type="button"
               onClick={toggleVote}
+              disabled={votePending}
+              aria-busy={votePending}
               aria-pressed={voted}
               className={
                 voted
@@ -208,6 +232,7 @@ function CommentItem({
               viewer={viewer}
               avatarUrlFor={avatarUrlFor}
               depth={depth + 1}
+              votedCommentIds={votedCommentIds}
             />
           ))}
         </div>
@@ -223,6 +248,7 @@ export function Comments({
   commentCount,
   viewer,
   avatarBaseUrl,
+  votedCommentIds,
 }: {
   projectId: string;
   authorId: string;
@@ -231,8 +257,11 @@ export function Comments({
   viewer: ViewerInfo;
   /** `{supabaseUrl}/storage/v1/object/public/avatars/` — avoids threading a client through. */
   avatarBaseUrl: string;
+  /** Comment ids the viewer has already upvoted, resolved server-side. */
+  votedCommentIds: Set<string>;
 }) {
   const router = useRouter();
+  const toast = useToast();
   const [body, setBody] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [, startTransition] = useTransition();
@@ -249,18 +278,26 @@ export function Comments({
     setSubmitting(true);
 
     const supabase = createClient();
-    const { error } = await supabase.from("comments").insert({
-      project_id: projectId,
-      author_id: viewer.id,
-      body: body.trim(),
-      depth: 0,
-    });
+    let failed = false;
+    try {
+      const { error } = await supabase.from("comments").insert({
+        project_id: projectId,
+        author_id: viewer.id,
+        body: body.trim(),
+        depth: 0,
+      });
+      failed = !!error;
+    } catch {
+      failed = true;
+    }
 
     setSubmitting(false);
-    if (!error) {
-      setBody("");
-      startTransition(() => router.refresh());
+    if (failed) {
+      toast("Your comment didn't post — the draft is still here. Try again.", "danger");
+      return;
     }
+    setBody("");
+    startTransition(() => router.refresh());
   }
 
   return (
@@ -310,6 +347,7 @@ export function Comments({
               viewer={viewer}
               avatarUrlFor={avatarUrlFor}
               depth={0}
+              votedCommentIds={votedCommentIds}
             />
           ))}
         </div>

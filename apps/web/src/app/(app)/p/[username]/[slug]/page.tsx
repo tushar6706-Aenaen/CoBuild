@@ -6,6 +6,8 @@ import {
   getProjectDetail,
   getProjectComments,
   getViewerProjectState,
+  getViewerCommentVotes,
+  collectCommentIds,
   isFollowing,
   publicStorageUrl,
   transformedStorageUrl,
@@ -86,6 +88,11 @@ export default async function ProjectDetailPage({
       ? isFollowing(supabase, viewer.id, project.author.id)
       : Promise.resolve(false),
   ]);
+
+  // Keyed off the comment tree, so this can't join the Promise.all above.
+  const votedCommentIds = viewer
+    ? await getViewerCommentVotes(supabase, viewer.id, collectCommentIds(comments))
+    : new Set<string>();
 
   const viewerAvatar = viewer
     ? ((
@@ -259,6 +266,7 @@ export default async function ProjectDetailPage({
             commentCount={project.comment_count}
             viewer={viewer ? { id: viewer.id, avatarUrl: viewerAvatar } : null}
             avatarBaseUrl={avatarBaseUrl}
+            votedCommentIds={votedCommentIds}
           />
         </div>
 

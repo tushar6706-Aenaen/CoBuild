@@ -94,11 +94,17 @@ Tick items as they're completed: `- [ ]` → `- [x]`. Mirrors [WEB_APP_PLAN.md](
 **Not built (deliberate):** the design's "Follow tag" button on `/tag/[slug]` — there is no `tag_follows` table and tag following isn't in any phase of the plan, so shipping a dead button was the worse option. Add the table first if you want it.
 
 ### Phase 6 — Notifications + polish
-- [ ] Notifications screen + mark-read
-- [ ] Notification-writing triggers (vote/comment/follow/credit)
-- [ ] Global nav (signed-in / signed-out variants)
-- [ ] All empty states, loading states, delete-confirmation dialog
+- [x] Notifications screen + mark-read — verified live (`/notifications`, empty state + mark-all-read wired)
+- [x] Notification-writing triggers (vote/comment/follow/credit) — confirmed live on the Supabase project: `notify_on_vote`, `notify_on_comment`, `notify_on_follow`, `notify_on_credit`
+- [x] Global nav (signed-in / signed-out variants) — `nav-items.tsx` branches on `signedIn`, verified signed-in live
+- [x] All empty states — consistent dashed-border/icon-badge pattern verified across feed, bookmarks, notifications, profile tabs
+- [x] Loading states — added tailored `loading.tsx` for the 5 routes that were silently inheriting the feed's skeleton shape: bookmarks, project detail, profile, tag pages, settings (new `SkeletonTileGrid` primitive added to `components/shell/skeleton.tsx`, reused by bookmarks + profile)
+- [x] Delete-confirmation dialog — confirmed a real shadcn `Dialog` (not `window.confirm`) on project delete, with cancel/pending/error states
 - [ ] **Final Opus review before mobile starts**: full RLS adversarial pass, advisors check, perf audit, simplification pass
+
+**In-flight UI/UX pass — see [REMEMBER.md](REMEMBER.md) for the full checkpoint.** A three-part audit (interaction, a11y, visual system) found ~40 issues; tranche A (real bugs + a feedback layer) is implemented and partly verified. Landed and verified: the comment-vote bug (comments always rendered un-voted, so un-voting was impossible), and try/catch hardening on all 6 mutation sites after finding that a transport-level failure *rejects* rather than returning `{ error }` — leaving buttons stuck disabled showing votes the server never recorded. **One open bug:** the profile-save confirmation toast doesn't fire, because a Server Action revalidates the `(app)` layout and remounts the toast state. Re-run `pnpm --filter web build` before trusting the tree — the last full build predates the final `toast.tsx` rewrite.
+
+**Investigated and ruled out:** a one-off wrong-viewer-state render on `/u/[username]` (Follow button instead of Edit profile) seen once during Phase 6 verification turned out to be a Turbopack dev-server artifact — it occurred exactly once, on the first client-side navigation to that route right after `loading.tsx` was added to the same segment while the dev server was running. Three subsequent reproductions (a hard reload + three ref-precise `<Link>` clicks from different pages) all rendered correctly with a real per-request RSC fetch each time, and the app has no caching path that could plausibly serve one viewer's data to another (`cacheComponents` isn't enabled, and the Supabase server client reads `cookies()`, which forces dynamic rendering on every request). Not a real bug — no code change made.
 
 ### Web verification
 - [ ] All three sign-in methods work end-to-end

@@ -150,6 +150,47 @@ export async function getProjectComments(client: Client, projectId: string): Pro
   return roots;
 }
 
+/** Flattens the reply tree into a flat id list, for viewer-state lookups. */
+export function collectCommentIds(nodes: CommentNode[]): string[] {
+  const ids: string[] = [];
+  const walk = (list: CommentNode[]) => {
+    for (const node of list) {
+      ids.push(node.id);
+      if (node.replies.length > 0) walk(node.replies);
+    }
+  };
+  walk(nodes);
+  return ids;
+}
+
+/**
+ * Which of `commentIds` the viewer has already upvoted.
+ *
+ * Returned as a Set, mirroring the feed's `getViewerVoteState`, so rendering
+ * the tree is a lookup per node rather than a scan.
+ *
+ * Without this every comment vote button mounted un-voted regardless of
+ * history, so clicking a comment you'd already upvoted fired an INSERT that
+ * the `comment_votes` unique constraint rejected — the arrow lit up, the
+ * count ticked, and both snapped back. There was no way to un-vote at all.
+ */
+export async function getViewerCommentVotes(
+  client: Client,
+  viewerId: string,
+  commentIds: string[],
+): Promise<Set<string>> {
+  if (commentIds.length === 0) return new Set();
+
+  const { data, error } = await client
+    .from("comment_votes")
+    .select("comment_id")
+    .eq("profile_id", viewerId)
+    .in("comment_id", commentIds);
+  if (error) throw error;
+
+  return new Set((data ?? []).map((row) => row.comment_id));
+}
+
 /** Whether the viewer has upvoted / bookmarked, for initial button state. */
 export async function getViewerProjectState(
   client: Client,

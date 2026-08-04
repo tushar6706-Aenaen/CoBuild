@@ -2,7 +2,14 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { validateUsername, usernameIsTaken } from "@cobuild/shared";
+import {
+  validateUsername,
+  usernameIsTaken,
+  DISPLAY_NAME_MAX,
+  BIO_MAX,
+  COLLEGE_MAX,
+} from "@cobuild/shared";
+import { FieldCounter } from "@/components/ui/field-counter";
 import { completeOnboarding, type OnboardingState } from "./actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,7 +37,7 @@ const ROLE_CHIPS = [
 
 const MAX_AVATAR_BYTES = 2 * 1024 * 1024;
 
-type UsernameStatus = "idle" | "checking" | "ok" | "bad" | "taken";
+type UsernameStatus = "idle" | "checking" | "ok" | "bad" | "taken" | "error";
 
 function extensionFor(file: File): string {
   if (file.type === "image/png") return "png";
@@ -56,6 +63,8 @@ export function OnboardingForm({
   const [usernameStatus, setUsernameStatus] = useState<UsernameStatus>("idle");
   const [usernameMessage, setUsernameMessage] = useState<string>("");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /** Bumped by "Check again" to re-run the availability lookup. */
+  const [checkNonce, setCheckNonce] = useState(0);
 
   const [avatarPath, setAvatarPath] = useState(initial.avatarUrl ?? "");
   // `avatar_url` is a storage PATH, not a resolvable URL (see PROJECT_INFO.md
@@ -69,6 +78,11 @@ export function OnboardingForm({
 
   const [roles, setRoles] = useState<Set<string>>(new Set(initial.roles.filter((r) => r !== "student")));
   const [isStudent, setIsStudent] = useState(initial.isStudent);
+
+  // Controlled so the counters can read length; `maxLength` is what actually
+  // prevents the server's silent truncation.
+  const [displayName, setDisplayName] = useState(initial.displayName ?? "");
+  const [bio, setBio] = useState(initial.bio ?? "");
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -104,7 +118,14 @@ export function OnboardingForm({
           return current;
         });
       } catch {
-        setUsernameStatus("idle");
+        // Resetting to "idle" here used to strand the user permanently: for a
+        // new account `initial.username` is null, so the "idle" branch of
+        // canSubmit could never be true and the only button on the only screen
+        // stayed disabled with no message. The availability check is advisory
+        // — the server re-checks and the column is unique — so a failed check
+        // reports itself and steps out of the way rather than blocking.
+        setUsernameStatus("error");
+        setUsernameMessage("Couldn't check availability — you can still continue.");
       }
     }, 400);
 
@@ -112,7 +133,7 @@ export function OnboardingForm({
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [username]);
+  }, [username, checkNonce]);
 
   async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -146,7 +167,9 @@ export function OnboardingForm({
   }
 
   const canSubmit =
-    (usernameStatus === "ok" || (usernameStatus === "idle" && initial.username === username.trim())) &&
+    (usernameStatus === "ok" ||
+      usernameStatus === "error" ||
+      (usernameStatus === "idle" && initial.username === username.trim())) &&
     !avatarUploading &&
     !pending;
 
@@ -198,6 +221,21 @@ export function OnboardingForm({
               Checking availability…
             </div>
           )}
+          {usernameStatus === "error" && (
+            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[12.5px] text-[var(--color-status-danger)]">
+              <span className="flex items-center gap-1.5 font-semibold">
+                <span className="h-1.5 w-1.5 flex-none rounded-full bg-[var(--color-status-danger)]" />
+                {usernameMessage}
+              </span>
+              <button
+                type="button"
+                onClick={() => setCheckNonce((n) => n + 1)}
+                className="font-semibold text-[var(--color-text-primary)] underline underline-offset-2 transition-colors hover:text-[var(--color-accent-muted)]"
+              >
+                Check again
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center gap-4">
@@ -241,9 +279,12 @@ export function OnboardingForm({
           <Input
             id="displayName"
             name="displayName"
-            defaultValue={initial.displayName ?? ""}
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            maxLength={DISPLAY_NAME_MAX}
             className="rounded-[var(--radius-control)] border-[var(--color-border-default)] bg-[var(--color-bg-input)] py-3 text-sm"
           />
+          <FieldCounter value={displayName} max={DISPLAY_NAME_MAX} />
         </div>
 
         <div className="flex flex-col gap-2">
@@ -254,10 +295,13 @@ export function OnboardingForm({
             id="bio"
             name="bio"
             rows={3}
-            defaultValue={initial.bio ?? ""}
+            value={bio}
+            onChange={(e) => setBio(e.target.value)}
+            maxLength={BIO_MAX}
             placeholder="What are you building right now?"
             className="resize-y rounded-[var(--radius-control)] border-[var(--color-border-default)] bg-[var(--color-bg-input)] text-sm"
           />
+          <FieldCounter value={bio} max={BIO_MAX} />
         </div>
 
         <div className="flex flex-col gap-2.5">
@@ -314,6 +358,7 @@ export function OnboardingForm({
             <div className="grid grid-cols-[1fr_130px] gap-2.5">
               <Input
                 name="college"
+                maxLength={COLLEGE_MAX}
                 placeholder="College"
                 defaultValue={initial.college ?? ""}
                 className="rounded-[var(--radius-control)] border-[var(--color-border-default)] bg-[var(--color-bg-input)] py-3 text-sm"

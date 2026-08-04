@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { LOGIN_PATH } from "@/lib/auth/redirects";
+import { useToast } from "@/components/ui/toast";
 
 export function BookmarkButton({
   projectId,
@@ -15,6 +16,7 @@ export function BookmarkButton({
   initialBookmarked: boolean;
 }) {
   const router = useRouter();
+  const toast = useToast();
   const [saved, setSaved] = useState(initialBookmarked);
   const [pending, setPending] = useState(false);
   const [, startTransition] = useTransition();
@@ -34,17 +36,26 @@ export function BookmarkButton({
     setPending(true);
 
     const supabase = createClient();
-    const { error } = next
-      ? await supabase.from("bookmarks").insert({ project_id: projectId, profile_id: viewerId })
-      : await supabase
-          .from("bookmarks")
-          .delete()
-          .eq("project_id", projectId)
-          .eq("profile_id", viewerId);
+    // A transport-level failure rejects rather than returning `{ error }`;
+    // both have to reach the rollback. See vote-button.tsx for the full note.
+    let failed = false;
+    try {
+      const { error } = next
+        ? await supabase.from("bookmarks").insert({ project_id: projectId, profile_id: viewerId })
+        : await supabase
+            .from("bookmarks")
+            .delete()
+            .eq("project_id", projectId)
+            .eq("profile_id", viewerId);
+      failed = !!error;
+    } catch {
+      failed = true;
+    }
 
     setPending(false);
-    if (error) {
+    if (failed) {
       setSaved(!next);
+      toast("Couldn't save your bookmark. Check your connection and try again.", "danger");
       return;
     }
     startTransition(() => router.refresh());
@@ -54,13 +65,15 @@ export function BookmarkButton({
     <button
       type="button"
       onClick={toggle}
+      disabled={pending}
+      aria-busy={pending}
       aria-pressed={saved}
       aria-label={saved ? "Remove bookmark" : "Bookmark"}
       title={saved ? "Bookmarked" : "Bookmark"}
       className={
         saved
-          ? "flex h-[38px] w-[38px] items-center justify-center rounded-[var(--radius-control)] border border-[var(--color-accent)]/40 bg-[var(--color-accent)]/12 text-[var(--color-accent-muted)]"
-          : "flex h-[38px] w-[38px] items-center justify-center rounded-[var(--radius-control)] border border-[var(--color-border-default)] bg-[var(--color-bg-raised)] text-[var(--color-text-secondary)] hover:border-[var(--color-border-strong)] hover:text-[var(--color-text-primary)]"
+          ? "flex h-[38px] w-[38px] items-center justify-center rounded-[var(--radius-control)] border border-[var(--color-accent)]/40 bg-[var(--color-accent)]/12 text-[var(--color-accent-muted)] disabled:opacity-70"
+          : "flex h-[38px] w-[38px] items-center justify-center rounded-[var(--radius-control)] border border-[var(--color-border-default)] bg-[var(--color-bg-raised)] text-[var(--color-text-secondary)] hover:border-[var(--color-border-strong)] hover:text-[var(--color-text-primary)] disabled:opacity-70"
       }
     >
       <svg width="16" height="16" viewBox="0 0 24 24" fill={saved ? "currentColor" : "none"} stroke="currentColor" strokeWidth={2} strokeLinejoin="round" aria-hidden="true">

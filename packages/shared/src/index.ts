@@ -17,6 +17,15 @@ export type { UsernameCheckResult } from "./username";
 export { usernameIsTaken, getProfileByUsername, isFollowing } from "./profiles";
 export type { ProfileSummary } from "./profiles";
 
+export {
+  DISPLAY_NAME_MAX,
+  HEADLINE_MAX,
+  BIO_MAX,
+  LOCATION_MAX,
+  TIMEZONE_MAX,
+  COLLEGE_MAX,
+} from "./profile-limits";
+
 export { publicStorageUrl, transformedStorageUrl, IMAGE_SIZES } from "./storage";
 export type { TransformFit } from "./storage";
 
@@ -61,6 +70,8 @@ export {
   getProjectDetail,
   getProjectComments,
   getViewerProjectState,
+  getViewerCommentVotes,
+  collectCommentIds,
   MAX_COMMENT_DEPTH,
 } from "./project-detail";
 export type { ProjectDetail, CommentNode } from "./project-detail";

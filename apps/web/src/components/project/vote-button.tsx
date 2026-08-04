@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { LOGIN_PATH } from "@/lib/auth/redirects";
+import { useToast } from "@/components/ui/toast";
 
 /**
  * Optimistic upvote toggle, translated from `ProjectCard.dc.html`'s vote
@@ -26,6 +27,7 @@ export function VoteButton({
   size?: "sm" | "lg";
 }) {
   const router = useRouter();
+  const toast = useToast();
   const [voted, setVoted] = useState(initialVoted);
   const [count, setCount] = useState(initialCount);
   const [pending, setPending] = useState(false);
@@ -48,18 +50,31 @@ export function VoteButton({
     setPending(true);
 
     const supabase = createClient();
-    const { error } = next
-      ? await supabase.from("votes").insert({ project_id: projectId, profile_id: viewerId })
-      : await supabase
-          .from("votes")
-          .delete()
-          .eq("project_id", projectId)
-          .eq("profile_id", viewerId);
+    // Two failure shapes, and both have to land here. PostgREST reports most
+    // problems as `{ error }`, but a transport-level failure — offline, DNS,
+    // CORS — rejects instead. Handling only the first let the exception escape
+    // this function: the optimistic count stayed up showing a vote the server
+    // never recorded, `pending` never cleared so the button stuck disabled,
+    // and nothing was ever said about it.
+    let failed = false;
+    try {
+      const { error } = next
+        ? await supabase.from("votes").insert({ project_id: projectId, profile_id: viewerId })
+        : await supabase
+            .from("votes")
+            .delete()
+            .eq("project_id", projectId)
+            .eq("profile_id", viewerId);
+      failed = !!error;
+    } catch {
+      failed = true;
+    }
 
     setPending(false);
-    if (error) {
+    if (failed) {
       setVoted(!next);
       setCount((c) => c + (next ? -1 : 1));
+      toast("Couldn't save your upvote. Check your connection and try again.", "danger");
       return;
     }
     startTransition(() => router.refresh());
@@ -67,13 +82,15 @@ export function VoteButton({
 
   const large = size === "lg";
   const base = large
-    ? "flex items-center gap-2.5 rounded-[var(--radius-control)] px-5 py-3 text-[15px] font-extrabold transition-transform active:scale-95"
-    : "flex items-center gap-2 rounded-[var(--radius-control)] px-3 py-2.5 text-sm font-extrabold transition-transform active:scale-95";
+    ? "flex items-center gap-2.5 rounded-[var(--radius-control)] px-5 py-3 text-[15px] font-extrabold transition-transform active:scale-95 disabled:opacity-70"
+    : "flex items-center gap-2 rounded-[var(--radius-control)] px-3 py-2.5 text-sm font-extrabold transition-transform active:scale-95 disabled:opacity-70";
 
   return (
     <button
       type="button"
       onClick={toggle}
+      disabled={pending}
+      aria-busy={pending}
       aria-pressed={voted}
       aria-label={voted ? "Remove upvote" : "Upvote"}
       className={

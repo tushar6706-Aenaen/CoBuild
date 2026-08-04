@@ -2,7 +2,18 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { validateUsername, usernameIsTaken } from "@cobuild/shared";
+import { useToast } from "@/components/ui/toast";
+import {
+  validateUsername,
+  usernameIsTaken,
+  DISPLAY_NAME_MAX,
+  HEADLINE_MAX,
+  BIO_MAX,
+  LOCATION_MAX,
+  TIMEZONE_MAX,
+  COLLEGE_MAX,
+} from "@cobuild/shared";
+import { FieldCounter } from "@/components/ui/field-counter";
 import { updateProfile, type SettingsState } from "./actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,17 +62,43 @@ function extensionFor(file: File): string {
   return "jpg";
 }
 
-type UsernameStatus = "idle" | "checking" | "ok" | "bad" | "taken";
+type UsernameStatus = "idle" | "checking" | "ok" | "bad" | "taken" | "error";
 
 export function SettingsForm({ userId, initial }: { userId: string; initial: InitialProfile }) {
   const initialState: SettingsState = {};
   const [state, formAction, pending] = useActionState(updateProfile, initialState);
+  const toast = useToast();
+
+  /*
+   * Confirm in place, and deliberately do not navigate.
+   *
+   * Saving used to redirect to /u/[username], which only ever confirmed the
+   * fields that page renders — change a timezone or clear a link and the
+   * result was indistinguishable from having done nothing. Two attempts to
+   * carry a confirmation across that redirect (a `?saved=1` flag, then a
+   * client-side push) both failed the same way: the toast is queued, and the
+   * navigation immediately re-renders the tree that owns the queue, so the
+   * message is destroyed before it can paint.
+   *
+   * Staying put fixes it by removing the race, and is the better behaviour
+   * anyway — a settings screen that throws you somewhere else on save is
+   * surprising, and you often want to keep editing.
+   *
+   * Depends on `state` by identity: useActionState returns a fresh object per
+   * submission, so saving twice confirms twice.
+   */
+  useEffect(() => {
+    if (!state.savedUsername) return;
+    toast("Profile saved.");
+  }, [state, toast]);
   const [supabase] = useState(() => createClient());
 
   const [username, setUsername] = useState(initial.username);
   const [usernameStatus, setUsernameStatus] = useState<UsernameStatus>("idle");
   const [usernameMessage, setUsernameMessage] = useState("");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /** Bumped by "Check again" to re-run the availability lookup. */
+  const [checkNonce, setCheckNonce] = useState(0);
 
   const [avatarPath, setAvatarPath] = useState(initial.avatarUrl ?? "");
   const [avatarPreview, setAvatarPreview] = useState<string | null>(
@@ -72,6 +109,13 @@ export function SettingsForm({ userId, initial }: { userId: string; initial: Ini
 
   const [roles, setRoles] = useState<Set<string>>(new Set(initial.roles.filter((r) => r !== "student")));
   const [isStudent, setIsStudent] = useState(initial.isStudent);
+
+  // Controlled purely so the counters can read length. The server truncates at
+  // the same caps; `maxLength` is what stops the text being lost in the first
+  // place.
+  const [displayName, setDisplayName] = useState(initial.displayName ?? "");
+  const [headline, setHeadline] = useState(initial.headline ?? "");
+  const [bio, setBio] = useState(initial.bio ?? "");
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -109,7 +153,13 @@ export function SettingsForm({ userId, initial }: { userId: string; initial: Ini
           return current;
         });
       } catch {
-        setUsernameStatus("idle");
+        // Silently falling back to "idle" left the user with no hint that
+        // their new handle was never actually checked — they'd submit and
+        // meet the server's rejection at the bottom of a long form. Submitting
+        // stays allowed (the server re-checks, and the column is unique); this
+        // just stops the failure being invisible.
+        setUsernameStatus("error");
+        setUsernameMessage("Couldn't check availability — we'll confirm when you save.");
       }
     }, 400);
 
@@ -117,7 +167,7 @@ export function SettingsForm({ userId, initial }: { userId: string; initial: Ini
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [username]);
+  }, [username, checkNonce]);
 
   async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -191,6 +241,21 @@ export function SettingsForm({ userId, initial }: { userId: string; initial: Ini
               {usernameMessage}
             </div>
           )}
+          {usernameStatus === "error" && (
+            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[12.5px] text-[var(--color-status-danger)]">
+              <span className="flex items-center gap-1.5 font-semibold">
+                <span className="h-1.5 w-1.5 flex-none rounded-full bg-[var(--color-status-danger)]" />
+                {usernameMessage}
+              </span>
+              <button
+                type="button"
+                onClick={() => setCheckNonce((n) => n + 1)}
+                className="font-semibold text-[var(--color-text-primary)] underline underline-offset-2 transition-colors hover:text-[var(--color-accent-muted)]"
+              >
+                Check again
+              </button>
+            </div>
+          )}
           {usernameStatus === "checking" && (
             <div className="flex items-center gap-2 text-[12.5px] text-[var(--color-text-secondary)]">
               <span className="h-2.5 w-2.5 animate-spin rounded-full border-2 border-[var(--color-border-strong)] border-t-[var(--color-accent)]" />
@@ -234,13 +299,15 @@ export function SettingsForm({ userId, initial }: { userId: string; initial: Ini
             <Label htmlFor="displayName" className="text-[12.5px] font-semibold text-[var(--color-text-secondary-alt)]">
               Display name
             </Label>
-            <Input id="displayName" name="displayName" defaultValue={initial.displayName ?? ""} className="rounded-[var(--radius-control)] border-[var(--color-border-default)] bg-[var(--color-bg-input)] py-3 text-sm" />
+            <Input id="displayName" name="displayName" value={displayName} onChange={(e) => setDisplayName(e.target.value)} maxLength={DISPLAY_NAME_MAX} className="rounded-[var(--radius-control)] border-[var(--color-border-default)] bg-[var(--color-bg-input)] py-3 text-sm" />
+            <FieldCounter value={displayName} max={DISPLAY_NAME_MAX} />
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="headline" className="text-[12.5px] font-semibold text-[var(--color-text-secondary-alt)]">
               Headline
             </Label>
-            <Input id="headline" name="headline" defaultValue={initial.headline ?? ""} placeholder="Full-stack developer" className="rounded-[var(--radius-control)] border-[var(--color-border-default)] bg-[var(--color-bg-input)] py-3 text-sm" />
+            <Input id="headline" name="headline" value={headline} onChange={(e) => setHeadline(e.target.value)} maxLength={HEADLINE_MAX} placeholder="Full-stack developer" className="rounded-[var(--radius-control)] border-[var(--color-border-default)] bg-[var(--color-bg-input)] py-3 text-sm" />
+            <FieldCounter value={headline} max={HEADLINE_MAX} />
           </div>
         </div>
 
@@ -248,7 +315,8 @@ export function SettingsForm({ userId, initial }: { userId: string; initial: Ini
           <Label htmlFor="bio" className="text-[12.5px] font-semibold text-[var(--color-text-secondary-alt)]">
             Bio
           </Label>
-          <Textarea id="bio" name="bio" rows={3} defaultValue={initial.bio ?? ""} className="resize-y rounded-[var(--radius-control)] border-[var(--color-border-default)] bg-[var(--color-bg-input)] text-sm" />
+          <Textarea id="bio" name="bio" rows={3} value={bio} onChange={(e) => setBio(e.target.value)} maxLength={BIO_MAX} className="resize-y rounded-[var(--radius-control)] border-[var(--color-border-default)] bg-[var(--color-bg-input)] text-sm" />
+          <FieldCounter value={bio} max={BIO_MAX} />
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -256,13 +324,13 @@ export function SettingsForm({ userId, initial }: { userId: string; initial: Ini
             <Label htmlFor="location" className="text-[12.5px] font-semibold text-[var(--color-text-secondary-alt)]">
               Location
             </Label>
-            <Input id="location" name="location" defaultValue={initial.location ?? ""} placeholder="Boston, MA" className="rounded-[var(--radius-control)] border-[var(--color-border-default)] bg-[var(--color-bg-input)] py-3 text-sm" />
+            <Input id="location" name="location" defaultValue={initial.location ?? ""} maxLength={LOCATION_MAX} placeholder="Boston, MA" className="rounded-[var(--radius-control)] border-[var(--color-border-default)] bg-[var(--color-bg-input)] py-3 text-sm" />
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="timezone" className="text-[12.5px] font-semibold text-[var(--color-text-secondary-alt)]">
               Timezone
             </Label>
-            <Input id="timezone" name="timezone" defaultValue={initial.timezone ?? ""} placeholder="America/New_York" className="rounded-[var(--radius-control)] border-[var(--color-border-default)] bg-[var(--color-bg-input)] py-3 font-mono text-sm" />
+            <Input id="timezone" name="timezone" defaultValue={initial.timezone ?? ""} maxLength={TIMEZONE_MAX} placeholder="America/New_York" className="rounded-[var(--radius-control)] border-[var(--color-border-default)] bg-[var(--color-bg-input)] py-3 font-mono text-sm" />
           </div>
         </div>
 
@@ -309,7 +377,7 @@ export function SettingsForm({ userId, initial }: { userId: string; initial: Ini
           </div>
           {isStudent && (
             <div className="grid grid-cols-[1fr_130px] gap-2.5">
-              <Input name="college" placeholder="College" defaultValue={initial.college ?? ""} className="rounded-[var(--radius-control)] border-[var(--color-border-default)] bg-[var(--color-bg-input)] py-3 text-sm" />
+              <Input name="college" placeholder="College" defaultValue={initial.college ?? ""} maxLength={COLLEGE_MAX} className="rounded-[var(--radius-control)] border-[var(--color-border-default)] bg-[var(--color-bg-input)] py-3 text-sm" />
               <Input name="gradYear" placeholder="Year" type="number" defaultValue={initial.gradYear ?? undefined} className="rounded-[var(--radius-control)] border-[var(--color-border-default)] bg-[var(--color-bg-input)] py-3 font-mono text-sm" />
             </div>
           )}

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { LOGIN_PATH } from "@/lib/auth/redirects";
+import { useToast } from "@/components/ui/toast";
 
 /**
  * Two "not following" treatments per `CoBuild.dc.html`, deliberately
@@ -29,6 +30,7 @@ export function FollowButton({
   variant?: "accent" | "light";
 }) {
   const router = useRouter();
+  const toast = useToast();
   const [following, setFollowing] = useState(initialFollowing);
   const [, startTransition] = useTransition();
   const [pending, setPending] = useState(false);
@@ -45,17 +47,26 @@ export function FollowButton({
     setPending(true);
 
     const supabase = createClient();
-    const { error } = next
-      ? await supabase.from("follows").insert({ follower_id: viewerId, following_id: profileId })
-      : await supabase
-          .from("follows")
-          .delete()
-          .eq("follower_id", viewerId)
-          .eq("following_id", profileId);
+    // A transport-level failure rejects rather than returning `{ error }`;
+    // both have to reach the rollback. See vote-button.tsx for the full note.
+    let failed = false;
+    try {
+      const { error } = next
+        ? await supabase.from("follows").insert({ follower_id: viewerId, following_id: profileId })
+        : await supabase
+            .from("follows")
+            .delete()
+            .eq("follower_id", viewerId)
+            .eq("following_id", profileId);
+      failed = !!error;
+    } catch {
+      failed = true;
+    }
 
     setPending(false);
-    if (error) {
+    if (failed) {
       setFollowing(!next); // revert
+      toast("Couldn't update who you follow. Check your connection and try again.", "danger");
       return;
     }
     // Refresh so the header's follower_count (a Server Component read) catches up.
@@ -67,6 +78,8 @@ export function FollowButton({
       <Button
         type="button"
         onClick={toggle}
+        disabled={pending}
+        aria-busy={pending}
         variant="outline"
         className={`rounded-[var(--radius-control)] border-[var(--color-border-strong)] bg-[var(--color-bg-panel-alt)] px-5 py-2.5 text-[13.5px] font-bold text-[var(--color-text-primary)] hover:bg-[var(--color-bg-raised)] ${variant === "light" ? "w-full" : ""}`}
       >
@@ -80,6 +93,8 @@ export function FollowButton({
       <Button
         type="button"
         onClick={toggle}
+        disabled={pending}
+        aria-busy={pending}
         className="w-full rounded-[var(--radius-control)] bg-[var(--color-text-primary)] px-5 py-2.5 text-[13.5px] font-bold text-[var(--color-bg-page)] hover:bg-white"
       >
         Follow
@@ -91,6 +106,8 @@ export function FollowButton({
     <Button
       type="button"
       onClick={toggle}
+      disabled={pending}
+      aria-busy={pending}
       className="rounded-[var(--radius-control)] bg-[var(--color-accent)] px-5 py-2.5 text-[13.5px] font-bold text-[var(--color-accent-on)] shadow-[0_8px_20px_rgba(59,227,143,0.3)] hover:bg-[var(--color-accent-hover)]"
     >
       Follow

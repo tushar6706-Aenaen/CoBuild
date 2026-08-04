@@ -5,6 +5,7 @@ import { Sidebar } from "@/components/shell/sidebar";
 import { AppHeader } from "@/components/shell/app-header";
 import { MobileNav } from "@/components/shell/mobile-nav";
 import { mobileNav } from "@/components/shell/nav-items";
+import { ToastViewport } from "@/components/ui/toast";
 
 /**
  * Shell for every screen except sign-in/onboarding (`CoBuild.dc.html`'s
@@ -62,6 +63,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       </div>
 
       <MobileNav items={mobileNav(profileHref, !!user)} />
+      <ToastViewport />
     </div>
   );
 }

@@ -3,7 +3,13 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { LOGIN_PATH, sanitizeNextPath } from "@/lib/auth/redirects";
-import { validateUsername, usernameIsTaken } from "@cobuild/shared";
+import {
+  validateUsername,
+  usernameIsTaken,
+  DISPLAY_NAME_MAX,
+  BIO_MAX,
+  COLLEGE_MAX,
+} from "@cobuild/shared";
 
 export type OnboardingState = { error?: string };
 
@@ -30,8 +36,8 @@ export async function completeOnboarding(
     return { error: "That username was just taken — try another." };
   }
 
-  const displayName = String(formData.get("displayName") ?? "").trim().slice(0, 80);
-  const bio = String(formData.get("bio") ?? "").trim().slice(0, 280);
+  const displayName = String(formData.get("displayName") ?? "").trim().slice(0, DISPLAY_NAME_MAX);
+  const bio = String(formData.get("bio") ?? "").trim().slice(0, BIO_MAX);
   const avatarPath = String(formData.get("avatarPath") ?? "").trim() || null;
 
   const roles = formData
@@ -40,7 +46,7 @@ export async function completeOnboarding(
     .filter((r) => ROLE_OPTIONS.has(r));
 
   const isStudent = formData.get("isStudent") === "on";
-  const college = isStudent ? String(formData.get("college") ?? "").trim().slice(0, 120) : null;
+  const college = isStudent ? String(formData.get("college") ?? "").trim().slice(0, COLLEGE_MAX) : null;
   const gradYearRaw = isStudent ? formData.get("gradYear") : null;
   const gradYear =
     isStudent && gradYearRaw ? Number.parseInt(String(gradYearRaw), 10) || null : null;
