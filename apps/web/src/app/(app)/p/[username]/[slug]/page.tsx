@@ -50,14 +50,16 @@ export async function generateMetadata({
   const project = await getProjectDetail(supabase, username, slug);
   if (!project) return { title: "Project not found — CoBuild" };
 
-  const cover = publicStorageUrl(supabase, "project-media", project.cover_image_path);
   return {
     title: `${project.title} — CoBuild`,
     description: project.tagline ?? undefined,
     openGraph: {
       title: project.title,
       description: project.tagline ?? undefined,
-      images: cover ? [cover] : undefined,
+      type: "article",
+      // No `images` here on purpose: setting it would override the generated
+      // card from `opengraph-image.tsx` in this segment, and the raw cover is a
+      // worse preview — arbitrary aspect ratio, no title, no attribution.
     },
     // Unlisted projects are reachable by direct link on purpose, but must not
     // be indexed — that's the difference between "unlisted" and "public".

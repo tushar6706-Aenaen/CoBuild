@@ -124,6 +124,14 @@ export const config = {
   matcher: [
     // Everything except static assets and `/auth/*` (the callback owns its own
     // session cookie writes — see the note above).
-    "/((?!auth/|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|webp)$).*)",
+    //
+    // `/badge/*` and `/embed/*` are excluded for a different reason: they are
+    // public, viewer-independent, and meant to be cached by someone else's CDN
+    // (GitHub proxies README images through Camo). Running the session refresh
+    // on them would attach `Set-Cookie` plus the no-store headers `@supabase/ssr`
+    // sends with a token write, which would make them uncacheable — and would
+    // spend an auth round-trip per crawl for a response that never varies by
+    // viewer.
+    "/((?!auth/|badge/|embed/|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|webp)$).*)",
   ],
 };

@@ -11,8 +11,8 @@ export function FeedEmpty({ tab, signedIn }: { tab: string; signedIn: boolean })
       ? {
           title: signedIn ? "Nothing here yet" : "Sign in to build a feed",
           body: signedIn
-            ? "You're not following anyone who has posted. Follow a few builders, or explore what shipped this week."
-            : "Follow builders you like and their projects show up here.",
+            ? "Nobody you follow has posted, and no project matches the stacks you follow. Follow a few builders or stacks, or see what shipped this week."
+            : "Follow builders and stacks you like, and their projects show up here.",
         }
       : tab === "top"
         ? {

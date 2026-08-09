@@ -21,7 +21,7 @@ export function Sidebar({
   const profileHref = username ? `/u/${username}` : null;
 
   return (
-    <aside className="sticky top-0 hidden h-screen w-[246px] flex-none flex-col gap-[22px] self-start border-r border-[var(--color-border-subtle)] bg-[var(--color-bg-sidebar)] px-4 py-[22px] lg:flex">
+    <aside className="sticky top-0 hidden h-screen w-[246px] flex-none flex-col gap-[22px] self-start border-r border-[var(--color-border-subtle)] bg-[var(--color-bg-sidebar)] px-4 py-[22px] lg:flex print:hidden">
       <Link href="/" className="flex items-center gap-2.5 px-2">
         <span className="flex h-[30px] w-[30px] items-center justify-center rounded-[5px] bg-[var(--color-accent)] text-[15px] font-extrabold text-[var(--color-accent-on)]">
           C

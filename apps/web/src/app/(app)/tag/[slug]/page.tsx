@@ -6,12 +6,14 @@ import {
   getRelatedTags,
   getTagBySlug,
   getViewerVoteState,
+  isFollowingTag,
 } from "@cobuild/shared";
 import { createClient } from "@/lib/supabase/server";
 import { getAuthState } from "@/lib/auth/session";
 import { ProjectCard, type ProjectCardData } from "@/components/project/project-card";
 import { FeedLoadMore } from "../../feed-load-more";
 import { TagTabs, TAG_TAB_KEYS, type TagTab } from "./tag-tabs";
+import { FollowTagButton } from "./follow-tag-button";
 
 type Params = { slug: string };
 
@@ -50,11 +52,12 @@ export default async function TagPage({
 
   const { user: viewer } = await getAuthState();
 
-  const [{ items, nextCursor }, related] = await Promise.all([
+  const [{ items, nextCursor }, related, viewerFollowsTag] = await Promise.all([
     // Top on a tag page has no window selector in the design, so it means
     // "highest scoring, all time, within this tag".
     getFeedPage(supabase, { tab, window: "all", viewerId: viewer?.id ?? null, tag: slug }),
     getRelatedTags(supabase, slug),
+    viewer ? isFollowingTag(supabase, viewer.id, tag.id) : Promise.resolve(false),
   ]);
 
   const voteState =
@@ -106,6 +109,13 @@ export default async function TagPage({
               {tag.usage_count === 1 ? "project uses" : "projects use"} this stack
             </p>
           </div>
+          <FollowTagButton
+            tagId={tag.id}
+            tagName={tag.name}
+            viewerId={viewer?.id ?? null}
+            initialFollowing={viewerFollowsTag}
+            initialCount={tag.follower_count}
+          />
         </div>
 
         <TagTabs slug={slug} tab={tab} />

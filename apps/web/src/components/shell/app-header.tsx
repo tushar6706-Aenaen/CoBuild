@@ -18,7 +18,7 @@ export function AppHeader({
   signedIn: boolean;
 }) {
   return (
-    <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-[var(--color-border-subtle)] bg-[rgb(var(--color-bg-page-rgb)/0.86)] px-5 py-3 backdrop-blur-[14px]">
+    <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-[var(--color-border-subtle)] bg-[rgb(var(--color-bg-page-rgb)/0.86)] px-5 py-3 backdrop-blur-[14px] print:hidden">
       {/* Compact logo — only when the sidebar is hidden. */}
       <Link href="/" className="flex items-center gap-2 lg:hidden" aria-label="CoBuild home">
         <span className="flex h-[27px] w-[27px] items-center justify-center rounded-[4px] bg-[var(--color-accent)] text-[14px] font-extrabold text-[var(--color-accent-on)]">

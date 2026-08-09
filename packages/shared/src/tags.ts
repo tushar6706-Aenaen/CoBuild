@@ -2,8 +2,14 @@ import type { Database, SupabaseClient } from "@cobuild/db";
 
 type Client = SupabaseClient<Database>;
 
-export type TagSummary = { slug: string; name: string; usage_count: number };
-export type RelatedTag = TagSummary & { shared: number };
+export type TagSummary = {
+  id: string;
+  slug: string;
+  name: string;
+  usage_count: number;
+  follower_count: number;
+};
+export type RelatedTag = Omit<TagSummary, "id" | "follower_count"> & { shared: number };
 
 /**
  * Header data for `/tag/[slug]`. Returns null for an unknown slug so the route
@@ -18,11 +24,58 @@ export type RelatedTag = TagSummary & { shared: number };
 export async function getTagBySlug(client: Client, slug: string): Promise<TagSummary | null> {
   const { data, error } = await client
     .from("tags")
-    .select("slug, name, usage_count")
+    .select("id, slug, name, usage_count, follower_count")
     .eq("slug", slug)
     .maybeSingle();
   if (error) throw error;
   return data ?? null;
+}
+
+/**
+ * Whether `viewerId` follows `tagId`. Mirrors `isFollowing` for people.
+ *
+ * `tag_follows` is world-readable (same as `follows`), so this is a plain
+ * primary-key probe rather than anything RLS-sensitive — the write side is
+ * what's restricted to the owner.
+ */
+export async function isFollowingTag(
+  client: Client,
+  viewerId: string,
+  tagId: string,
+): Promise<boolean> {
+  const { data, error } = await client
+    .from("tag_follows")
+    .select("tag_id")
+    .eq("profile_id", viewerId)
+    .eq("tag_id", tagId)
+    .maybeSingle();
+  if (error) throw error;
+  return !!data;
+}
+
+/**
+ * The stacks a viewer follows, newest first — served by
+ * `tag_follows_profile_idx` as an ordered index scan.
+ *
+ * Used to tell someone with an empty Following feed what they've actually
+ * followed, which is the difference between "nobody has posted" and "you
+ * follow nothing".
+ */
+export async function getFollowedTags(
+  client: Client,
+  viewerId: string,
+  limit = 24,
+): Promise<Pick<TagSummary, "slug" | "name">[]> {
+  const { data, error } = await client
+    .from("tag_follows")
+    .select("created_at, tag:tags!tag_follows_tag_id_fkey(slug, name)")
+    .eq("profile_id", viewerId)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return (data ?? [])
+    .map((row) => row.tag)
+    .filter((t): t is { slug: string; name: string } => !!t);
 }
 
 /**

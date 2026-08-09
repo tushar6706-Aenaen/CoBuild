@@ -40,9 +40,14 @@ export async function generateMetadata({
   const supabase = await createClient();
   const profile = await getProfileByUsername(supabase, username);
   if (!profile) return { title: "Profile not found — CoBuild" };
+  const title = `${profile.display_name ?? profile.username} (@${profile.username}) — CoBuild`;
+  const description = profile.headline ?? profile.bio ?? undefined;
   return {
-    title: `${profile.display_name ?? profile.username} (@${profile.username}) — CoBuild`,
-    description: profile.headline ?? profile.bio ?? undefined,
+    title,
+    description,
+    // `images` is intentionally absent — `opengraph-image.tsx` in this segment
+    // supplies it, and naming it here would override the generated card.
+    openGraph: { title, description, type: "profile" },
   };
 }
 
@@ -181,6 +186,12 @@ export default async function ProfilePage({
               <FollowButton profileId={profile.id} viewerId={viewer?.id ?? null} initialFollowing={following} />
             )}
             <ShareButton />
+            <Link
+              href={`/u/${profile.username}/resume`}
+              className="rounded-[var(--radius-control)] border border-[var(--color-border-default)] bg-[var(--color-bg-panel-alt)] px-5 py-2.5 text-center text-[13px] font-semibold text-[var(--color-text-secondary)] hover:border-[var(--color-border-strong)] hover:bg-[var(--color-bg-raised)] hover:text-[var(--color-text-primary)]"
+            >
+              Résumé
+            </Link>
           </div>
         </div>
 

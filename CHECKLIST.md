@@ -102,9 +102,45 @@ Tick items as they're completed: `- [ ]` → `- [x]`. Mirrors [WEB_APP_PLAN.md](
 - [x] Delete-confirmation dialog — confirmed a real shadcn `Dialog` (not `window.confirm`) on project delete, with cancel/pending/error states
 - [ ] **Final Opus review before mobile starts**: full RLS adversarial pass, advisors check, perf audit, simplification pass
 
-**In-flight UI/UX pass — see [REMEMBER.md](REMEMBER.md) for the full checkpoint.** A three-part audit (interaction, a11y, visual system) found ~40 issues; tranche A (real bugs + a feedback layer) is implemented and partly verified. Landed and verified: the comment-vote bug (comments always rendered un-voted, so un-voting was impossible), and try/catch hardening on all 6 mutation sites after finding that a transport-level failure *rejects* rather than returning `{ error }` — leaving buttons stuck disabled showing votes the server never recorded. **One open bug:** the profile-save confirmation toast doesn't fire, because a Server Action revalidates the `(app)` layout and remounts the toast state. Re-run `pnpm --filter web build` before trusting the tree — the last full build predates the final `toast.tsx` rewrite.
+**In-flight UI/UX pass — see [REMEMBER.md](REMEMBER.md) for the full checkpoint.** A three-part audit (interaction, a11y, visual system) found ~40 issues; tranche A (real bugs + a feedback layer) is implemented and **fully verified — A4 and A6, the last two open items, are now closed**. A6 (composer `beforeunload` guard) was verified across all three states — clean, dirty, and reverted-to-original — via a synthetic cancelable event, since a real unload prompt would freeze automation; the reverted case proves the signature comparison works rather than latching. A4 (onboarding dead-end) was verified against a temporary un-onboarded fixture (`username` nulled, then restored — DB confirmed back to 5/5 with usernames) with `fetch` patched to fail: the error message and "Check again" retry appear and **the submit button stays enabled**, which is the bug — that screen used to grey out its only button permanently with no message and no recovery short of a reload. Landed and verified: the comment-vote bug (comments always rendered un-voted, so un-voting was impossible), and try/catch hardening on all 6 mutation sites after finding that a transport-level failure *rejects* rather than returning `{ error }` — leaving buttons stuck disabled showing votes the server never recorded. **The profile-save toast bug is closed** — it was never a revalidation/remount problem: verification had been running in a hidden automation tab, where `requestAnimationFrame` never fires, so React never revealed the Suspense boundary, the page never hydrated, and the form fell back to a native POST that destroyed the document. Toast verified live on a production build; the field counter (A5) verified with real typing at the same time. See PROJECT_INFO.md's gotchas before doing any browser verification. `pnpm --filter web build` re-run clean (21 routes).
 
 **Investigated and ruled out:** a one-off wrong-viewer-state render on `/u/[username]` (Follow button instead of Edit profile) seen once during Phase 6 verification turned out to be a Turbopack dev-server artifact — it occurred exactly once, on the first client-side navigation to that route right after `loading.tsx` was added to the same segment while the dev server was running. Three subsequent reproductions (a hard reload + three ref-precise `<Link>` clicks from different pages) all rendered correctly with a real per-request RSC fetch each time, and the app has no caching path that could plausibly serve one viewer's data to another (`cacheComponents` isn't enabled, and the Supabase server client reads `cookies()`, which forces dynamic rendering on every request). Not a real bug — no code change made.
+
+A second dev-server artifact from the same family surfaced while verifying A4: **every dynamic route** (`/u/*`, `/p/*`, `/badge/*`, `/embed/*`) 404'd while `/`, `/leaderboard` and `/search` served 200, which read like a Phase 7 regression. It was a stale `apps/web/.next`. Ruled out as a data problem first — the row was present, visible to `anon` under RLS, and returned by the app's own publishable key over `curl`; the giveaway was the dev server reporting `application-code: 12ms` for a page whose first act is a Supabase round-trip. Clearing `.next` and restarting returned all four route classes to 200. No code change made; documented in PROJECT_INFO.md's gotchas.
+
+### Phase 7 — Distribution & cold start
+See [NEW_FEATURES.md](NEW_FEATURES.md) for the "why" behind each item.
+- [x] Dynamic OG image for project detail (`/p/[username]/[slug]/opengraph-image`) — status chip, title, tagline, tags, author, upvote/comment counts, cover panel
+- [x] Dynamic OG image for profile (`/u/[username]/opengraph-image`) — avatar, name, handle, headline, role chips, student badge, projects/upvotes/followers
+- [x] Vendored OG fonts (`apps/web/assets/fonts`, Jakarta 500/700 + Mono 500) — `next/font` emits woff2, which satori cannot parse
+- [x] `metadataBase` + `twitter: summary_large_image` on the root layout; `NEXT_PUBLIC_SITE_URL` added to `.env.example`
+- [x] Manual `openGraph.images` removed from the project page so the generated card is not overridden
+- [x] Verified live in-browser, not just typechecked: all four cards rendered as valid 1200×630 PNGs and inspected — project card, profile with avatar, profile without avatar (initial placeholder), and the draft fallback
+- [x] **Draft privacy verified live**: an anonymous request for a draft project's OG image returns the generic CoBuild card — the title "Alice Secret Draft" does not appear. OG routes run as `anon` (`lib/og/client.ts`) precisely so a signed-in author can't have a draft card cached for everyone
+- [x] Two real bugs found by rendering rather than reading — both now in PROJECT_INFO.md's gotchas:
+  - [x] satori refuses WebP (`Unsupported image type`) and this app stores WebP by preference; fixed by negotiating format via the `Accept` header on Supabase's transform endpoint, with a magic-byte check that degrades instead of throwing
+  - [x] Supabase's `resize=contain` ignores the `height` bound, so a portrait cover overflowed and was clipped; fixed by computing the fitted box from the cover's real dimensions (always available — the cover is one of the project's own images) and setting both axes explicitly
+- [x] `turbo run typecheck` + `next build` clean (18 routes)
+- [x] README badge `/badge/[username]` (accepts `.svg`) — avatar inlined as a data URI, stats, `s-maxage=300, stale-while-revalidate=86400`, excluded from the proxy so it stays cacheable
+- [x] Embeddable project card `/embed/p/[username]/[slug]` — outside the `(app)` group so it carries no app chrome, `noindex`, anon-read
+- [x] Résumé/print profile view `/u/[username]/resume` + "Résumé" link on the profile; nav chrome now `print:hidden` app-wide
+- [x] `tag_follows` table + RLS + `tags.follower_count` trigger + guard extended
+- [x] `feed_page` Following branch unions followed people and followed stacks (one `OR`, not a `UNION`)
+- [x] Follow-tag button on `/tag/[slug]`; Following empty-state copy updated
+- [x] DB types patched for `tag_follows` + `tags.follower_count`
+- [x] Verified live against a temporary fixture (removed afterwards — DB back to 0 tags / 0 tag_follows / 0 project_tags):
+  - [x] tag follow surfaces a project by an author the viewer does **not** follow
+  - [x] following both the author and the tag yields 1 row / 1 distinct project (no dupes)
+  - [x] a **draft** carrying a followed tag never appears
+  - [x] `tags.follower_count` increments and decrements with the trigger
+  - [x] adversarial RLS with simulated JWT roles: anon insert blocked, inserting a row owned by another user blocked, own insert allowed, deleting someone else's follow affects 0 rows, forged `usage_count`/`follower_count` on a tag insert discarded, `update tags set follower_count` blocked
+  - [x] end-to-end in a real browser as a real signed-in user: clicking Follow wrote the row, fired the trigger, and the project appeared in that user's Following feed
+  - [x] badge XSS: display name set to `</text><script>alert(1)</script>&"` renders as escaped literal text, zero raw `<script>`, SVG still parses as valid XML
+  - [x] embed of a **draft** returns 404
+- [x] **Security bug found and fixed by `get_advisors`**: `tag_follows_after_change()` shipped callable over PostgREST (`anon`/`authenticated` EXECUTE). Both `revoke … from public` *and* `revoke … from anon, authenticated` were needed — see the amended note in PROJECT_INFO.md. Advisors now back to the pre-existing intentional baseline
+- [x] `turbo run typecheck` (4/4) + `next build` clean (21 routes)
+- [ ] Opus review of Phase 7 as a whole
+- [ ] Re-verify the OG cards against real seeded covers once `pnpm seed` has run — no project in the DB has a `cover_image_path` yet, so the cover panel was verified against a real Supabase image through a throwaway route (since deleted), not through the project card itself
 
 ### Web verification
 - [ ] All three sign-in methods work end-to-end
