@@ -52,7 +52,7 @@ export function ProjectTileCard({ project, cover }: { project: ProjectTile; cove
       </div>
       <div className="flex flex-col gap-2.5 p-4">
         <div className="flex flex-col gap-1">
-          <span className="font-mono text-[15px] font-medium text-[var(--color-text-primary)]">
+          <span className="text-[15px] font-medium text-[var(--color-text-primary)]">
             {project.title}
           </span>
           {project.tagline && (
@@ -73,7 +73,7 @@ export function ProjectTileCard({ project, cover }: { project: ProjectTile; cove
             ))}
           </div>
         )}
-        <div className="flex items-center gap-3 border-t border-[var(--color-border-subtle)] pt-2.5 font-mono text-[11.5px] text-[var(--color-text-tertiary)]">
+        <div className="flex items-center gap-3 border-t border-[var(--color-border-subtle)] pt-2.5 text-[11.5px] text-[var(--color-text-tertiary)]">
           <span>{project.upvote_count} upvotes</span>
           <span>·</span>
           <span>{project.view_count} views</span>

@@ -90,7 +90,7 @@ export function NotificationRow({ notification }: { notification: NotificationIt
 
       <span className="flex min-w-0 flex-1 flex-col gap-1">
         <span className="text-[13.5px] leading-normal text-[var(--color-text-secondary-alt)]">
-          <b className="font-mono text-[12.5px] font-medium text-[var(--color-text-primary)]">
+          <b className="text-[12.5px] font-medium text-[var(--color-text-primary)]">
             {who}
           </b>{" "}
           {describe(notification)}

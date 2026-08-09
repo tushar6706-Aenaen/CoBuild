@@ -19,7 +19,7 @@ export function Gallery({ images, title }: { images: GalleryImage[]; title: stri
 
   if (images.length === 0) {
     return (
-      <div className="flex aspect-[16/10] items-center justify-center rounded-[var(--radius-control-lg)] border border-[var(--color-border-subtle)] bg-[repeating-linear-gradient(135deg,var(--color-bg-raised)_0_10px,var(--color-bg-panel-alt)_10px_20px)] font-mono text-[11px] tracking-widest text-[var(--color-text-tertiary)]">
+      <div className="flex aspect-[16/10] items-center justify-center rounded-[var(--radius-control-lg)] border border-[var(--color-border-subtle)] bg-[repeating-linear-gradient(135deg,var(--color-bg-raised)_0_10px,var(--color-bg-panel-alt)_10px_20px)] text-[11px] tracking-widest text-[var(--color-text-tertiary)]">
         NO SCREENSHOTS
       </div>
     );
@@ -49,7 +49,7 @@ export function Gallery({ images, title }: { images: GalleryImage[]; title: stri
           className="object-cover"
           priority
         />
-        <span className="absolute right-3 bottom-3 flex items-center gap-1.5 rounded-full bg-[rgb(var(--color-bg-page-rgb)/0.72)] px-2.5 py-1.5 font-mono text-[11px] text-[var(--color-text-primary)] backdrop-blur-sm">
+        <span className="absolute right-3 bottom-3 flex items-center gap-1.5 rounded-full bg-[rgb(var(--color-bg-page-rgb)/0.72)] px-2.5 py-1.5 text-[11px] text-[var(--color-text-primary)] backdrop-blur-sm">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" aria-hidden="true">
             <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
           </svg>

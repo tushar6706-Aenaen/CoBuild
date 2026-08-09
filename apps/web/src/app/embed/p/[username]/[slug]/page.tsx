@@ -71,7 +71,7 @@ export default async function EmbedProjectCard({ params }: { params: Promise<Par
           href={href}
           target="_blank"
           rel="noreferrer noopener"
-          className="font-mono text-[17px] leading-tight font-medium tracking-tight text-[var(--color-text-primary)] hover:text-[var(--color-accent-muted-strong)]"
+          className="text-[17px] leading-tight font-medium tracking-tight text-[var(--color-text-primary)] hover:text-[var(--color-accent-muted-strong)]"
         >
           {project.title}
         </a>
@@ -92,7 +92,7 @@ export default async function EmbedProjectCard({ params }: { params: Promise<Par
           <span className="min-w-0 flex-1 truncate font-mono text-[12px] text-[var(--color-accent-muted)]">
             @{project.author.username}
           </span>
-          <span className="flex items-center gap-1.5 rounded-full border border-[var(--color-border-default)] bg-[var(--color-bg-panel-alt)] px-2.5 py-1 font-mono text-[12px] text-[var(--color-accent)]">
+          <span className="flex items-center gap-1.5 rounded-full border border-[var(--color-border-default)] bg-[var(--color-bg-panel-alt)] px-2.5 py-1 text-[12px] text-[var(--color-accent)]">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M12 4l8 12H4z" />
             </svg>

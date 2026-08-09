@@ -141,12 +141,12 @@ export default async function ProjectDetailPage({
                   {project.visibility === "draft" ? "Draft" : "Unlisted"}
                 </span>
               )}
-              <span className="font-mono text-[11.5px] text-[var(--color-text-tertiary)]">
+              <span className="text-[11.5px] text-[var(--color-text-tertiary)]">
                 {project.view_count.toLocaleString()} views · posted {timeAgo(project.published_at ?? project.created_at)}
               </span>
             </div>
 
-            <h1 className="font-mono text-[29px] leading-tight font-medium tracking-tight">{project.title}</h1>
+            <h1 className="text-[29px] leading-tight font-medium tracking-tight">{project.title}</h1>
             {project.tagline && (
               <p className="max-w-[640px] text-base leading-relaxed text-[var(--color-text-secondary-alt)]">
                 {project.tagline}
@@ -238,7 +238,7 @@ export default async function ProjectDetailPage({
                         )}
                       </span>
                       <span className="flex flex-col">
-                        <span className="font-mono text-xs text-[var(--color-text-primary)]">{label}</span>
+                        <span className="text-xs text-[var(--color-text-primary)]">{label}</span>
                         {c.role_label && (
                           <span className="text-[11.5px] font-semibold text-[var(--color-accent)]">{c.role_label}</span>
                         )}
@@ -289,7 +289,7 @@ export default async function ProjectDetailPage({
               </span>
               <div className="flex min-w-0 flex-col gap-0.5">
                 <span className="text-[15px] font-bold">{project.author.display_name ?? project.author.username}</span>
-                <Link href={`/u/${project.author.username}`} className="text-left font-mono text-xs text-[var(--color-accent-muted)]">
+                <Link href={`/u/${project.author.username}`} className="text-left text-xs text-[var(--color-accent-muted)]">
                   @{project.author.username}
                 </Link>
               </div>
@@ -331,7 +331,7 @@ export default async function ProjectDetailPage({
             ].map((s) => (
               <div key={s.k} className="flex items-center justify-between text-[13px]">
                 <span className="text-[var(--color-text-secondary)]">{s.k}</span>
-                <span className="font-mono text-[var(--color-text-primary)]">{s.v.toLocaleString()}</span>
+                <span className="text-[var(--color-text-primary)]">{s.v.toLocaleString()}</span>
               </div>
             ))}
           </div>

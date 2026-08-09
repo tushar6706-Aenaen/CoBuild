@@ -125,7 +125,7 @@ export function LoginForm() {
 
         <div className="my-1.5 flex items-center gap-3">
           <Separator className="flex-1 bg-[var(--color-border-default)]" />
-          <span className="font-mono text-[11.5px] text-[var(--color-text-tertiary)]">OR</span>
+          <span className="text-[11.5px] text-[var(--color-text-tertiary)]">OR</span>
           <Separator className="flex-1 bg-[var(--color-border-default)]" />
         </div>
 

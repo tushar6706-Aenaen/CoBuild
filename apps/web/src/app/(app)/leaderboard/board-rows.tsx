@@ -20,7 +20,7 @@ function rankColor(rank: number) {
 function Rank({ rank }: { rank: number }) {
   return (
     <span
-      className="w-[30px] flex-none text-center font-mono font-medium"
+      className="w-[30px] flex-none text-center font-medium"
       style={{ color: rankColor(rank), fontSize: rank <= 3 ? "17px" : "14px" }}
     >
       {rank}
@@ -56,7 +56,7 @@ function Delta({ delta }: { delta: number | null }) {
   return (
     <span
       title={title}
-      className="flex-none rounded-[var(--radius-xs)] px-2 py-[3px] font-mono text-[11px]"
+      className="flex-none rounded-[var(--radius-xs)] px-2 py-[3px] text-[11px]"
       style={tone}
     >
       {label}
@@ -67,7 +67,7 @@ function Delta({ delta }: { delta: number | null }) {
 function Votes({ count }: { count: number }) {
   return (
     <span className="flex min-w-[64px] flex-none flex-col items-end gap-px">
-      <span className="font-mono text-sm font-medium text-[var(--color-accent-muted)]">
+      <span className="text-sm font-medium text-[var(--color-accent-muted)]">
         {count.toLocaleString()}
       </span>
       <span className="text-[10.5px] text-[var(--color-text-tertiary)]">upvotes</span>

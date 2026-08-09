@@ -20,7 +20,7 @@ export function FieldCounter({
 
   return (
     <span
-      className={`self-end font-mono text-[11px] tabular-nums ${
+      className={`self-end text-[11px] tabular-nums ${
         remaining === 0
           ? "text-[var(--color-status-danger)]"
           : "text-[var(--color-text-secondary)]"

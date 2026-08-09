@@ -176,7 +176,7 @@ export function OnboardingForm({
   return (
     <form action={formAction} className="flex w-full max-w-[520px] flex-col gap-5">
       <div className="flex flex-col gap-2">
-        <span className="font-mono text-[11.5px] tracking-[0.12em] text-[var(--color-accent)]">
+        <span className="text-[11.5px] tracking-[0.12em] text-[var(--color-accent)]">
           STEP 1 OF 1 · WELCOME
         </span>
         <h1 className="text-[27px] font-extrabold tracking-tight">Claim your handle</h1>
@@ -244,7 +244,7 @@ export function OnboardingForm({
               // eslint-disable-next-line @next/next/no-img-element
               <img src={avatarPreview} alt="Avatar preview" className="h-full w-full object-cover" />
             ) : (
-              <span className="absolute inset-0 flex items-center justify-center font-mono text-[9px] text-[var(--color-text-tertiary)]">
+              <span className="absolute inset-0 flex items-center justify-center text-[9px] text-[var(--color-text-tertiary)]">
                 AVATAR
               </span>
             )}
@@ -368,7 +368,7 @@ export function OnboardingForm({
                 placeholder="Year"
                 type="number"
                 defaultValue={initial.gradYear ?? undefined}
-                className="rounded-[var(--radius-control)] border-[var(--color-border-default)] bg-[var(--color-bg-input)] py-3 text-sm font-mono"
+                className="rounded-[var(--radius-control)] border-[var(--color-border-default)] bg-[var(--color-bg-input)] py-3 text-sm"
               />
             </div>
           )}

@@ -108,7 +108,7 @@ export function AuthorHoverCard({
               <span className="text-sm font-bold text-[var(--color-text-primary)]">
                 {summary?.display_name ?? username}
               </span>
-              <span className="font-mono text-[11px] text-[var(--color-accent)]">@{username}</span>
+              <span className="text-[11px] text-[var(--color-accent)]">@{username}</span>
             </span>
           </span>
           {summary?.headline && (
@@ -116,7 +116,7 @@ export function AuthorHoverCard({
               {summary.headline}
             </span>
           )}
-          <span className="flex gap-3.5 font-mono text-[11.5px] text-[var(--color-text-secondary)]">
+          <span className="flex gap-3.5 text-[11.5px] text-[var(--color-text-secondary)]">
             <span>
               <b className="text-[var(--color-text-primary)]">{summary?.project_count ?? 0}</b> projects
             </span>

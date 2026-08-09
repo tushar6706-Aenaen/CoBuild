@@ -78,7 +78,7 @@ export async function FeedSidebar() {
                   href={`/u/${b.username}`}
                   className="flex items-center gap-2.5"
                 >
-                  <span className="w-3.5 font-mono text-[11.5px] text-[var(--color-text-tertiary)]">
+                  <span className="w-3.5 text-[11.5px] text-[var(--color-text-tertiary)]">
                     {b.rank}
                   </span>
                   <span className="h-7 w-7 flex-none overflow-hidden rounded-full border border-[var(--color-border-default)] bg-[repeating-linear-gradient(135deg,var(--color-bg-raised)_0_4px,var(--color-bg-panel-alt)_4px_8px)]">
@@ -90,11 +90,11 @@ export async function FeedSidebar() {
                     <span className="truncate text-[12.5px] font-semibold text-[var(--color-text-primary)]">
                       {b.display_name ?? b.username}
                     </span>
-                    <span className="truncate font-mono text-[10.5px] text-[var(--color-text-tertiary)]">
+                    <span className="truncate text-[10.5px] text-[var(--color-text-tertiary)]">
                       @{b.username}
                     </span>
                   </span>
-                  <span className="font-mono text-[11.5px] text-[var(--color-accent-muted)]">
+                  <span className="text-[11.5px] text-[var(--color-accent-muted)]">
                     {b.votes}
                   </span>
                 </Link>

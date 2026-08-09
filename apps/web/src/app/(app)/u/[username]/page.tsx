@@ -136,7 +136,7 @@ export default async function ProfilePage({
                   </span>
                 )}
               </div>
-              <span className="font-mono text-[13px] text-[var(--color-accent-muted)]">@{profile.username}</span>
+              <span className="text-[13px] text-[var(--color-accent-muted)]">@{profile.username}</span>
             </div>
             {profile.headline && (
               <div className="text-[14.5px] font-semibold text-[var(--color-text-primary)]">{profile.headline}</div>
@@ -218,7 +218,7 @@ export default async function ProfilePage({
           {stats.map((s) => (
             <div key={s.k} className="flex flex-col gap-0.5 rounded-[var(--radius-control-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-page)] px-3.5 py-3">
               <span className="text-[21px] font-extrabold tracking-tight tabular-nums">{s.v}</span>
-              <span className="font-mono text-[11.5px] tracking-wide text-[var(--color-text-tertiary)]">{s.k}</span>
+              <span className="text-[11.5px] tracking-wide text-[var(--color-text-tertiary)]">{s.k}</span>
             </div>
           ))}
         </div>

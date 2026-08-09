@@ -35,7 +35,7 @@ export function FeedTabs({ tab, window }: { tab: string; window: string }) {
 
       {tab === "top" && (
         <div className="flex items-center gap-2.5">
-          <span className="font-mono text-[11px] tracking-[0.1em] text-[var(--color-text-tertiary)]">
+          <span className="text-[11px] tracking-[0.1em] text-[var(--color-text-tertiary)]">
             WINDOW
           </span>
           <div className="flex flex-wrap gap-1.5">

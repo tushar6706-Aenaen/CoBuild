@@ -66,7 +66,7 @@ export function SearchFilters({
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <span className="font-mono text-[11px] tracking-[0.1em] text-[var(--color-text-tertiary)]">
+      <span className="text-[11px] tracking-[0.1em] text-[var(--color-text-tertiary)]">
         FILTER
       </span>
 

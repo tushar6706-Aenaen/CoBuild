@@ -391,7 +391,7 @@ export function Composer({
   return (
     <div className="mx-auto flex w-full max-w-[760px] flex-col gap-[22px]">
       <div className="flex flex-col gap-1.5">
-        <span className="font-mono text-[11px] tracking-[0.12em] text-[var(--color-accent)]">
+        <span className="text-[11px] tracking-[0.12em] text-[var(--color-accent)]">
           {isNew ? "NEW PROJECT" : `EDITING · ${VISIBILITY_COPY[visibility].label.toUpperCase()}`}
         </span>
         <h1 className="text-[28px] font-extrabold tracking-tight">
@@ -409,7 +409,7 @@ export function Composer({
         <div className="flex flex-col gap-2">
           <div className="flex items-baseline justify-between">
             <Label htmlFor="tagline" className={labelCls}>Tagline</Label>
-            <span className={`font-mono text-[11px] ${taglineOver ? "text-[var(--color-status-danger)]" : "text-[var(--color-text-tertiary)]"}`}>
+            <span className={`text-[11px] ${taglineOver ? "text-[var(--color-status-danger)]" : "text-[var(--color-text-tertiary)]"}`}>
               {tagline.length} / {TAGLINE_MAX}
             </span>
           </div>
@@ -439,7 +439,7 @@ export function Composer({
               Drag to reorder. The first image is the cover. Max {MAX_IMAGES}.
             </span>
           </div>
-          <span className="font-mono text-[11.5px] text-[var(--color-text-secondary)]">
+          <span className="text-[11.5px] text-[var(--color-text-secondary)]">
             {images.length} / {MAX_IMAGES}
           </span>
         </div>
@@ -465,7 +465,7 @@ export function Composer({
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={img.previewUrl} alt="" className="h-full w-full object-cover" />
                 )}
-                <span className="absolute top-1.5 left-1.5 flex cursor-grab items-center gap-1 rounded-[var(--radius-xs)] bg-[rgb(var(--color-bg-page-rgb)/0.72)] px-1.5 py-1 font-mono text-[9.5px] text-[var(--color-text-secondary)]">
+                <span className="absolute top-1.5 left-1.5 flex cursor-grab items-center gap-1 rounded-[var(--radius-xs)] bg-[rgb(var(--color-bg-page-rgb)/0.72)] px-1.5 py-1 text-[9.5px] text-[var(--color-text-secondary)]">
                   ⠿ {index + 1}
                 </span>
                 {index === coverIndex && (
@@ -475,7 +475,7 @@ export function Composer({
                 )}
                 {img.uploading && (
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-[rgb(var(--color-bg-page-rgb)/0.78)]">
-                    <span className="font-mono text-[10.5px] text-[var(--color-accent-muted)]">{img.progress}%</span>
+                    <span className="text-[10.5px] text-[var(--color-accent-muted)]">{img.progress}%</span>
                     <div className="h-1 w-[70%] overflow-hidden rounded-full bg-[var(--color-bg-raised)]">
                       <div className="h-full bg-[var(--color-accent)] transition-[width]" style={{ width: `${img.progress}%` }} />
                     </div>
@@ -538,7 +538,7 @@ export function Composer({
                 <path d="M12 5v14M5 12h14" />
               </svg>
               Add images
-              <span className="font-mono text-[9.5px] text-[var(--color-text-tertiary)]">PNG · JPG · WEBP · GIF</span>
+              <span className="text-[9.5px] text-[var(--color-text-tertiary)]">PNG · JPG · WEBP · GIF</span>
             </button>
           )}
         </div>
@@ -656,7 +656,7 @@ export function Composer({
           <div className="flex flex-col gap-2">
             {crew.map((c, i) => (
               <div key={`${c.profileId ?? c.invitedName}-${i}`} className="flex items-center gap-2.5 rounded-[var(--radius-control)] border border-[var(--color-border-default)] bg-[var(--color-bg-input)] px-3 py-2.5">
-                <span className="flex-1 font-mono text-[12.5px] text-[var(--color-text-primary)]">
+                <span className="flex-1 text-[12.5px] text-[var(--color-text-primary)]">
                   {c.username ? `@${c.username}` : c.invitedName}
                 </span>
                 <input
@@ -681,7 +681,7 @@ export function Composer({
                       setCrew((prev) => [...prev, { profileId: p.id, username: p.username, invitedName: null, roleLabel: "" }]);
                       setCrewQuery("");
                     }}
-                    className="rounded-[var(--radius-xs)] px-2.5 py-2 text-left font-mono text-[12.5px] text-[var(--color-text-primary)] hover:bg-[var(--color-bg-raised)]"
+                    className="rounded-[var(--radius-xs)] px-2.5 py-2 text-left text-[12.5px] text-[var(--color-text-primary)] hover:bg-[var(--color-bg-raised)]"
                   >
                     @{p.username}
                   </button>

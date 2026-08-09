@@ -59,7 +59,7 @@ export function Sidebar({
             <span className="truncate text-[13px] font-bold text-[var(--color-text-primary)]">
               {displayName ?? username}
             </span>
-            <span className="truncate font-mono text-[11px] text-[var(--color-text-tertiary)]">@{username}</span>
+            <span className="truncate text-[11px] text-[var(--color-text-tertiary)]">@{username}</span>
           </span>
         </Link>
       ) : (

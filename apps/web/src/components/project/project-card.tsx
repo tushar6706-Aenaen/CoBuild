@@ -97,7 +97,7 @@ export function ProjectCard({
           <span className="h-1.5 w-1.5 rounded-full" style={{ background: status.color }} />
           {status.label}
         </span>
-        <span className="absolute right-3 bottom-3 flex items-center gap-1.5 rounded-full bg-[rgb(var(--color-bg-page-rgb)/0.72)] px-2.5 py-1 font-mono text-[11px] text-[var(--color-text-secondary)] backdrop-blur-sm">
+        <span className="absolute right-3 bottom-3 flex items-center gap-1.5 rounded-full bg-[rgb(var(--color-bg-page-rgb)/0.72)] px-2.5 py-1 text-[11px] text-[var(--color-text-secondary)] backdrop-blur-sm">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
             <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" />
             <circle cx="12" cy="12" r="3" />
@@ -108,7 +108,7 @@ export function ProjectCard({
 
       <div className="flex flex-col gap-3.5 px-4 pt-4 pb-4">
         <Link href={href} className="flex flex-col gap-1.5">
-          <span className="font-mono text-base leading-tight font-medium text-[var(--color-text-primary)]">
+          <span className="text-base leading-tight font-medium text-[var(--color-text-primary)]">
             {project.title}
           </span>
           {project.tagline && (

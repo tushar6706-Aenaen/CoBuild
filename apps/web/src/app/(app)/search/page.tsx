@@ -29,7 +29,7 @@ function SectionHeading({ title, count }: { title: string; count: string }) {
   return (
     <div className="flex items-baseline gap-2.5">
       <h2 className="text-base font-bold">{title}</h2>
-      <span className="font-mono text-[11.5px] text-[var(--color-text-tertiary)]">{count}</span>
+      <span className="text-[11.5px] text-[var(--color-text-tertiary)]">{count}</span>
     </div>
   );
 }
@@ -57,7 +57,7 @@ function PersonRow({ person }: { person: PersonHit }) {
           <span className="text-sm font-bold text-[var(--color-text-primary)]">
             {person.display_name ?? person.username}
           </span>
-          <span className="font-mono text-[11.5px] text-[var(--color-accent)]">
+          <span className="text-[11.5px] text-[var(--color-accent)]">
             @{person.username}
           </span>
         </span>
@@ -200,7 +200,7 @@ export default async function SearchPage({
                   <span className="rounded-sm bg-[var(--color-bg-raised)] px-2 py-1 font-mono text-xs font-medium text-[var(--color-text-secondary)]">
                     {t.name}
                   </span>
-                  <span className="font-mono text-[11px] text-[var(--color-text-tertiary)]">
+                  <span className="text-[11px] text-[var(--color-text-tertiary)]">
                     {t.usage_count.toLocaleString()}
                   </span>
                 </Link>

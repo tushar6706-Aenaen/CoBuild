@@ -97,7 +97,7 @@ export function FollowTagButton({
       >
         {following ? "Following" : `Follow ${tagName}`}
       </Button>
-      <span className="font-mono text-[12px] text-[var(--color-text-tertiary)]">
+      <span className="text-[12px] text-[var(--color-text-tertiary)]">
         {count.toLocaleString()} {count === 1 ? "follower" : "followers"}
       </span>
     </div>
