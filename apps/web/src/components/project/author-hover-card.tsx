@@ -96,7 +96,7 @@ export function AuthorHoverCard({
         <span
           onMouseEnter={handleEnter}
           onMouseLeave={handleLeave}
-          className="absolute bottom-[30px] left-0 z-40 flex w-[268px] flex-col gap-2.5 rounded-[8px] border border-[var(--color-border-strong)] bg-[var(--color-bg-raised)] p-[15px] shadow-[0_20px_44px_rgba(0,0,0,0.6)]"
+          className="absolute bottom-[30px] left-0 z-40 flex w-[268px] flex-col gap-2.5 rounded-[8px] border border-[var(--color-border-strong)] bg-[var(--color-bg-raised)] p-[15px] shadow-[var(--shadow-popover)]"
         >
           <span className="flex items-center gap-2.5">
             <span className="h-[42px] w-[42px] flex-none overflow-hidden rounded-full border border-[var(--color-border-default)] bg-[repeating-linear-gradient(135deg,var(--color-bg-panel-alt)_0_4px,var(--color-bg-panel)_4px_8px)]">

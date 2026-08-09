@@ -92,7 +92,7 @@ export function FollowTagButton({
         className={
           following
             ? "rounded-[var(--radius-control)] border-[var(--color-border-strong)] bg-[var(--color-bg-panel-alt)] px-5 py-2.5 text-[13.5px] font-bold text-[var(--color-text-primary)] hover:bg-[var(--color-bg-raised)]"
-            : "rounded-[var(--radius-control)] bg-[var(--color-accent)] px-5 py-2.5 text-[13.5px] font-bold text-[var(--color-accent-on)] shadow-[0_8px_20px_rgba(59,227,143,0.3)] hover:bg-[var(--color-accent-hover)]"
+            : "rounded-[var(--radius-control)] bg-[var(--color-accent)] px-5 py-2.5 text-[13.5px] font-bold text-[var(--color-accent-on)] shadow-[var(--shadow-accent-glow)] hover:bg-[var(--color-accent-hover)]"
         }
       >
         {following ? "Following" : `Follow ${tagName}`}

@@ -33,6 +33,9 @@
 
   --color-bg-page-rgb: 9 10 9;
   --color-bg-panel-rgb: 15 17 15;
+  /* Same channels as --color-accent, so the glow shadows below compose from
+     the palette instead of re-hardcoding it at every call site. */
+  --color-accent-rgb: 59 227 143;
 
   --color-border-default: rgba(255, 255, 255, 0.12);
   --color-border-subtle: rgba(255, 255, 255, 0.08);
@@ -70,6 +73,22 @@
   --radius-control-lg: 7px;
   --radius-card: 10px;
   --radius-card-lg: 11px;
+
+  /*
+   * One accent glow in two sizes, plus one popover shadow. These were eight
+   * inline `shadow-[...]` values expressing the same two intents in seven
+   * different ways (y 6/8/8/10/10, blur 18/20/22/26/30, alpha .30/.30/.32/
+   * .35/.40) — nobody chose those differences. Each also re-hardcoded
+   * rgba(59,227,143,…), so a palette change left every glow stale, which is
+   * the exact failure mode `colors.ts` documents having already been burned by.
+   *
+   * `glow` is for inline controls (vote, follow, sidebar CTA); `glow-lg` for
+   * full-width primary submits. The resume sheet's shadow is deliberately NOT
+   * here — that route is off-palette on purpose because it renders for paper.
+   */
+  --shadow-accent-glow: 0 8px 22px rgb(var(--color-accent-rgb) / 0.3);
+  --shadow-accent-glow-lg: 0 10px 28px rgb(var(--color-accent-rgb) / 0.35);
+  --shadow-popover: 0 20px 44px rgba(0, 0, 0, 0.6);
 
   /*
    * shadcn/ui semantic tokens, mapped onto the palette above. CoBuild is
@@ -122,6 +141,7 @@
   --color-bg-sidebar: var(--color-bg-sidebar);
   --color-bg-page-rgb: var(--color-bg-page-rgb);
   --color-bg-panel-rgb: var(--color-bg-panel-rgb);
+  --color-accent-rgb: var(--color-accent-rgb);
 
   --color-border-default: var(--color-border-default);
   --color-border-subtle: var(--color-border-subtle);
@@ -153,6 +173,10 @@
   --radius-control-lg: var(--radius-control-lg);
   --radius-card: var(--radius-card);
   --radius-card-lg: var(--radius-card-lg);
+
+  --shadow-accent-glow: var(--shadow-accent-glow);
+  --shadow-accent-glow-lg: var(--shadow-accent-glow-lg);
+  --shadow-popover: var(--shadow-popover);
 
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);

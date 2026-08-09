@@ -44,6 +44,8 @@ export const colors = {
     page: "9 10 9",
     panel: "15 17 15",
   },
+  /** `accent` as bare channels, for composing the accent glow shadows. */
+  accentRgb: "59 227 143",
   border: {
     default: "rgba(255,255,255,0.12)",
     subtle: "rgba(255,255,255,0.08)",

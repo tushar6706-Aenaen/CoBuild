@@ -410,7 +410,7 @@ export function SettingsForm({ userId, initial }: { userId: string; initial: Ini
       <Button
         type="submit"
         disabled={!canSubmit}
-        className="rounded-[var(--radius-control-lg)] bg-[var(--color-accent)] py-3.5 text-[15px] font-bold text-[var(--color-accent-on)] shadow-[0_10px_26px_rgba(59,227,143,0.32)] hover:bg-[var(--color-accent-hover)]"
+        className="rounded-[var(--radius-control-lg)] bg-[var(--color-accent)] py-3.5 text-[15px] font-bold text-[var(--color-accent-on)] shadow-[var(--shadow-accent-glow-lg)] hover:bg-[var(--color-accent-hover)]"
       >
         {pending ? "Saving…" : "Save changes"}
       </Button>
