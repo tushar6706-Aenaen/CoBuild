@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { pill } from "@/components/ui/control-classes";
+import { pillActive, pillInactive } from "@/components/ui/control-classes";
 
 /**
  * Hot / New / Top — the design's `feedTabs3`. Deliberately no Following tab:
@@ -27,8 +27,8 @@ export function TagTabs({ slug, tab }: { slug: string; tab: TagTab }) {
           aria-current={t.key === tab ? "page" : undefined}
           className={
             t.key === tab
-              ? `${pill} bg-[var(--color-accent)] text-[var(--color-accent-on)]`
-              : `${pill} text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]`
+              ? pillActive
+              : pillInactive
           }
         >
           {t.label}

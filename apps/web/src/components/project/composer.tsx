@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MarkdownField } from "@/components/project/markdown-field";
+import { microLabel } from "@/components/ui/control-classes";
 
 type ImageSlot = {
   /** Stable key for React across reorder. */
@@ -391,7 +392,7 @@ export function Composer({
   return (
     <div className="mx-auto flex w-full max-w-[760px] flex-col gap-[22px]">
       <div className="flex flex-col gap-1.5">
-        <span className="text-[11px] tracking-[0.12em] text-[var(--color-accent)]">
+        <span className={microLabel}>
           {isNew ? "NEW PROJECT" : `EDITING · ${VISIBILITY_COPY[visibility].label.toUpperCase()}`}
         </span>
         <h1 className="text-[28px] font-extrabold tracking-tight">

@@ -18,6 +18,7 @@ import { getAuthState } from "@/lib/auth/session";
 import { FollowButton } from "@/components/project/follow-button";
 import { ShareButton } from "./share-button";
 import { ProjectTileCard } from "./project-tile";
+import { pillActive, pillInactive, microLabel } from "@/components/ui/control-classes";
 
 type Tab = "projects" | "contributions" | "bookmarks";
 
@@ -218,7 +219,7 @@ export default async function ProfilePage({
           {stats.map((s) => (
             <div key={s.k} className="flex flex-col gap-0.5 rounded-[var(--radius-control-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-page)] px-3.5 py-3">
               <span className="text-[21px] font-extrabold tracking-tight tabular-nums">{s.v}</span>
-              <span className="text-[11.5px] tracking-wide text-[var(--color-text-tertiary)]">{s.k}</span>
+              <span className={microLabel}>{s.k}</span>
             </div>
           ))}
         </div>
@@ -231,8 +232,8 @@ export default async function ProfilePage({
             href={t.key === "projects" ? `/u/${username}` : `/u/${username}?tab=${t.key}`}
             className={
               t.key === tab
-                ? "rounded-[var(--radius-pill)] bg-[var(--color-accent)] px-3.5 py-2 text-[13px] font-semibold text-[var(--color-accent-on)]"
-                : "rounded-[var(--radius-pill)] px-3.5 py-2 text-[13px] font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+                ? pillActive
+                : pillInactive
             }
           >
             {t.label}

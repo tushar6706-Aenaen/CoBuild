@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { LeaderboardWindow } from "@cobuild/shared";
-import { pill, chip } from "@/components/ui/control-classes";
+import { pillActive, pillInactive, chipActive, chipInactive } from "@/components/ui/control-classes";
 
 export const BOARD_TABS = [
   { key: "projects", label: "Top projects" },
@@ -35,8 +35,8 @@ export function BoardControls({ tab, window }: { tab: BoardTab; window: Leaderbo
             aria-current={t.key === tab ? "page" : undefined}
             className={
               t.key === tab
-                ? `${pill} bg-[var(--color-accent)] text-[var(--color-accent-on)]`
-                : `${pill} text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]`
+                ? pillActive
+                : pillInactive
             }
           >
             {t.label}
@@ -54,8 +54,8 @@ export function BoardControls({ tab, window }: { tab: BoardTab; window: Leaderbo
             aria-current={w.key === window ? "page" : undefined}
             className={
               w.key === window
-                ? `${chip} border-[var(--color-accent)]/45 bg-[var(--color-accent)]/12 text-[var(--color-accent-muted)]`
-                : `${chip} border-[var(--color-border-default)] bg-[var(--color-bg-panel)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]`
+                ? chipActive
+                : chipInactive
             }
           >
             {w.label}

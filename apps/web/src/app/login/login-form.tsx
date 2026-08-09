@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { AUTH_CALLBACK_PATH, DEFAULT_SIGNED_IN_PATH } from "@/lib/auth/redirects";
 import { AUTH_ERROR_MESSAGES, isAuthErrorCode } from "./error-messages";
 import { Button } from "@/components/ui/button";
+import { microLabel } from "@/components/ui/control-classes";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
@@ -125,7 +126,7 @@ export function LoginForm() {
 
         <div className="my-1.5 flex items-center gap-3">
           <Separator className="flex-1 bg-[var(--color-border-default)]" />
-          <span className="text-[11.5px] text-[var(--color-text-tertiary)]">OR</span>
+          <span className={microLabel}>OR</span>
           <Separator className="flex-1 bg-[var(--color-border-default)]" />
         </div>
 

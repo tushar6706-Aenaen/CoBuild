@@ -57,7 +57,7 @@ function PersonRow({ person }: { person: PersonHit }) {
           <span className="text-sm font-bold text-[var(--color-text-primary)]">
             {person.display_name ?? person.username}
           </span>
-          <span className="text-[11.5px] text-[var(--color-accent)]">
+          <span className="text-[11.5px] text-[var(--color-text-primary)]">
             @{person.username}
           </span>
         </span>

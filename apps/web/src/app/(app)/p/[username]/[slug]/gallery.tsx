@@ -19,7 +19,7 @@ export function Gallery({ images, title }: { images: GalleryImage[]; title: stri
 
   if (images.length === 0) {
     return (
-      <div className="flex aspect-[16/10] items-center justify-center rounded-[var(--radius-control-lg)] border border-[var(--color-border-subtle)] bg-[repeating-linear-gradient(135deg,var(--color-bg-raised)_0_10px,var(--color-bg-panel-alt)_10px_20px)] text-[11px] tracking-widest text-[var(--color-text-tertiary)]">
+      <div className="flex aspect-[16/10] items-center justify-center rounded-[var(--radius-control-lg)] border border-[var(--color-border-subtle)] bg-[repeating-linear-gradient(135deg,var(--color-bg-raised)_0_10px,var(--color-bg-panel-alt)_10px_20px)] text-[10px] uppercase tracking-[3px] text-[var(--color-text-tertiary)]">
         NO SCREENSHOTS
       </div>
     );

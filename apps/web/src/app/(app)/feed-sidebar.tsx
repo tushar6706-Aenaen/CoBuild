@@ -94,7 +94,7 @@ export async function FeedSidebar() {
                       @{b.username}
                     </span>
                   </span>
-                  <span className="text-[11.5px] text-[var(--color-accent-muted)]">
+                  <span className="text-[11.5px] text-[var(--color-text-primary)]">
                     {b.votes}
                   </span>
                 </Link>
@@ -117,7 +117,7 @@ export async function FeedSidebar() {
         </span>
         <Link
           href="/new"
-          className="rounded-[var(--radius-control)] bg-[var(--color-accent)] py-2.5 text-center text-[13px] font-bold text-[var(--color-accent-on)] hover:bg-[var(--color-accent-hover)]"
+          className="rounded-[var(--radius-control)] border border-[var(--color-border-default)] bg-[var(--color-bg-row-tint)] py-2.5 text-center text-[13px] font-bold text-[var(--color-text-primary)] hover:border-[var(--color-border-strong)]"
         >
           Post a project
         </Link>

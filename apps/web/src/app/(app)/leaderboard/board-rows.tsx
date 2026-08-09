@@ -67,7 +67,7 @@ function Delta({ delta }: { delta: number | null }) {
 function Votes({ count }: { count: number }) {
   return (
     <span className="flex min-w-[64px] flex-none flex-col items-end gap-px">
-      <span className="text-sm font-medium text-[var(--color-accent-muted)]">
+      <span className="text-sm font-medium text-[var(--color-text-primary)]">
         {count.toLocaleString()}
       </span>
       <span className="text-[10.5px] text-[var(--color-text-tertiary)]">upvotes</span>

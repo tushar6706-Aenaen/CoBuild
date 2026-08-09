@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ProjectStatus, TagHit } from "@cobuild/shared";
-import { chip } from "@/components/ui/control-classes";
+import { chipActive, chipInactive, microLabel } from "@/components/ui/control-classes";
 
 export const STATUS_LABELS: Record<ProjectStatus, string> = {
   shipped: "Shipped",
@@ -8,8 +8,8 @@ export const STATUS_LABELS: Record<ProjectStatus, string> = {
   archived: "Archived",
 };
 
-const on = `${chip} border-[var(--color-accent)]/45 bg-[var(--color-accent)]/12 text-[var(--color-accent-muted)]`;
-const off = `${chip} border-[var(--color-border-default)] bg-[var(--color-bg-panel)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]`;
+const on = chipActive;
+const off = chipInactive;
 
 /**
  * Builds the URL for toggling one facet value, preserving every other param.
@@ -66,7 +66,7 @@ export function SearchFilters({
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <span className="text-[11px] tracking-[0.1em] text-[var(--color-text-tertiary)]">
+      <span className={microLabel}>
         FILTER
       </span>
 

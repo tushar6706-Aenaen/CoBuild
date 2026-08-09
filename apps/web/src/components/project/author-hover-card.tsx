@@ -108,7 +108,7 @@ export function AuthorHoverCard({
               <span className="text-sm font-bold text-[var(--color-text-primary)]">
                 {summary?.display_name ?? username}
               </span>
-              <span className="text-[11px] text-[var(--color-accent)]">@{username}</span>
+              <span className="text-[11px] text-[var(--color-text-secondary)]">@{username}</span>
             </span>
           </span>
           {summary?.headline && (

@@ -1,5 +1,11 @@
 import Link from "next/link";
-import { pill } from "@/components/ui/control-classes";
+import {
+  pillActive,
+  pillInactive,
+  chipActive,
+  chipInactive,
+  microLabel,
+} from "@/components/ui/control-classes";
 
 export const FEED_TABS = [
   { key: "hot", label: "Hot" },
@@ -15,8 +21,8 @@ export const TOP_WINDOWS = [
   { key: "all", label: "All time" },
 ] as const;
 
-const active = `${pill} bg-[var(--color-accent)] text-[var(--color-accent-on)]`;
-const inactive = `${pill} text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]`;
+const active = pillActive;
+const inactive = pillInactive;
 
 export function FeedTabs({ tab, window }: { tab: string; window: string }) {
   return (
@@ -35,19 +41,13 @@ export function FeedTabs({ tab, window }: { tab: string; window: string }) {
 
       {tab === "top" && (
         <div className="flex items-center gap-2.5">
-          <span className="text-[11px] tracking-[0.1em] text-[var(--color-text-tertiary)]">
-            WINDOW
-          </span>
+          <span className={microLabel}>WINDOW</span>
           <div className="flex flex-wrap gap-1.5">
             {TOP_WINDOWS.map((w) => (
               <Link
                 key={w.key}
                 href={`/?tab=top&window=${w.key}`}
-                className={
-                  w.key === window
-                    ? "rounded-[var(--radius-pill)] border border-[var(--color-accent)]/45 bg-[var(--color-accent)]/12 px-2.5 py-1.5 text-xs font-semibold text-[var(--color-accent-muted)]"
-                    : "rounded-[var(--radius-pill)] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] px-2.5 py-1.5 text-xs font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
-                }
+                className={w.key === window ? chipActive : chipInactive}
               >
                 {w.label}
               </Link>

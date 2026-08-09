@@ -353,7 +353,7 @@ export function SettingsForm({ userId, initial }: { userId: string; initial: Ini
                   }
                   className={
                     active
-                      ? "rounded-[var(--radius-control)] border border-[var(--color-accent)]/45 bg-[var(--color-accent)]/12 px-3.5 py-2 text-[13px] font-semibold text-[var(--color-accent-muted)]"
+                      ? "rounded-[var(--radius-control)] border border-transparent bg-[var(--color-control-primary)] px-3.5 py-2 text-[13px] font-semibold text-[var(--color-control-on-primary)]"
                       : "rounded-[var(--radius-control)] border border-[var(--color-border-default)] bg-[var(--color-bg-input)] px-3.5 py-2 text-[13px] font-semibold text-[var(--color-text-secondary)]"
                   }
                 >

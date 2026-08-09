@@ -89,7 +89,7 @@ export default async function EmbedProjectCard({ params }: { params: Promise<Par
               <img src={avatar} alt="" className="h-full w-full object-cover" />
             )}
           </span>
-          <span className="min-w-0 flex-1 truncate font-mono text-[12px] text-[var(--color-accent-muted)]">
+          <span className="min-w-0 flex-1 truncate font-mono text-[12px] text-[var(--color-text-secondary)]">
             @{project.author.username}
           </span>
           <span className="flex items-center gap-1.5 rounded-full border border-[var(--color-border-default)] bg-[var(--color-bg-panel-alt)] px-2.5 py-1 text-[12px] text-[var(--color-accent)]">
