@@ -31,7 +31,7 @@ export function Markdown({ content }: { content: string }) {
             ),
           pre: (p) => (
             <pre
-              className="overflow-x-auto rounded-[6px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-input)] p-[15px] font-mono text-[12.5px] leading-relaxed text-[var(--color-code-highlight)]"
+              className="overflow-x-auto rounded-[var(--radius-control)] border border-[var(--color-border-subtle)] bg-[var(--color-bg-input)] p-[15px] font-mono text-[12.5px] leading-relaxed text-[var(--color-code-highlight)]"
               {...p}
             />
           ),

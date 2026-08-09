@@ -21,7 +21,7 @@ const inactive = `${pill} text-[var(--color-text-secondary)] hover:text-[var(--c
 export function FeedTabs({ tab, window }: { tab: string; window: string }) {
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex w-fit max-w-full gap-1.5 overflow-auto rounded-[7px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-panel)] p-1.5">
+      <div className="flex w-fit max-w-full gap-1.5 overflow-auto rounded-[var(--radius-control-lg)] border border-[var(--color-border-subtle)] bg-[var(--color-bg-panel)] p-1.5">
         {FEED_TABS.map((t) => (
           <Link
             key={t.key}

@@ -98,7 +98,7 @@ export default async function ResumePage({ params }: { params: Promise<Params> }
             white sheet and nearly invisible printed. On paper the underline is
             the affordance, not the hue. */}
       <article
-        className="w-full max-w-[820px] rounded-[10px] bg-white px-12 py-11 text-[#14171A] shadow-[0_20px_60px_rgba(0,0,0,0.45)] [&_a]:text-inherit print:max-w-none print:rounded-none print:px-0 print:py-0 print:shadow-none"
+        className="w-full max-w-[820px] rounded-[var(--radius-card)] bg-white px-12 py-11 text-[#14171A] shadow-[0_20px_60px_rgba(0,0,0,0.45)] [&_a]:text-inherit print:max-w-none print:rounded-none print:px-0 print:py-0 print:shadow-none"
         style={{ printColorAdjust: "exact", WebkitPrintColorAdjust: "exact" }}
       >
         <header className="flex flex-col gap-1.5 border-b-2 border-[#14171A] pb-4">

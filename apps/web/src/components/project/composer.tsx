@@ -383,7 +383,7 @@ export function Composer({
   }, [dirty, saving]);
 
   const panel =
-    "flex flex-col gap-4 rounded-[10px] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] p-5";
+    "flex flex-col gap-4 rounded-[var(--radius-card)] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] p-5";
   const field =
     "rounded-[var(--radius-control)] border-[var(--color-border-default)] bg-[var(--color-bg-input)] py-3 text-sm";
   const labelCls = "text-[12.5px] font-semibold text-[var(--color-text-secondary-alt)]";
@@ -456,7 +456,7 @@ export function Composer({
                 setDragIndex(null);
               }}
               onDragEnd={() => setDragIndex(null)}
-              className={`flex flex-col overflow-hidden rounded-[7px] border bg-[var(--color-bg-panel-alt)] ${
+              className={`flex flex-col overflow-hidden rounded-[var(--radius-control-lg)] border bg-[var(--color-bg-panel-alt)] ${
                 index === coverIndex ? "border-[var(--color-accent)]/50" : "border-[var(--color-border-default)]"
               } ${dragIndex === index ? "opacity-50" : ""}`}
             >
@@ -532,7 +532,7 @@ export function Composer({
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="flex min-h-[130px] flex-col items-center justify-center gap-2 rounded-[7px] border border-dashed border-[var(--color-border-strong)] bg-[var(--color-bg-input)] text-xs font-semibold text-[var(--color-text-secondary)] hover:border-[var(--color-accent)]/60 hover:text-[var(--color-text-primary)]"
+              className="flex min-h-[130px] flex-col items-center justify-center gap-2 rounded-[var(--radius-control-lg)] border border-dashed border-[var(--color-border-strong)] bg-[var(--color-bg-input)] text-xs font-semibold text-[var(--color-text-secondary)] hover:border-[var(--color-accent)]/60 hover:text-[var(--color-text-primary)]"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" aria-hidden="true">
                 <path d="M12 5v14M5 12h14" />

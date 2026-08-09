@@ -35,7 +35,7 @@ export function Sidebar({
 
       <Link
         href="/new"
-        className="flex items-center justify-center gap-2 rounded-[6px] bg-[var(--color-accent)] px-3 py-3 text-sm font-bold text-[var(--color-accent-on)] shadow-[0_8px_22px_rgba(59,227,143,0.3)] hover:bg-[var(--color-accent-hover)]"
+        className="flex items-center justify-center gap-2 rounded-[var(--radius-control)] bg-[var(--color-accent)] px-3 py-3 text-sm font-bold text-[var(--color-accent-on)] shadow-[0_8px_22px_rgba(59,227,143,0.3)] hover:bg-[var(--color-accent-hover)]"
       >
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" aria-hidden="true">
           <path d="M12 5v14M5 12h14" />
@@ -48,7 +48,7 @@ export function Sidebar({
       {username ? (
         <Link
           href={`/u/${username}`}
-          className="flex items-center gap-2.5 rounded-[6px] border border-[var(--color-border-default)] bg-[var(--color-bg-panel-alt)] p-2.5 text-left hover:border-[var(--color-border-strong)] hover:bg-[var(--color-bg-raised)]"
+          className="flex items-center gap-2.5 rounded-[var(--radius-control)] border border-[var(--color-border-default)] bg-[var(--color-bg-panel-alt)] p-2.5 text-left hover:border-[var(--color-border-strong)] hover:bg-[var(--color-bg-raised)]"
         >
           <span className="h-8 w-8 flex-none overflow-hidden rounded-full border border-[var(--color-border-default)] bg-[repeating-linear-gradient(135deg,var(--color-bg-raised)_0_4px,var(--color-bg-panel-alt)_4px_8px)]">
             {avatarUrl && (
@@ -70,7 +70,7 @@ export function Sidebar({
           </span>
           <Link
             href="/login"
-            className="rounded-[6px] bg-[var(--color-text-primary)] py-2.5 text-center text-[13px] font-bold text-[var(--color-bg-page)] hover:bg-white"
+            className="rounded-[var(--radius-control)] bg-[var(--color-text-primary)] py-2.5 text-center text-[13px] font-bold text-[var(--color-bg-page)] hover:bg-white"
           >
             Sign in
           </Link>

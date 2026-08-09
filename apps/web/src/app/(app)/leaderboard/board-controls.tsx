@@ -28,7 +28,7 @@ function href(tab: BoardTab, window: LeaderboardWindow) {
 export function BoardControls({ tab, window }: { tab: BoardTab; window: LeaderboardWindow }) {
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <div className="flex gap-1.5 rounded-[7px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-panel)] p-1.5">
+      <div className="flex gap-1.5 rounded-[var(--radius-control-lg)] border border-[var(--color-border-subtle)] bg-[var(--color-bg-panel)] p-1.5">
         {BOARD_TABS.map((t) => (
           <Link
             key={t.key}

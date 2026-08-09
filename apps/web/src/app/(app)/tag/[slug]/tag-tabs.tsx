@@ -19,7 +19,7 @@ const pill = "rounded-[5px] px-3.5 py-2 text-[13px] font-semibold transition-col
 
 export function TagTabs({ slug, tab }: { slug: string; tab: TagTab }) {
   return (
-    <div className="flex w-fit gap-1.5 rounded-[7px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-panel)] p-1.5">
+    <div className="flex w-fit gap-1.5 rounded-[var(--radius-control-lg)] border border-[var(--color-border-subtle)] bg-[var(--color-bg-panel)] p-1.5">
       {TAG_TABS.map((t) => (
         <Link
           key={t.key}

@@ -99,7 +99,7 @@ export function MarkdownField({
 
       {mode === "write" ? (
         <>
-          <div className="flex gap-0.5 rounded-t-[6px] border border-b-0 border-[var(--color-border-default)] bg-[var(--color-bg-panel-alt)] p-1.5">
+          <div className="flex gap-0.5 rounded-t-[var(--radius-control)] border border-b-0 border-[var(--color-border-default)] bg-[var(--color-bg-panel-alt)] p-1.5">
             {TOOLS.map((tool) => (
               <button
                 key={tool.label}
@@ -118,11 +118,11 @@ export function MarkdownField({
             value={value}
             onChange={(e) => onChange(e.target.value)}
             placeholder="What problem does it solve? What was hard about building it?"
-            className="resize-y rounded-t-none rounded-b-[6px] border-[var(--color-border-default)] bg-[var(--color-bg-input)] font-mono text-[13px] leading-[1.65]"
+            className="resize-y rounded-t-none rounded-b-[var(--radius-control)] border-[var(--color-border-default)] bg-[var(--color-bg-input)] font-mono text-[13px] leading-[1.65]"
           />
         </>
       ) : (
-        <div className="min-h-[176px] rounded-[6px] border border-[var(--color-border-default)] bg-[var(--color-bg-input)] p-[13px_14px]">
+        <div className="min-h-[176px] rounded-[var(--radius-control)] border border-[var(--color-border-default)] bg-[var(--color-bg-input)] p-[13px_14px]">
           {value.trim() ? (
             <Markdown content={value} />
           ) : (

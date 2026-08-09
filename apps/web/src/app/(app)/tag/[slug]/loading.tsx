@@ -21,7 +21,7 @@ export default function Loading() {
             </div>
           </div>
 
-          <SkeletonBar className="h-9 w-[220px] rounded-[7px]" />
+          <SkeletonBar className="h-9 w-[220px] rounded-[var(--radius-control-lg)]" />
 
           <FeedSkeleton />
         </div>

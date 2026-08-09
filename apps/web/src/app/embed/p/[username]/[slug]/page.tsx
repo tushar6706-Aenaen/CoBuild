@@ -51,7 +51,7 @@ export default async function EmbedProjectCard({ params }: { params: Promise<Par
   const href = `/p/${encodeURIComponent(username)}/${encodeURIComponent(slug)}`;
 
   return (
-    <div className="flex min-h-full flex-col overflow-hidden rounded-[11px] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)]">
+    <div className="flex min-h-full flex-col overflow-hidden rounded-[var(--radius-card-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)]">
       <div className="h-1 w-full bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-status-shipped)]" />
 
       {cover && (

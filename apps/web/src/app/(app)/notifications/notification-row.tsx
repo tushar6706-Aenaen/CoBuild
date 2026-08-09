@@ -81,7 +81,7 @@ export function NotificationRow({ notification }: { notification: NotificationIt
   const body = (
     <>
       <span
-        className="flex h-[34px] w-[34px] flex-none items-center justify-center rounded-[6px]"
+        className="flex h-[34px] w-[34px] flex-none items-center justify-center rounded-[var(--radius-control)]"
         style={tone}
         aria-hidden="true"
       >

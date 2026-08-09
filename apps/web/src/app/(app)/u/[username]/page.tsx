@@ -114,7 +114,7 @@ export default async function ProfilePage({
   return (
     <div className="flex flex-col gap-[22px]">
       <div
-        className="flex flex-col gap-[18px] rounded-[11px] border border-[var(--color-border-default)] p-[22px]"
+        className="flex flex-col gap-[18px] rounded-[var(--radius-card-lg)] border border-[var(--color-border-default)] p-[22px]"
         style={{ background: "linear-gradient(160deg, var(--color-bg-panel-alt), var(--color-bg-panel))" }}
       >
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
@@ -216,7 +216,7 @@ export default async function ProfilePage({
 
         <div className="grid grid-cols-2 gap-2.5 border-t border-[var(--color-border-subtle)] pt-1 sm:grid-cols-4">
           {stats.map((s) => (
-            <div key={s.k} className="flex flex-col gap-0.5 rounded-[7px] border border-[var(--color-border-default)] bg-[var(--color-bg-page)] px-3.5 py-3">
+            <div key={s.k} className="flex flex-col gap-0.5 rounded-[var(--radius-control-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-page)] px-3.5 py-3">
               <span className="text-[21px] font-extrabold tracking-tight tabular-nums">{s.v}</span>
               <span className="font-mono text-[11.5px] tracking-wide text-[var(--color-text-tertiary)]">{s.k}</span>
             </div>
@@ -224,7 +224,7 @@ export default async function ProfilePage({
         </div>
       </div>
 
-      <div className="flex w-fit gap-1.5 rounded-[7px] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] p-1.5">
+      <div className="flex w-fit gap-1.5 rounded-[var(--radius-control-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] p-1.5">
         {tabs.map((t) => (
           <Link
             key={t.key}
@@ -241,7 +241,7 @@ export default async function ProfilePage({
       </div>
 
       {tiles.length === 0 ? (
-        <div className="flex flex-col items-center gap-4 rounded-[11px] border border-dashed border-[var(--color-border-default)] bg-[var(--color-bg-panel)] px-7 py-[60px] text-center">
+        <div className="flex flex-col items-center gap-4 rounded-[var(--radius-card-lg)] border border-dashed border-[var(--color-border-default)] bg-[var(--color-bg-panel)] px-7 py-[60px] text-center">
           <div className="flex h-[54px] w-[54px] items-center justify-center rounded-[8px] bg-[var(--color-bg-panel-alt)] text-[var(--color-accent)]">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round">
               <rect x="3" y="4" width="18" height="16" rx="3" />
@@ -264,7 +264,7 @@ export default async function ProfilePage({
           {isOwnProfile && tab === "projects" && (
             <Link
               href="/new"
-              className="rounded-[6px] bg-[var(--color-accent)] px-[17px] py-[11px] text-[13.5px] font-bold text-[var(--color-accent-on)]"
+              className="rounded-[var(--radius-control)] bg-[var(--color-accent)] px-[17px] py-[11px] text-[13.5px] font-bold text-[var(--color-accent-on)]"
             >
               Post the first one
             </Link>

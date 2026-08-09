@@ -246,7 +246,7 @@ export default async function ProjectDetailPage({
                     </>
                   );
                   const className =
-                    "flex items-center gap-2.5 rounded-[7px] border border-[var(--color-border-default)] bg-[var(--color-bg-panel-alt)] py-2 pr-3.5 pl-2 text-left hover:border-[var(--color-border-strong)] hover:bg-[var(--color-bg-raised)]";
+                    "flex items-center gap-2.5 rounded-[var(--radius-control-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-panel-alt)] py-2 pr-3.5 pl-2 text-left hover:border-[var(--color-border-strong)] hover:bg-[var(--color-bg-raised)]";
                   return c.profile?.username ? (
                     <Link key={`${c.profile_id}-${i}`} href={`/u/${c.profile.username}`} className={className}>
                       {inner}
