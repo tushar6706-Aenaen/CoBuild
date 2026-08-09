@@ -24,15 +24,20 @@
  * last palette change.
  */
 :root {
-  --color-bg-page: #090a09;
-  --color-bg-panel: #0f110f;
-  --color-bg-panel-alt: #121412;
-  --color-bg-input: #111311;
-  --color-bg-raised: #181b18;
-  --color-bg-sidebar: #0c0e0c;
+  /* True neutral on purpose — see the note in `colors.ts`. A tinted grey
+     competes with the one saturated element per screen instead of setting it
+     off. Do not reintroduce a green tint here. */
+  --color-bg-page: #0a0a0a;
+  --color-bg-panel: #0f0f0f;
+  --color-bg-panel-alt: #121212;
+  --color-bg-input: #111111;
+  --color-bg-raised: #1a1a1a;
+  --color-bg-sidebar: #0c0c0c;
+  /* Translucent fill for inner rows (nav items, tag rows, list rows). */
+  --color-bg-row-tint: rgba(255, 255, 255, 0.03);
 
-  --color-bg-page-rgb: 9 10 9;
-  --color-bg-panel-rgb: 15 17 15;
+  --color-bg-page-rgb: 10 10 10;
+  --color-bg-panel-rgb: 15 15 15;
   /* Same channels as --color-accent, so the glow shadows below compose from
      the palette instead of re-hardcoding it at every call site. */
   --color-accent-rgb: 59 227 143;
@@ -41,15 +46,24 @@
   --color-border-subtle: rgba(255, 255, 255, 0.08);
   --color-border-strong: rgba(255, 255, 255, 0.22);
 
-  --color-text-primary: #e8ede8;
-  --color-text-secondary: #8b8f8b;
-  --color-text-secondary-alt: #949994;
-  /* 4.56:1 at worst (on --color-bg-raised) — clears AA for small text on every
-     surface. Was #6e736e: 4.10:1 on the page, 3.59:1 on raised. */
-  --color-text-tertiary: #7f847f;
+  /* Ratios are the MINIMUM across all six surfaces; --color-bg-raised is the
+     lightest and therefore the binding one. Re-measured when the surfaces went
+     neutral, which made `raised` lighter and moved the bar. */
+  --color-text-primary: #ededed; /* 14.87:1 */
+  --color-text-secondary: #8c8c8c; /* 5.18:1 */
+  --color-text-secondary-alt: #949494; /* 5.74:1 */
+  /* 4.53:1 — the lowest neutral grey clearing AA on all six surfaces. #808080
+     is the intuitive pick and FAILS at 4.41:1 on raised. Measure, don't guess. */
+  --color-text-tertiary: #828282;
   /* 2.69:1 — below AA on purpose, so it is ONLY valid for genuine
      ::placeholder text. Use --color-text-tertiary for real content. */
-  --color-text-placeholder: #5a605a;
+  --color-text-placeholder: #5a5a5a;
+
+  /* Near-white emphasis for *selected* rather than *primary*: active tabs,
+     active filter chips, toggled states, secondary CTAs. Emphasis by lightness
+     leaves the accent green free to mean "the one action on this screen". */
+  --color-control-primary: #f4f4f5; /* 15.83:1 */
+  --color-control-on-primary: #18181b;
 
   --color-accent: #3be38f;
   --color-accent-hover: #55eaa1;
@@ -62,32 +76,40 @@
   --color-status-shipped: #6fd2e8;
   --color-status-in-progress: #f5b950;
   /* Moves with --color-text-tertiary: this is the chip's small label text, not
-     only its dot, so it had the same AA failure. Kept a separate token. */
-  --color-status-archived: #7f847f;
+     only its dot, so it carries the text tier's AA requirement. */
+  --color-status-archived: #828282;
   --color-status-danger: #ff7a7a;
   --color-status-danger-strong: #ff9b9b;
 
   --color-code-highlight: #dce86a;
 
-  --radius-control: 6px;
-  --radius-control-lg: 7px;
-  --radius-card: 10px;
-  --radius-card-lg: 11px;
+  /*
+   * Radii are deliberately larger than they were (was 6/7/10/11). Small, tight
+   * corners read utilitarian; the extra few pixels are a large part of why the
+   * reference design reads as premium. `pill` is for tab and filter controls
+   * only — not every small rounded thing.
+   */
+  --radius-xs: 6px;
+  --radius-control: 8px;
+  --radius-control-lg: 10px;
+  --radius-card: 14px;
+  --radius-card-lg: 18px;
+  --radius-pill: 9999px;
 
   /*
-   * One accent glow in two sizes, plus one popover shadow. These were eight
-   * inline `shadow-[...]` values expressing the same two intents in seven
-   * different ways (y 6/8/8/10/10, blur 18/20/22/26/30, alpha .30/.30/.32/
-   * .35/.40) — nobody chose those differences. Each also re-hardcoded
-   * rgba(59,227,143,…), so a palette change left every glow stale, which is
-   * the exact failure mode `colors.ts` documents having already been burned by.
+   * Only one shadow survives. The accent glows are gone: depth here comes from
+   * 1px hairlines and translucent tints, and a coloured glow under every CTA is
+   * the single loudest thing a dark UI can do. Removing them is most of why
+   * this palette reads calmer.
    *
-   * `glow` is for inline controls (vote, follow, sidebar CTA); `glow-lg` for
-   * full-width primary submits. The resume sheet's shadow is deliberately NOT
-   * here — that route is off-palette on purpose because it renders for paper.
+   * `--shadow-popover` stays because CoBuild's overlays sit on
+   * --color-bg-raised, which is only a small step above the page — unlike a
+   * design that separates overlays by lightness alone, this one still needs the
+   * shadow to detach a toast or hover card from what is behind it.
+   *
+   * The resume sheet's shadow is deliberately NOT here: that route is
+   * off-palette on purpose because it renders for paper.
    */
-  --shadow-accent-glow: 0 8px 22px rgb(var(--color-accent-rgb) / 0.3);
-  --shadow-accent-glow-lg: 0 10px 28px rgb(var(--color-accent-rgb) / 0.35);
   --shadow-popover: 0 20px 44px rgba(0, 0, 0, 0.6);
 
   /*
@@ -139,6 +161,7 @@
   --color-bg-input: var(--color-bg-input);
   --color-bg-raised: var(--color-bg-raised);
   --color-bg-sidebar: var(--color-bg-sidebar);
+  --color-bg-row-tint: var(--color-bg-row-tint);
   --color-bg-page-rgb: var(--color-bg-page-rgb);
   --color-bg-panel-rgb: var(--color-bg-panel-rgb);
   --color-accent-rgb: var(--color-accent-rgb);
@@ -152,6 +175,9 @@
   --color-text-secondary-alt: var(--color-text-secondary-alt);
   --color-text-tertiary: var(--color-text-tertiary);
   --color-text-placeholder: var(--color-text-placeholder);
+
+  --color-control-primary: var(--color-control-primary);
+  --color-control-on-primary: var(--color-control-on-primary);
 
   --color-accent: var(--color-accent);
   --color-accent-hover: var(--color-accent-hover);
@@ -169,13 +195,13 @@
 
   --color-code-highlight: var(--color-code-highlight);
 
+  --radius-xs: var(--radius-xs);
   --radius-control: var(--radius-control);
   --radius-control-lg: var(--radius-control-lg);
   --radius-card: var(--radius-card);
   --radius-card-lg: var(--radius-card-lg);
+  --radius-pill: var(--radius-pill);
 
-  --shadow-accent-glow: var(--shadow-accent-glow);
-  --shadow-accent-glow-lg: var(--shadow-accent-glow-lg);
   --shadow-popover: var(--shadow-popover);
 
   --font-sans: var(--font-sans);

@@ -86,7 +86,7 @@ export function LoginForm() {
   return (
     <div className="flex w-full max-w-[412px] flex-col gap-6 text-center">
       <div className="flex flex-col items-center gap-3.5">
-        <div className="flex h-[46px] w-[46px] items-center justify-center rounded-[var(--radius-control-lg)] bg-[var(--color-accent)] text-[20px] font-extrabold text-[var(--color-accent-on)] shadow-[var(--shadow-accent-glow-lg)]">
+        <div className="flex h-[46px] w-[46px] items-center justify-center rounded-[var(--radius-control-lg)] bg-[var(--color-accent)] text-[20px] font-extrabold text-[var(--color-accent-on)]">
           C
         </div>
         <h1 className="text-[27px] font-extrabold tracking-tight">Sign in to CoBuild</h1>
@@ -155,7 +155,7 @@ export function LoginForm() {
             <Button
               type="submit"
               disabled={status === "sending"}
-              className="rounded-[var(--radius-control)] bg-[var(--color-accent)] py-3.5 text-[14.5px] font-bold text-[var(--color-accent-on)] shadow-[var(--shadow-accent-glow)] hover:bg-[var(--color-accent-hover)]"
+              className="rounded-[var(--radius-control)] bg-[var(--color-accent)] py-3.5 text-[14.5px] font-bold text-[var(--color-accent-on)] hover:bg-[var(--color-accent-hover)]"
             >
               {status === "sending" ? "Sending…" : "Send me a link"}
             </Button>

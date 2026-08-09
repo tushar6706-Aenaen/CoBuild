@@ -35,7 +35,7 @@ export function Sidebar({
 
       <Link
         href="/new"
-        className="flex items-center justify-center gap-2 rounded-[var(--radius-control)] bg-[var(--color-accent)] px-3 py-3 text-sm font-bold text-[var(--color-accent-on)] shadow-[var(--shadow-accent-glow)] hover:bg-[var(--color-accent-hover)]"
+        className="flex items-center justify-center gap-2 rounded-[var(--radius-control)] bg-[var(--color-accent)] px-3 py-3 text-sm font-bold text-[var(--color-accent-on)] hover:bg-[var(--color-accent-hover)]"
       >
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" aria-hidden="true">
           <path d="M12 5v14M5 12h14" />

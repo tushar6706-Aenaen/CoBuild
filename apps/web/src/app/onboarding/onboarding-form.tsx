@@ -384,7 +384,7 @@ export function OnboardingForm({
       <Button
         type="submit"
         disabled={!canSubmit}
-        className="rounded-[var(--radius-control-lg)] bg-[var(--color-accent)] py-3.5 text-[15px] font-bold text-[var(--color-accent-on)] shadow-[var(--shadow-accent-glow-lg)] hover:bg-[var(--color-accent-hover)]"
+        className="rounded-[var(--radius-control-lg)] bg-[var(--color-accent)] py-3.5 text-[15px] font-bold text-[var(--color-accent-on)] hover:bg-[var(--color-accent-hover)]"
       >
         {pending ? "Creating…" : "Create my profile"}
       </Button>

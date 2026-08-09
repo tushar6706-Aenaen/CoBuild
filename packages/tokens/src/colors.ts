@@ -29,20 +29,39 @@
  * hand-edit hex values in either app's Tailwind config directly.
  */
 export const colors = {
+  // Surfaces are TRUE NEUTRAL. They used to carry a slight green tint (`#090A09`
+  // is R9 G10 B9, growing to +3 at `raised`), which was coherent when the accent
+  // green was everywhere. It stopped being coherent once green was cut back to
+  // one action per screen: a tinted grey competes with the single saturated
+  // element instead of setting it off. Neutral greys are what make the green
+  // land. Do not reintroduce a tint here without revisiting that decision.
   bg: {
-    page: "#090A09",
-    panel: "#0F110F",
-    panelAlt: "#121412",
-    input: "#111311",
-    raised: "#181B18",
+    page: "#0A0A0A",
+    panel: "#0F0F0F",
+    panelAlt: "#121212",
+    input: "#111111",
+    raised: "#1A1A1A",
     // The one surface deliberately lighter than the page, so the left rail
     // reads as a distinct plane rather than a hole in it.
-    sidebar: "#0C0E0C",
+    sidebar: "#0C0C0C",
+    /** Translucent fill for inner rows (nav items, tag rows, list rows). */
+    rowTint: "rgba(255,255,255,0.03)",
   },
   /** Space-separated channels for `rgb(... / alpha)` scrims. Keep in sync with `bg`. */
   bgRgb: {
-    page: "9 10 9",
-    panel: "15 17 15",
+    page: "10 10 10",
+    panel: "15 15 15",
+  },
+  /**
+   * Near-white control fill. This is the emphasis colour for anything that is
+   * *selected* rather than *primary*: active tabs, active filter chips, toggled
+   * states, secondary CTAs. Emphasis comes from lightness, not saturation —
+   * which is what leaves the accent green free to mean "the one action here".
+   * 15.83:1 at worst.
+   */
+  control: {
+    primary: "#F4F4F5",
+    onPrimary: "#18181B",
   },
   /** `accent` as bare channels, for composing the accent glow shadows. */
   accentRgb: "59 227 143",
@@ -51,21 +70,23 @@ export const colors = {
     subtle: "rgba(255,255,255,0.08)",
     strong: "rgba(255,255,255,0.22)",
   },
+  // Ratios below are the MINIMUM across all six surfaces. `bg.raised` is the
+  // lightest and therefore the binding one — every tier here was re-measured
+  // when the surfaces went neutral, because neutralising made `raised` lighter
+  // (#181B18 -> #1A1A1A) and moved the bar.
   text: {
-    primary: "#E8EDE8",
-    secondary: "#8B8F8B",
-    secondaryAlt: "#949994",
-    // 4.56:1 at worst (on `bg.raised`), so it clears WCAG AA for small text on
-    // every surface in this palette. It was `#6E736E`, which measured 4.10:1 on
-    // the page and 3.59:1 on raised — failing everywhere, while being the tier
-    // used almost exclusively for small text (profile stat labels, leaderboard
-    // metadata, timestamps, view counts). Any future move must be re-measured
-    // against `bg.raised`, the lightest surface and therefore the binding one.
-    tertiary: "#7F847F",
+    primary: "#EDEDED", // 14.87:1
+    secondary: "#8C8C8C", // 5.18:1
+    secondaryAlt: "#949494", // 5.74:1
+    // 4.53:1 — the lowest neutral grey that clears AA on all six surfaces.
+    // `#808080` is the intuitive choice and FAILS at 4.41:1 on `raised`. That is
+    // the second eyeballed grey to fail on this palette (the first was #6E736E,
+    // at 3.59:1). Measure any replacement against `bg.raised`; do not assume.
+    tertiary: "#828282",
     // 2.69:1 at worst — deliberately below AA and therefore ONLY legitimate for
     // genuine `::placeholder` text, which WCAG exempts. Never use it for real
     // content; reach for `tertiary` instead.
-    placeholder: "#5A605A",
+    placeholder: "#5A5A5A",
   },
   accent: {
     DEFAULT: "#3BE38F",
@@ -79,10 +100,10 @@ export const colors = {
     shipped: "#6FD2E8",
     inProgress: "#F5B950",
     // Kept a separate token from `text.tertiary` (a status is not a text tier)
-    // but moved with it, and for the same reason: `status.color` is rendered as
-    // the chip's small label text, not just its dot, so at `#6E736E` the
-    // "Archived" chip failed AA exactly like the text tier did.
-    archived: "#7F847F",
+    // but moves with it, and for the same reason: `status.color` is rendered as
+    // the chip's small label text, not just its dot, so it carries the text
+    // tier's AA requirement.
+    archived: "#828282",
     danger: "#FF7A7A",
     dangerStrong: "#FF9B9B",
   },
