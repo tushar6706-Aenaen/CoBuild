@@ -116,7 +116,7 @@ export function Gallery({ images, title }: { images: GalleryImage[]; title: stri
                   className={
                     i === active
                       ? "h-1.5 w-6 rounded-full bg-[var(--color-accent)]"
-                      : "h-1.5 w-1.5 rounded-full bg-[var(--color-text-placeholder)] hover:bg-[var(--color-text-secondary)]"
+                      : "h-1.5 w-1.5 rounded-full bg-[var(--color-text-tertiary)] hover:bg-[var(--color-text-secondary)]"
                   }
                 />
               ))}

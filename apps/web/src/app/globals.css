@@ -41,7 +41,11 @@
   --color-text-primary: #e8ede8;
   --color-text-secondary: #8b8f8b;
   --color-text-secondary-alt: #949994;
-  --color-text-tertiary: #6e736e;
+  /* 4.56:1 at worst (on --color-bg-raised) — clears AA for small text on every
+     surface. Was #6e736e: 4.10:1 on the page, 3.59:1 on raised. */
+  --color-text-tertiary: #7f847f;
+  /* 2.69:1 — below AA on purpose, so it is ONLY valid for genuine
+     ::placeholder text. Use --color-text-tertiary for real content. */
   --color-text-placeholder: #5a605a;
 
   --color-accent: #3be38f;
@@ -54,7 +58,9 @@
 
   --color-status-shipped: #6fd2e8;
   --color-status-in-progress: #f5b950;
-  --color-status-archived: #6e736e;
+  /* Moves with --color-text-tertiary: this is the chip's small label text, not
+     only its dot, so it had the same AA failure. Kept a separate token. */
+  --color-status-archived: #7f847f;
   --color-status-danger: #ff7a7a;
   --color-status-danger-strong: #ff9b9b;
 

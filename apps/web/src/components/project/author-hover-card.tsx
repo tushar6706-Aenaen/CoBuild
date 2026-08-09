@@ -89,7 +89,7 @@ export function AuthorHoverCard({
       >
         @{username}
       </Link>
-      <span className="text-xs text-[var(--color-text-placeholder)]">·</span>
+      <span className="text-xs text-[var(--color-text-tertiary)]">·</span>
       <span className="text-[12.5px] text-[var(--color-text-tertiary)]">{timeAgo}</span>
 
       {open && (

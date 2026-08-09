@@ -53,7 +53,16 @@ export const colors = {
     primary: "#E8EDE8",
     secondary: "#8B8F8B",
     secondaryAlt: "#949994",
-    tertiary: "#6E736E",
+    // 4.56:1 at worst (on `bg.raised`), so it clears WCAG AA for small text on
+    // every surface in this palette. It was `#6E736E`, which measured 4.10:1 on
+    // the page and 3.59:1 on raised — failing everywhere, while being the tier
+    // used almost exclusively for small text (profile stat labels, leaderboard
+    // metadata, timestamps, view counts). Any future move must be re-measured
+    // against `bg.raised`, the lightest surface and therefore the binding one.
+    tertiary: "#7F847F",
+    // 2.69:1 at worst — deliberately below AA and therefore ONLY legitimate for
+    // genuine `::placeholder` text, which WCAG exempts. Never use it for real
+    // content; reach for `tertiary` instead.
     placeholder: "#5A605A",
   },
   accent: {
@@ -67,7 +76,11 @@ export const colors = {
   status: {
     shipped: "#6FD2E8",
     inProgress: "#F5B950",
-    archived: "#6E736E",
+    // Kept a separate token from `text.tertiary` (a status is not a text tier)
+    // but moved with it, and for the same reason: `status.color` is rendered as
+    // the chip's small label text, not just its dot, so at `#6E736E` the
+    // "Archived" chip failed AA exactly like the text tier did.
+    archived: "#7F847F",
     danger: "#FF7A7A",
     dangerStrong: "#FF9B9B",
   },

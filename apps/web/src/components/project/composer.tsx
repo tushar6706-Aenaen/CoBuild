@@ -538,7 +538,7 @@ export function Composer({
                 <path d="M12 5v14M5 12h14" />
               </svg>
               Add images
-              <span className="font-mono text-[9.5px] text-[var(--color-text-placeholder)]">PNG · JPG · WEBP · GIF</span>
+              <span className="font-mono text-[9.5px] text-[var(--color-text-tertiary)]">PNG · JPG · WEBP · GIF</span>
             </button>
           )}
         </div>

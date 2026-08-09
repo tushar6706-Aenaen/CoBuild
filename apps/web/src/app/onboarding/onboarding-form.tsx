@@ -191,7 +191,7 @@ export function OnboardingForm({
             Username
           </Label>
           <div className="flex items-center overflow-hidden rounded-[var(--radius-control)] border border-[var(--color-border-default)] bg-[var(--color-bg-input)]">
-            <span className="py-3 pl-3.5 font-mono text-[13.5px] text-[var(--color-text-placeholder)]">
+            <span className="py-3 pl-3.5 font-mono text-[13.5px] text-[var(--color-text-tertiary)]">
               cobuild.to/u/
             </span>
             <input
@@ -289,7 +289,7 @@ export function OnboardingForm({
 
         <div className="flex flex-col gap-2">
           <Label htmlFor="bio" className="text-[12.5px] font-semibold text-[var(--color-text-secondary-alt)]">
-            Short bio <span className="font-normal text-[var(--color-text-placeholder)]">· optional</span>
+            Short bio <span className="font-normal text-[var(--color-text-tertiary)]">· optional</span>
           </Label>
           <Textarea
             id="bio"
@@ -306,7 +306,7 @@ export function OnboardingForm({
 
         <div className="flex flex-col gap-2.5">
           <Label className="text-[12.5px] font-semibold text-[var(--color-text-secondary-alt)]">
-            I am a… <span className="font-normal text-[var(--color-text-placeholder)]">· pick one or more</span>
+            I am a… <span className="font-normal text-[var(--color-text-tertiary)]">· pick one or more</span>
           </Label>
           <div className="flex flex-wrap gap-2">
             {ROLE_CHIPS.map((chip) => {

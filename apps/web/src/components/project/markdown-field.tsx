@@ -126,7 +126,7 @@ export function MarkdownField({
           {value.trim() ? (
             <Markdown content={value} />
           ) : (
-            <span className="text-sm text-[var(--color-text-placeholder)]">Nothing to preview yet.</span>
+            <span className="text-sm text-[var(--color-text-tertiary)]">Nothing to preview yet.</span>
           )}
         </div>
       )}

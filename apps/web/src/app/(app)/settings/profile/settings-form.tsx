@@ -217,7 +217,7 @@ export function SettingsForm({ userId, initial }: { userId: string; initial: Ini
             Username
           </Label>
           <div className="flex items-center overflow-hidden rounded-[var(--radius-control)] border border-[var(--color-border-default)] bg-[var(--color-bg-input)]">
-            <span className="py-3 pl-3.5 font-mono text-[13.5px] text-[var(--color-text-placeholder)]">
+            <span className="py-3 pl-3.5 font-mono text-[13.5px] text-[var(--color-text-tertiary)]">
               cobuild.to/u/
             </span>
             <input
