@@ -110,13 +110,21 @@ With the check failing (4 requests blocked): the message **"Couldn't check avail
 
 ---
 
-## 5. Tranche B — only one item done
+## 5. Tranche B — COMPLETE
 
-- ✅ **B1** `prefers-reduced-motion` block added to `globals.css` (was zero coverage; skeletons pulsed on every navigation).
+All six landed, each with its own commit, typecheck 4/4 and a clean `next build` behind it.
 
-Not started: B2 transitions, B3 focus-visible on 6 `outline-none` inputs, B4 shadow tokens, B5 radius dedupe (31 literals duplicating existing tokens), B6 `--color-text-tertiary` contrast fix (4.42:1, fails AA).
+- ✅ **B1** `prefers-reduced-motion` block in `globals.css` (was zero coverage; skeletons pulsed on every navigation). It also means B2 needed no extra guard.
+- ✅ **B2** One colour transition on `a, button, summary, [role=button], [role=tab]` — **deliberately not the plan's per-element `transition-colors`.** One rule fixes all 113 hovers at once and keeps covering new ones; the per-element route leaves 30 files inconsistent by construction, which is exactly how this state arose. Only colour-ish properties (`all` would drag in layout/transform). Verified in the *built* CSS, not the source. Also lifted `pill`/`chip` — byte-identical across 5 files — into `components/ui/control-classes.ts`.
+- ✅ **B3** Focus indicators for the 7 hand-rolled inputs that set `outline-none` with no replacement (incl. the onboarding screen's only field and the main search). `focus-within` on the wrapper where the input is a borderless child of a bordered box; `focus-visible` on inputs carrying their own border.
+- ✅ **B4** `--shadow-accent-glow`, `--shadow-accent-glow-lg`, `--shadow-popover`. 10 sites, not the audit's 8 (Phase 7's follow-tag button and the toast landed later). Glows compose from a new `--color-accent-rgb` so a palette change can't strand them. The résumé's paper shadow stays off-token on purpose.
+- ✅ **B5** 35 radius literals → existing tokens, zero visual change.
+- ✅ **B6** `--color-text-tertiary` → `#7f847f`. **The plan's suggested `#7c817c` was wrong** — measured 4.37:1 on `--color-bg-raised`, still failing AA on the worst surface. Its stated baseline was optimistic too (real: 4.10:1 page / 3.59:1 raised, not 4.42/3.87). `--color-status-archived` moved with it because it renders as the chip's small *label text*. All 8 non-pseudo uses of `--color-text-placeholder` (2.69:1) were carrying real content and moved to tertiary; that token is now used only in genuine `::placeholder`, where WCAG exempts it.
+
+**Measure, don't trust the plan's numbers.** B6's recommended value would have shipped a still-failing token; the contrast script that caught it is worth rebuilding if a palette value ever moves again.
 
 **Do not remove the `tw-animate-css` import** in `globals.css` — one audit called it dead; it is not, `ui/dialog.tsx` uses its classes.
+
 
 ---
 
