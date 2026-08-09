@@ -48,9 +48,21 @@ const FETCH_TIMEOUT_MS = 3_000;
  * has already been sniffed here, and passing bytes would need a
  * `@ts-expect-error` at every call site (`<img src>` is typed as `string`).
  *
- * Deliberately no explicit width/height at the call sites either — satori reads
- * the intrinsic size out of these bytes, so sizing the box is done by asking
- * Supabase's transform for the right box (`fit: "contain"`), not with CSS.
+ * Sizing depends on which `fit` the call site asks Supabase for, and the two
+ * are NOT interchangeable:
+ *
+ * - `fit: "cover"` crops to fill both axes, so the returned bytes really are
+ *   the requested box and satori's intrinsic-size read is enough. The profile
+ *   card's avatar relies on this and sets no width/height.
+ * - `fit: "contain"` bounds only the **width** — Supabase ignores the `height`
+ *   argument (see PROJECT_INFO.md's gotchas; verified live, a 736×1054 source
+ *   asked for 420×460 came back 420×~610). A `contain` call site must compute
+ *   the fitted box itself with `fitContain()` and set **both** axes explicitly
+ *   on the element, or a portrait image overflows and is clipped. The project
+ *   card's cover panel does exactly that.
+ *
+ * Don't "simplify" a `contain` call site by dropping its explicit width/height
+ * — that is the clipped-cover bug Phase 7 already found and fixed.
  */
 export async function fetchOgImage(url: string | null): Promise<string | null> {
   if (!url) return null;
