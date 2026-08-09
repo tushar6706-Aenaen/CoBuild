@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { pill } from "@/components/ui/control-classes";
 
 /**
  * Hot / New / Top — the design's `feedTabs3`. Deliberately no Following tab:
@@ -15,7 +16,6 @@ export type TagTab = (typeof TAG_TABS)[number]["key"];
 
 export const TAG_TAB_KEYS = new Set<string>(TAG_TABS.map((t) => t.key));
 
-const pill = "rounded-[5px] px-3.5 py-2 text-[13px] font-semibold transition-colors";
 
 export function TagTabs({ slug, tab }: { slug: string; tab: TagTab }) {
   return (

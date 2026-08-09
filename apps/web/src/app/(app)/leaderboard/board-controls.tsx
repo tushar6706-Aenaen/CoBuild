@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { LeaderboardWindow } from "@cobuild/shared";
+import { pill, chip } from "@/components/ui/control-classes";
 
 export const BOARD_TABS = [
   { key: "projects", label: "Top projects" },
@@ -13,8 +14,6 @@ export const BOARD_WINDOWS = [
   { key: "week", label: "This week" },
 ] as const;
 
-const pill = "rounded-[5px] px-3.5 py-2 text-[13px] font-semibold transition-colors";
-const chip = "rounded-[5px] border px-2.5 py-1.5 text-xs font-semibold transition-colors";
 
 function href(tab: BoardTab, window: LeaderboardWindow) {
   const params = new URLSearchParams();

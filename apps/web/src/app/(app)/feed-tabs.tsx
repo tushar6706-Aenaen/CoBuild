@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { pill } from "@/components/ui/control-classes";
 
 export const FEED_TABS = [
   { key: "hot", label: "Hot" },
@@ -14,7 +15,6 @@ export const TOP_WINDOWS = [
   { key: "all", label: "All time" },
 ] as const;
 
-const pill = "rounded-[5px] px-3.5 py-2 text-[13px] font-semibold transition-colors";
 const active = `${pill} bg-[var(--color-accent)] text-[var(--color-accent-on)]`;
 const inactive = `${pill} text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]`;
 

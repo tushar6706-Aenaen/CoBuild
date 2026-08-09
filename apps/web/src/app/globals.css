@@ -270,6 +270,35 @@ body {
 }
 
 /*
+ * One colour transition for every interactive element.
+ *
+ * The audit counted 113 `hover:` utilities across 40 files against 13
+ * `transition` declarations in 10 — 30 of those files had none at all, so
+ * nearly every hover in the app hard-cut its colour. The plan proposed adding
+ * `transition-colors` per element, starting with the busiest surfaces; this
+ * rule is deliberately the other approach, for two reasons. It fixes all 113
+ * at once instead of the handful anyone gets round to, and it keeps fixing
+ * them — a `hover:` added next month is covered without remembering to pair
+ * it. Per-element utilities left 30 files inconsistent by construction.
+ *
+ * Only colour-ish properties are listed: transitioning `all` here would drag
+ * in layout and transform and make every hover a performance question.
+ * Components that want a different curve still win by specificity, and the
+ * reduced-motion block below zeroes this along with everything else.
+ */
+a,
+button,
+summary,
+[role="button"],
+[role="tab"] {
+  transition:
+    color 120ms ease,
+    background-color 120ms ease,
+    border-color 120ms ease,
+    box-shadow 120ms ease;
+}
+
+/*
  * Every animation in this app is decorative: skeleton pulses, button spinners,
  * dialog and toast entrances, the vote button's press-scale. None of them
  * carry information a static frame doesn't, so honouring the OS preference

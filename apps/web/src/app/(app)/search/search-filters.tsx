@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ProjectStatus, TagHit } from "@cobuild/shared";
+import { chip } from "@/components/ui/control-classes";
 
 export const STATUS_LABELS: Record<ProjectStatus, string> = {
   shipped: "Shipped",
@@ -7,7 +8,6 @@ export const STATUS_LABELS: Record<ProjectStatus, string> = {
   archived: "Archived",
 };
 
-const chip = "rounded-[5px] border px-2.5 py-1.5 text-xs font-semibold transition-colors";
 const on = `${chip} border-[var(--color-accent)]/45 bg-[var(--color-accent)]/12 text-[var(--color-accent-muted)]`;
 const off = `${chip} border-[var(--color-border-default)] bg-[var(--color-bg-panel)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]`;
 
