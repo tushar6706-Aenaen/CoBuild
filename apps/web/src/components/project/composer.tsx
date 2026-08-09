@@ -465,11 +465,11 @@ export function Composer({
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={img.previewUrl} alt="" className="h-full w-full object-cover" />
                 )}
-                <span className="absolute top-1.5 left-1.5 flex cursor-grab items-center gap-1 rounded-[3px] bg-[rgb(var(--color-bg-page-rgb)/0.72)] px-1.5 py-1 font-mono text-[9.5px] text-[var(--color-text-secondary)]">
+                <span className="absolute top-1.5 left-1.5 flex cursor-grab items-center gap-1 rounded-[var(--radius-xs)] bg-[rgb(var(--color-bg-page-rgb)/0.72)] px-1.5 py-1 font-mono text-[9.5px] text-[var(--color-text-secondary)]">
                   ⠿ {index + 1}
                 </span>
                 {index === coverIndex && (
-                  <span className="absolute top-1.5 right-1.5 rounded-[3px] bg-[var(--color-accent)] px-1.5 py-1 text-[9.5px] font-bold tracking-wide text-[var(--color-accent-on)]">
+                  <span className="absolute top-1.5 right-1.5 rounded-[var(--radius-xs)] bg-[var(--color-accent)] px-1.5 py-1 text-[9.5px] font-bold tracking-wide text-[var(--color-accent-on)]">
                     COVER
                   </span>
                 )}
@@ -492,13 +492,13 @@ export function Composer({
                       value={img.alt}
                       onChange={(e) => patchImage(index, { alt: e.target.value })}
                       placeholder="Alt text (required)"
-                      className="rounded-[4px] border border-[var(--color-border-default)] bg-[var(--color-bg-input)] px-2 py-1.5 text-[11.5px] text-[var(--color-text-secondary)] outline-none placeholder:text-[var(--color-text-placeholder)] focus-visible:border-[var(--color-accent)]/60 focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]/35"
+                      className="rounded-[var(--radius-xs)] border border-[var(--color-border-default)] bg-[var(--color-bg-input)] px-2 py-1.5 text-[11.5px] text-[var(--color-text-secondary)] outline-none placeholder:text-[var(--color-text-placeholder)] focus-visible:border-[var(--color-accent)]/60 focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]/35"
                     />
                     <input
                       value={img.caption}
                       onChange={(e) => patchImage(index, { caption: e.target.value })}
                       placeholder="Caption"
-                      className="rounded-[4px] border border-[var(--color-border-default)] bg-[var(--color-bg-input)] px-2 py-1.5 text-[11.5px] text-[var(--color-text-secondary)] outline-none placeholder:text-[var(--color-text-placeholder)] focus-visible:border-[var(--color-accent)]/60 focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]/35"
+                      className="rounded-[var(--radius-xs)] border border-[var(--color-border-default)] bg-[var(--color-bg-input)] px-2 py-1.5 text-[11.5px] text-[var(--color-text-secondary)] outline-none placeholder:text-[var(--color-text-placeholder)] focus-visible:border-[var(--color-accent)]/60 focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]/35"
                     />
                   </>
                 )}
@@ -509,8 +509,8 @@ export function Composer({
                     disabled={index === coverIndex || !img.storagePath}
                     className={
                       index === coverIndex
-                        ? "flex-1 rounded-[4px] bg-[var(--color-accent)]/15 py-1.5 text-[11px] font-semibold text-[var(--color-accent-muted)]"
-                        : "flex-1 rounded-[4px] border border-[var(--color-border-default)] bg-[var(--color-bg-panel-alt)] py-1.5 text-[11px] font-semibold text-[var(--color-text-secondary)] hover:border-[var(--color-border-strong)] hover:bg-[var(--color-bg-raised)] hover:text-[var(--color-text-primary)] disabled:opacity-40"
+                        ? "flex-1 rounded-[var(--radius-xs)] bg-[var(--color-accent)]/15 py-1.5 text-[11px] font-semibold text-[var(--color-accent-muted)]"
+                        : "flex-1 rounded-[var(--radius-xs)] border border-[var(--color-border-default)] bg-[var(--color-bg-panel-alt)] py-1.5 text-[11px] font-semibold text-[var(--color-text-secondary)] hover:border-[var(--color-border-strong)] hover:bg-[var(--color-bg-raised)] hover:text-[var(--color-text-primary)] disabled:opacity-40"
                     }
                   >
                     Cover
@@ -519,7 +519,7 @@ export function Composer({
                     type="button"
                     onClick={() => removeImage(index)}
                     aria-label="Remove image"
-                    className="w-7 rounded-[4px] border border-[var(--color-status-danger)]/25 bg-[var(--color-status-danger)]/[0.07] py-1.5 text-[11px] text-[var(--color-status-danger-strong)]"
+                    className="w-7 rounded-[var(--radius-xs)] border border-[var(--color-status-danger)]/25 bg-[var(--color-status-danger)]/[0.07] py-1.5 text-[11px] text-[var(--color-status-danger-strong)]"
                   >
                     ×
                   </button>
@@ -594,7 +594,7 @@ export function Composer({
                     setTags((prev) => [...prev, t]);
                     setTagQuery("");
                   }}
-                  className="flex items-center justify-between gap-2.5 rounded-[5px] px-2.5 py-2 text-left font-mono text-[12.5px] text-[var(--color-text-primary)] hover:bg-[var(--color-bg-raised)]"
+                  className="flex items-center justify-between gap-2.5 rounded-[var(--radius-xs)] px-2.5 py-2 text-left font-mono text-[12.5px] text-[var(--color-text-primary)] hover:bg-[var(--color-bg-raised)]"
                 >
                   {t.name}
                   <span className="text-[11px] text-[var(--color-text-tertiary)]">{t.usage_count}</span>
@@ -611,7 +611,7 @@ export function Composer({
                     setError("Couldn't create that tag.");
                   }
                 }}
-                className="rounded-[5px] px-2.5 py-2 text-left text-[12.5px] font-semibold text-[var(--color-accent-muted)] hover:bg-[var(--color-bg-raised)]"
+                className="rounded-[var(--radius-xs)] px-2.5 py-2 text-left text-[12.5px] font-semibold text-[var(--color-accent-muted)] hover:bg-[var(--color-bg-raised)]"
               >
                 + Create &ldquo;{tagQuery.trim()}&rdquo;
               </button>
@@ -665,7 +665,7 @@ export function Composer({
                     setCrew((prev) => prev.map((x, xi) => (xi === i ? { ...x, roleLabel: e.target.value } : x)))
                   }
                   placeholder="Role"
-                  className="w-[110px] rounded-[4px] border border-[var(--color-border-default)] bg-[var(--color-bg-page)] px-2 py-1.5 text-[11.5px] font-semibold text-[var(--color-accent-muted-strong)] outline-none focus-visible:border-[var(--color-accent)]/60 focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]/35 placeholder:text-[var(--color-text-placeholder)]"
+                  className="w-[110px] rounded-[var(--radius-xs)] border border-[var(--color-border-default)] bg-[var(--color-bg-page)] px-2 py-1.5 text-[11.5px] font-semibold text-[var(--color-accent-muted-strong)] outline-none focus-visible:border-[var(--color-accent)]/60 focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]/35 placeholder:text-[var(--color-text-placeholder)]"
                 />
                 <button type="button" onClick={() => setCrew((prev) => prev.filter((_, xi) => xi !== i))} aria-label="Remove collaborator" className="px-1 text-base text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)]">×</button>
               </div>
@@ -681,7 +681,7 @@ export function Composer({
                       setCrew((prev) => [...prev, { profileId: p.id, username: p.username, invitedName: null, roleLabel: "" }]);
                       setCrewQuery("");
                     }}
-                    className="rounded-[5px] px-2.5 py-2 text-left font-mono text-[12.5px] text-[var(--color-text-primary)] hover:bg-[var(--color-bg-raised)]"
+                    className="rounded-[var(--radius-xs)] px-2.5 py-2 text-left font-mono text-[12.5px] text-[var(--color-text-primary)] hover:bg-[var(--color-bg-raised)]"
                   >
                     @{p.username}
                   </button>
@@ -723,7 +723,7 @@ export function Composer({
       {error && <p className="text-[13px] text-[var(--color-status-danger-strong)]">{error}</p>}
 
       {/* Sticky action bar */}
-      <div className="sticky bottom-0 flex flex-wrap items-center gap-2.5 rounded-[8px] border border-[var(--color-border-default)] bg-[rgb(var(--color-bg-panel-rgb)/0.92)] p-3.5 backdrop-blur-md">
+      <div className="sticky bottom-0 flex flex-wrap items-center gap-2.5 rounded-[var(--radius-control)] border border-[var(--color-border-default)] bg-[rgb(var(--color-bg-panel-rgb)/0.92)] p-3.5 backdrop-blur-md">
         <div className="flex-1" />
         {uploadingCount > 0 && (
           <span className="flex items-center gap-2 text-xs text-[var(--color-text-secondary)]">

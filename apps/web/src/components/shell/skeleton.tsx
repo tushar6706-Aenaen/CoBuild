@@ -34,7 +34,7 @@ export function SkeletonRows({ count = 6, height = "h-[68px]" }: { count?: numbe
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className={`${height} rounded-[8px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-panel)]`}
+          className={`${height} rounded-[var(--radius-control)] border border-[var(--color-border-subtle)] bg-[var(--color-bg-panel)]`}
         />
       ))}
     </div>

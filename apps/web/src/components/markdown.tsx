@@ -27,7 +27,7 @@ export function Markdown({ content }: { content: string }) {
             className ? (
               <code className={className} {...p} />
             ) : (
-              <code className="rounded-[3px] bg-[var(--color-bg-raised)] px-1.5 py-0.5 font-mono text-[13px] text-[var(--color-text-primary)]" {...p} />
+              <code className="rounded-[var(--radius-xs)] bg-[var(--color-bg-raised)] px-1.5 py-0.5 font-mono text-[13px] text-[var(--color-text-primary)]" {...p} />
             ),
           pre: (p) => (
             <pre

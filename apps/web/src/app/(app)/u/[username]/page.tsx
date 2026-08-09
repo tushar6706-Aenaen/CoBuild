@@ -203,7 +203,7 @@ export default async function ProfilePage({
                 href={url}
                 target="_blank"
                 rel="noreferrer noopener"
-                className="flex items-center gap-1.5 rounded-[5px] border border-[var(--color-border-default)] bg-[var(--color-bg-raised)] px-3 py-1.5 text-[12.5px] text-[var(--color-text-secondary)] hover:border-[var(--color-border-strong)] hover:text-[var(--color-text-primary)]"
+                className="flex items-center gap-1.5 rounded-[var(--radius-control)] border border-[var(--color-border-default)] bg-[var(--color-bg-raised)] px-3 py-1.5 text-[12.5px] text-[var(--color-text-secondary)] hover:border-[var(--color-border-strong)] hover:text-[var(--color-text-primary)]"
               >
                 {LINK_LABELS[key] ?? key}
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round">
@@ -231,8 +231,8 @@ export default async function ProfilePage({
             href={t.key === "projects" ? `/u/${username}` : `/u/${username}?tab=${t.key}`}
             className={
               t.key === tab
-                ? "rounded-[5px] bg-[var(--color-accent)] px-3.5 py-2 text-[13px] font-semibold text-[var(--color-accent-on)]"
-                : "rounded-[5px] px-3.5 py-2 text-[13px] font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+                ? "rounded-[var(--radius-pill)] bg-[var(--color-accent)] px-3.5 py-2 text-[13px] font-semibold text-[var(--color-accent-on)]"
+                : "rounded-[var(--radius-pill)] px-3.5 py-2 text-[13px] font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
             }
           >
             {t.label}
@@ -242,7 +242,7 @@ export default async function ProfilePage({
 
       {tiles.length === 0 ? (
         <div className="flex flex-col items-center gap-4 rounded-[var(--radius-card-lg)] border border-dashed border-[var(--color-border-default)] bg-[var(--color-bg-panel)] px-7 py-[60px] text-center">
-          <div className="flex h-[54px] w-[54px] items-center justify-center rounded-[8px] bg-[var(--color-bg-panel-alt)] text-[var(--color-accent)]">
+          <div className="flex h-[54px] w-[54px] items-center justify-center rounded-[var(--radius-control)] bg-[var(--color-bg-panel-alt)] text-[var(--color-accent)]">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round">
               <rect x="3" y="4" width="18" height="16" rx="3" />
               <path d="M3 15l4-4 5 5" />

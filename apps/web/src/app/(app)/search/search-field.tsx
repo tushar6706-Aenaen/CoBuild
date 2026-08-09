@@ -40,7 +40,7 @@ export function SearchField({ initialQuery }: { initialQuery: string }) {
   }, [value, initialQuery, params, pathname, router]);
 
   return (
-    <div className="flex items-center gap-2.5 rounded-[8px] border border-[var(--color-accent)]/35 bg-[var(--color-bg-panel)] px-4 py-3.5 focus-within:border-[var(--color-accent)]/60 focus-within:ring-2 focus-within:ring-[var(--color-accent)]/35">
+    <div className="flex items-center gap-2.5 rounded-[var(--radius-control)] border border-[var(--color-accent)]/35 bg-[var(--color-bg-panel)] px-4 py-3.5 focus-within:border-[var(--color-accent)]/60 focus-within:ring-2 focus-within:ring-[var(--color-accent)]/35">
       <svg
         width="18"
         height="18"

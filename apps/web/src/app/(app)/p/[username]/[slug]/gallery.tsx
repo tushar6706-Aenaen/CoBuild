@@ -19,7 +19,7 @@ export function Gallery({ images, title }: { images: GalleryImage[]; title: stri
 
   if (images.length === 0) {
     return (
-      <div className="flex aspect-[16/10] items-center justify-center rounded-[9px] border border-[var(--color-border-subtle)] bg-[repeating-linear-gradient(135deg,var(--color-bg-raised)_0_10px,var(--color-bg-panel-alt)_10px_20px)] font-mono text-[11px] tracking-widest text-[var(--color-text-tertiary)]">
+      <div className="flex aspect-[16/10] items-center justify-center rounded-[var(--radius-control-lg)] border border-[var(--color-border-subtle)] bg-[repeating-linear-gradient(135deg,var(--color-bg-raised)_0_10px,var(--color-bg-panel-alt)_10px_20px)] font-mono text-[11px] tracking-widest text-[var(--color-text-tertiary)]">
         NO SCREENSHOTS
       </div>
     );
@@ -38,7 +38,7 @@ export function Gallery({ images, title }: { images: GalleryImage[]; title: stri
       <button
         type="button"
         onClick={() => setLightboxOpen(true)}
-        className="group relative aspect-[16/10] cursor-zoom-in overflow-hidden rounded-[9px] border border-[var(--color-border-subtle)] bg-[repeating-linear-gradient(135deg,var(--color-bg-raised)_0_10px,var(--color-bg-panel-alt)_10px_20px)]"
+        className="group relative aspect-[16/10] cursor-zoom-in overflow-hidden rounded-[var(--radius-control-lg)] border border-[var(--color-border-subtle)] bg-[repeating-linear-gradient(135deg,var(--color-bg-raised)_0_10px,var(--color-bg-panel-alt)_10px_20px)]"
       >
         <Image
           src={heroSrc}
@@ -72,8 +72,8 @@ export function Gallery({ images, title }: { images: GalleryImage[]; title: stri
               aria-current={i === active}
               className={
                 i === active
-                  ? "relative h-14 w-[88px] flex-none overflow-hidden rounded-[5px] border-2 border-[var(--color-accent)]"
-                  : "relative h-14 w-[88px] flex-none overflow-hidden rounded-[5px] border border-[var(--color-border-default)] opacity-60 hover:opacity-100"
+                  ? "relative h-14 w-[88px] flex-none overflow-hidden rounded-[var(--radius-xs)] border-2 border-[var(--color-accent)]"
+                  : "relative h-14 w-[88px] flex-none overflow-hidden rounded-[var(--radius-xs)] border border-[var(--color-border-default)] opacity-60 hover:opacity-100"
               }
             >
               <Image

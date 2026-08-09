@@ -14,7 +14,7 @@
  */
 
 /** Tab-row pill: feed tabs, leaderboard window switch, tag-page tabs. */
-export const pill = "rounded-[5px] px-3.5 py-2 text-[13px] font-semibold transition-colors";
+export const pill = "rounded-[var(--radius-pill)] px-3.5 py-2 text-[13px] font-semibold transition-colors";
 
 /** Smaller bordered facet chip: leaderboard scope, search filters. */
-export const chip = "rounded-[5px] border px-2.5 py-1.5 text-xs font-semibold transition-colors";
+export const chip = "rounded-[var(--radius-pill)] border px-2.5 py-1.5 text-xs font-semibold transition-colors";

@@ -9,7 +9,7 @@ import Link from "next/link";
 export default function NotFound() {
   return (
     <div className="flex flex-col items-center gap-4 rounded-[var(--radius-card-lg)] border border-dashed border-[var(--color-border-default)] bg-[var(--color-bg-panel)] px-7 py-16 text-center">
-      <div className="flex h-[54px] w-[54px] items-center justify-center rounded-[8px] bg-[var(--color-bg-panel-alt)] text-[var(--color-accent)]">
+      <div className="flex h-[54px] w-[54px] items-center justify-center rounded-[var(--radius-control)] bg-[var(--color-bg-panel-alt)] text-[var(--color-accent)]">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" aria-hidden="true">
           <circle cx="12" cy="12" r="9" />
           <path d="M9.2 9.5a2.8 2.8 0 015.5.7c0 1.9-2.7 2.4-2.7 2.4" />

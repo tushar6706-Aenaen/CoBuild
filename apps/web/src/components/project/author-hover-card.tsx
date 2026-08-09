@@ -96,7 +96,7 @@ export function AuthorHoverCard({
         <span
           onMouseEnter={handleEnter}
           onMouseLeave={handleLeave}
-          className="absolute bottom-[30px] left-0 z-40 flex w-[268px] flex-col gap-2.5 rounded-[8px] border border-[var(--color-border-strong)] bg-[var(--color-bg-raised)] p-[15px] shadow-[var(--shadow-popover)]"
+          className="absolute bottom-[30px] left-0 z-40 flex w-[268px] flex-col gap-2.5 rounded-[var(--radius-control)] border border-[var(--color-border-strong)] bg-[var(--color-bg-raised)] p-[15px] shadow-[var(--shadow-popover)]"
         >
           <span className="flex items-center gap-2.5">
             <span className="h-[42px] w-[42px] flex-none overflow-hidden rounded-full border border-[var(--color-border-default)] bg-[repeating-linear-gradient(135deg,var(--color-bg-panel-alt)_0_4px,var(--color-bg-panel)_4px_8px)]">
@@ -126,7 +126,7 @@ export function AuthorHoverCard({
           </span>
           <Link
             href={`/u/${username}`}
-            className="w-full rounded-[5px] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] py-2 text-center text-[12.5px] font-semibold text-[var(--color-text-primary)] hover:border-[var(--color-border-strong)] hover:bg-[var(--color-bg-panel-alt)]"
+            className="w-full rounded-[var(--radius-control)] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] py-2 text-center text-[12.5px] font-semibold text-[var(--color-text-primary)] hover:border-[var(--color-border-strong)] hover:bg-[var(--color-bg-panel-alt)]"
           >
             View profile
           </Link>

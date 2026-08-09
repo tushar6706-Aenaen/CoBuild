@@ -36,7 +36,7 @@ export async function FeedSidebar() {
   return (
     <aside className="sticky top-[82px] hidden w-[296px] flex-none flex-col gap-4 lg:flex">
       {trending.length > 0 && (
-        <div className="flex flex-col gap-3 rounded-[9px] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] p-[17px]">
+        <div className="flex flex-col gap-3 rounded-[var(--radius-control-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] p-[17px]">
           <div className="flex items-center justify-between">
             <span className="text-[13px] font-bold">Trending stacks</span>
             <Link href="/search" className="text-xs">
@@ -59,7 +59,7 @@ export async function FeedSidebar() {
       )}
 
       {topBuilders.length > 0 && (
-        <div className="flex flex-col gap-[13px] rounded-[9px] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] p-[17px]">
+        <div className="flex flex-col gap-[13px] rounded-[var(--radius-control-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] p-[17px]">
           <div className="flex items-center justify-between">
             <span className="text-[13px] font-bold">Top builders this week</span>
             <Link href="/leaderboard" className="text-xs">
@@ -105,7 +105,7 @@ export async function FeedSidebar() {
       )}
 
       <div
-        className="flex flex-col gap-2.5 rounded-[9px] border p-[17px]"
+        className="flex flex-col gap-2.5 rounded-[var(--radius-control-lg)] border p-[17px]"
         style={{
           background: "linear-gradient(150deg, rgba(59,227,143,0.18), rgba(59,227,143,0.04))",
           borderColor: "rgba(59,227,143,0.25)",

@@ -14,7 +14,7 @@ export default function Loading() {
               borderColor: "rgba(59,227,143,0.24)",
             }}
           >
-            <div className="h-[52px] w-[52px] flex-none animate-pulse rounded-[8px] bg-[var(--color-bg-panel-alt)]" />
+            <div className="h-[52px] w-[52px] flex-none animate-pulse rounded-[var(--radius-control)] bg-[var(--color-bg-panel-alt)]" />
             <div className="flex min-w-0 flex-1 flex-col gap-[7px]">
               <SkeletonBar className="h-[21px] w-[140px]" />
               <SkeletonBar className="h-3 w-[180px]" />
@@ -26,7 +26,7 @@ export default function Loading() {
           <FeedSkeleton />
         </div>
 
-        <div className="sticky top-[82px] hidden w-[296px] flex-none flex-col gap-3 rounded-[9px] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] p-[17px] lg:flex">
+        <div className="sticky top-[82px] hidden w-[296px] flex-none flex-col gap-3 rounded-[var(--radius-control-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] p-[17px] lg:flex">
           <SkeletonBar className="h-3.5 w-[110px]" />
           <div className="flex flex-wrap gap-[7px]">
             {Array.from({ length: 6 }).map((_, i) => (

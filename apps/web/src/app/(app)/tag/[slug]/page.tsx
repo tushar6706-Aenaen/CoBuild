@@ -97,7 +97,7 @@ export default async function TagPage({
             borderColor: "rgba(59,227,143,0.24)",
           }}
         >
-          <div className="flex h-[52px] w-[52px] flex-none items-center justify-center rounded-[8px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-panel-alt)] font-mono text-[19px] text-[var(--color-accent-muted)]">
+          <div className="flex h-[52px] w-[52px] flex-none items-center justify-center rounded-[var(--radius-control)] border border-[var(--color-border-subtle)] bg-[var(--color-bg-panel-alt)] font-mono text-[19px] text-[var(--color-accent-muted)]">
             #
           </div>
           <div className="flex min-w-0 flex-1 flex-col gap-[3px]">
@@ -151,7 +151,7 @@ export default async function TagPage({
       </div>
 
       {related.length > 0 && (
-        <aside className="sticky top-[82px] hidden w-[296px] flex-none flex-col gap-3 rounded-[9px] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] p-[17px] lg:flex">
+        <aside className="sticky top-[82px] hidden w-[296px] flex-none flex-col gap-3 rounded-[var(--radius-control-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] p-[17px] lg:flex">
           <span className="text-[13px] font-bold">Related stacks</span>
           <div className="flex flex-wrap gap-[7px]">
             {related.map((t) => (

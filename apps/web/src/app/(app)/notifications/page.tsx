@@ -24,7 +24,7 @@ export default async function NotificationsPage() {
 
       {notifications.length === 0 ? (
         <div className="flex flex-col items-center gap-4 rounded-[var(--radius-card-lg)] border border-dashed border-[var(--color-border-default)] bg-[var(--color-bg-panel)] px-7 py-14 text-center">
-          <div className="flex h-[54px] w-[54px] items-center justify-center rounded-[8px] bg-[var(--color-bg-panel-alt)] text-[var(--color-accent)]">
+          <div className="flex h-[54px] w-[54px] items-center justify-center rounded-[var(--radius-control)] bg-[var(--color-bg-panel-alt)] text-[var(--color-accent)]">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" aria-hidden="true">
               <path d="M18 8a6 6 0 10-12 0c0 7-3 8-3 8h18s-3-1-3-8" />
               <path d="M13.7 21a2 2 0 01-3.4 0" />

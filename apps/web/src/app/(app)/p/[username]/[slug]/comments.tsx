@@ -161,7 +161,7 @@ function CommentItem({
               <span className="font-mono text-[12.5px] text-[var(--color-text-tertiary)]">[deleted]</span>
             )}
             {isProjectAuthor && (
-              <span className="rounded-[3px] bg-[var(--color-accent)]/15 px-1.5 py-0.5 text-[10.5px] font-bold text-[var(--color-accent-muted)]">
+              <span className="rounded-[var(--radius-xs)] bg-[var(--color-accent)]/15 px-1.5 py-0.5 text-[10.5px] font-bold text-[var(--color-accent-muted)]">
                 AUTHOR
               </span>
             )}
@@ -307,7 +307,7 @@ export function Comments({
         <span className="font-mono text-xs text-[var(--color-text-tertiary)]">{commentCount}</span>
       </div>
 
-      <div className="flex gap-2.5 rounded-[8px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-panel)] p-3.5">
+      <div className="flex gap-2.5 rounded-[var(--radius-control)] border border-[var(--color-border-subtle)] bg-[var(--color-bg-panel)] p-3.5">
         <CommentAvatar url={avatarUrlFor(viewer?.avatarUrl ?? null)} size={34} />
         <form onSubmit={submit} className="flex flex-1 flex-col gap-2.5">
           <Textarea

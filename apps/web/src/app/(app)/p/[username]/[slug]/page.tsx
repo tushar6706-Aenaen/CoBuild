@@ -156,7 +156,7 @@ export default async function ProjectDetailPage({
 
           <Gallery images={galleryImages} title={project.title} />
 
-          <div className="flex flex-wrap items-center gap-2.5 rounded-[8px] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] p-3.5">
+          <div className="flex flex-wrap items-center gap-2.5 rounded-[var(--radius-control)] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] p-3.5">
             <VoteButton
               projectId={project.id}
               viewerId={viewer?.id ?? null}
@@ -273,7 +273,7 @@ export default async function ProjectDetailPage({
         </div>
 
         <aside className="flex min-w-0 flex-col gap-3.5">
-          <div className="flex flex-col gap-3.5 rounded-[9px] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] p-[18px]">
+          <div className="flex flex-col gap-3.5 rounded-[var(--radius-control-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] p-[18px]">
             <div className="flex items-center gap-3">
               <span className="h-12 w-12 flex-none overflow-hidden rounded-full border border-[var(--color-border-default)] bg-[repeating-linear-gradient(135deg,var(--color-bg-raised)_0_4px,var(--color-bg-panel-alt)_4px_8px)]">
                 {authorAvatar && (
@@ -321,7 +321,7 @@ export default async function ProjectDetailPage({
             )}
           </div>
 
-          <div className="flex flex-col gap-2.5 rounded-[9px] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] p-[18px]">
+          <div className="flex flex-col gap-2.5 rounded-[var(--radius-control-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] p-[18px]">
             <span className="text-[13px] font-bold">Project stats</span>
             {[
               { k: "Upvotes", v: project.upvote_count },

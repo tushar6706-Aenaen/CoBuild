@@ -45,8 +45,8 @@ export function FeedTabs({ tab, window }: { tab: string; window: string }) {
                 href={`/?tab=top&window=${w.key}`}
                 className={
                   w.key === window
-                    ? "rounded-[5px] border border-[var(--color-accent)]/45 bg-[var(--color-accent)]/12 px-2.5 py-1.5 text-xs font-semibold text-[var(--color-accent-muted)]"
-                    : "rounded-[5px] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] px-2.5 py-1.5 text-xs font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+                    ? "rounded-[var(--radius-pill)] border border-[var(--color-accent)]/45 bg-[var(--color-accent)]/12 px-2.5 py-1.5 text-xs font-semibold text-[var(--color-accent-muted)]"
+                    : "rounded-[var(--radius-pill)] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] px-2.5 py-1.5 text-xs font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
                 }
               >
                 {w.label}

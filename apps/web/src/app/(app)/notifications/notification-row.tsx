@@ -117,7 +117,7 @@ export function NotificationRow({ notification }: { notification: NotificationIt
   );
 
   const className = [
-    "flex gap-3 rounded-[8px] border p-3.5 text-left",
+    "flex gap-3 rounded-[var(--radius-control)] border p-3.5 text-left",
     read
       ? "border-[var(--color-border-subtle)] bg-[var(--color-bg-panel)]"
       : "border-[var(--color-accent)]/[0.22] bg-[var(--color-accent)]/[0.06]",

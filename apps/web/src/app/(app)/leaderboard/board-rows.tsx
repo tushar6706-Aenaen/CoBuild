@@ -56,7 +56,7 @@ function Delta({ delta }: { delta: number | null }) {
   return (
     <span
       title={title}
-      className="flex-none rounded-[4px] px-2 py-[3px] font-mono text-[11px]"
+      className="flex-none rounded-[var(--radius-xs)] px-2 py-[3px] font-mono text-[11px]"
       style={tone}
     >
       {label}
@@ -98,7 +98,7 @@ export function ProjectRows({ rows }: { rows: LeaderboardProjectRow[] }) {
             className={`${row} text-[var(--color-text-primary)]`}
           >
             <Rank rank={r.rank} />
-            <span className="h-[38px] w-[58px] flex-none overflow-hidden rounded-[5px] border border-[var(--color-border-default)] bg-[repeating-linear-gradient(135deg,var(--color-bg-raised)_0_8px,var(--color-bg-panel-alt)_8px_16px)]">
+            <span className="h-[38px] w-[58px] flex-none overflow-hidden rounded-[var(--radius-xs)] border border-[var(--color-border-default)] bg-[repeating-linear-gradient(135deg,var(--color-bg-raised)_0_8px,var(--color-bg-panel-alt)_8px_16px)]">
               {cover && (
                 <Image
                   src={cover}

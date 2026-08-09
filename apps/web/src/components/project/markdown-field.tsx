@@ -79,7 +79,7 @@ export function MarkdownField({
         <label htmlFor={id} className="text-[12.5px] font-semibold text-[var(--color-text-secondary-alt)]">
           Description
         </label>
-        <div className="flex gap-1 rounded-[5px] border border-[var(--color-border-default)] bg-[var(--color-bg-input)] p-[3px]">
+        <div className="flex gap-1 rounded-[var(--radius-control)] border border-[var(--color-border-default)] bg-[var(--color-bg-input)] p-[3px]">
           {(["write", "preview"] as const).map((m) => (
             <button
               key={m}
@@ -87,8 +87,8 @@ export function MarkdownField({
               onClick={() => setMode(m)}
               className={
                 mode === m
-                  ? "rounded-[4px] bg-[var(--color-accent)] px-2.5 py-1 text-[11.5px] font-semibold text-[var(--color-accent-on)]"
-                  : "rounded-[4px] px-2.5 py-1 text-[11.5px] font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+                  ? "rounded-[var(--radius-xs)] bg-[var(--color-accent)] px-2.5 py-1 text-[11.5px] font-semibold text-[var(--color-accent-on)]"
+                  : "rounded-[var(--radius-xs)] px-2.5 py-1 text-[11.5px] font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
               }
             >
               {m === "write" ? "Write" : "Preview"}
@@ -105,7 +105,7 @@ export function MarkdownField({
                 key={tool.label}
                 type="button"
                 onClick={() => applyTool(tool)}
-                className="flex h-7 min-w-[30px] items-center justify-center rounded-[4px] px-2 font-mono text-xs text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-raised)] hover:text-[var(--color-text-primary)]"
+                className="flex h-7 min-w-[30px] items-center justify-center rounded-[var(--radius-xs)] px-2 font-mono text-xs text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-raised)] hover:text-[var(--color-text-primary)]"
               >
                 {tool.label}
               </button>

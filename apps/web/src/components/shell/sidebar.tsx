@@ -23,7 +23,7 @@ export function Sidebar({
   return (
     <aside className="sticky top-0 hidden h-screen w-[246px] flex-none flex-col gap-[22px] self-start border-r border-[var(--color-border-subtle)] bg-[var(--color-bg-sidebar)] px-4 py-[22px] lg:flex print:hidden">
       <Link href="/" className="flex items-center gap-2.5 px-2">
-        <span className="flex h-[30px] w-[30px] items-center justify-center rounded-[5px] bg-[var(--color-accent)] text-[15px] font-extrabold text-[var(--color-accent-on)]">
+        <span className="flex h-[30px] w-[30px] items-center justify-center rounded-[var(--radius-control)] bg-[var(--color-accent)] text-[15px] font-extrabold text-[var(--color-accent-on)]">
           C
         </span>
         <span className="font-mono text-base font-medium tracking-tight text-[var(--color-text-primary)]">
@@ -63,7 +63,7 @@ export function Sidebar({
           </span>
         </Link>
       ) : (
-        <div className="flex flex-col gap-2.5 rounded-[8px] border border-[var(--color-border-default)] bg-[var(--color-bg-panel-alt)] p-[15px]">
+        <div className="flex flex-col gap-2.5 rounded-[var(--radius-control)] border border-[var(--color-border-default)] bg-[var(--color-bg-panel-alt)] p-[15px]">
           <span className="text-[13px] font-bold">Join CoBuild</span>
           <span className="text-xs leading-snug text-[var(--color-text-secondary)]">
             Upvote projects, follow builders, and build a portfolio.

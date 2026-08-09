@@ -25,7 +25,7 @@ export default async function BookmarksPage() {
 
       {tiles.length === 0 ? (
         <div className="flex flex-col items-center gap-[15px] rounded-[var(--radius-card-lg)] border border-dashed border-[var(--color-border-default)] bg-[var(--color-bg-panel)] px-7 py-16 text-center">
-          <div className="flex h-[54px] w-[54px] items-center justify-center rounded-[8px] bg-[var(--color-bg-panel-alt)] text-[var(--color-accent)]">
+          <div className="flex h-[54px] w-[54px] items-center justify-center rounded-[var(--radius-control)] bg-[var(--color-bg-panel-alt)] text-[var(--color-accent)]">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinejoin="round" aria-hidden="true">
               <path d="M6 3h12a1 1 0 011 1v17l-7-4-7 4V4a1 1 0 011-1z" />
             </svg>
