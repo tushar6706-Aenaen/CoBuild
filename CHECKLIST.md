@@ -14,7 +14,7 @@ Tick items as they're completed: `- [ ]` → `- [x]`. Mirrors [WEB_APP_PLAN.md](
 - [x] Storage buckets (`avatars`, `project-media`) + path-prefix policies
 - [x] Hot-score trigger + counter-maintenance triggers (incl. comment-vote counters)
 - [x] Seed script (TS) written — `packages/db/src/seed/seed.ts`, ~30 users/~80 projects, uploads real sample images, idempotent re-run via cleanup
-- [ ] Seed script **run** — blocked on you adding `SUPABASE_SERVICE_ROLE_KEY` to `packages/db/.env` (never pasted in chat; see `.env.example`), then `pnpm seed`
+- [x] Seed script **run** — 35 profiles / 83 projects / 207 images / 21 tags / 1069 votes / 365 comments / 175 follows. See the Phase 7 review section for the two blockers that had to be cleared first (missing sample images; `NULL` auth token columns breaking GoTrue's admin API)
 - [x] `supabase gen types typescript` → `packages/db/src/database.types.ts`
 - [x] Phase-0 Opus review: `get_advisors` (25→3 intentional), 30+ live RLS attacks blocked, 31 trigger assertions passed, `turbo run typecheck` clean workspace-wide
 
@@ -89,7 +89,7 @@ Tick items as they're completed: `- [ ]` → `- [x]`. Mirrors [WEB_APP_PLAN.md](
 - [x] Verified live against a temporary 14-project / 8-profile fixture: windowing excludes lifetime-high-but-stale projects, rank deltas move correctly (+1/+1/−2 after a simulated vote change), unlisted projects vanish from tag feed + search + both boards, `%` and `_` in a people query stay literal, malformed FTS input returns empty instead of raising, trigram index confirmed used via `EXPLAIN`
 - [x] `get_advisors` clean — only the pre-existing intentional categories (RLS-enabled-no-policy on the snapshot table, SECURITY DEFINER RPCs as the sole read path to the ungranted MV)
 - [x] `turbo run typecheck` + `next build` clean (16 routes)
-- [x] Fixture data removed afterwards — the DB is back to 2 profiles / 0 projects, still waiting on `pnpm seed`
+- [x] Fixture data removed afterwards — the DB went back to 2 profiles / 0 projects at the time (the seed has since run; see Phase 7)
 
 **Not built (deliberate):** the design's "Follow tag" button on `/tag/[slug]` — there is no `tag_follows` table and tag following isn't in any phase of the plan, so shipping a dead button was the worse option. Add the table first if you want it.
 
@@ -100,7 +100,16 @@ Tick items as they're completed: `- [ ]` → `- [x]`. Mirrors [WEB_APP_PLAN.md](
 - [x] All empty states — consistent dashed-border/icon-badge pattern verified across feed, bookmarks, notifications, profile tabs
 - [x] Loading states — added tailored `loading.tsx` for the 5 routes that were silently inheriting the feed's skeleton shape: bookmarks, project detail, profile, tag pages, settings (new `SkeletonTileGrid` primitive added to `components/shell/skeleton.tsx`, reused by bookmarks + profile)
 - [x] Delete-confirmation dialog — confirmed a real shadcn `Dialog` (not `window.confirm`) on project delete, with cancel/pending/error states
-- [ ] **Final Opus review before mobile starts**: full RLS adversarial pass, advisors check, perf audit, simplification pass
+- [x] **Final Opus review before mobile starts** — all four parts done, though the simplification pass was scoped to Phase 7's 1,401 new lines rather than the whole app (it found the stale `remote-image.ts` sizing comment). Advisors and the perf audit are recorded under Phase 7. The **RLS adversarial pass ran against real seeded data** (35 profiles / 83 projects / 61,592 notifications) with simulated JWT roles, one user attacking another:
+  - [x] Reads blocked: another user's draft (0 rows, and 0 drafts visible at all), another user's bookmarks (0)
+  - [x] Writes blocked at RLS (`42501 new row violates row-level security policy`): voting as another user, commenting as another user — including as `anon`
+  - [x] Writes blocked at the **GRANT** level, which is stronger than RLS: fabricating a `notifications` row, inserting `project_views` directly. View counts can therefore only move through the deduping `record_project_view` RPC
+  - [x] Mutations on someone else's rows affect **0 rows**: edit project, delete project, edit profile, delete their follows
+  - [x] Counter forgery discarded by the guard trigger — `update … set upvote_count=9999, view_count=9999, comment_count=9999` on the attacker's **own** project returned the original `9 / 0 / 4`
+  - [x] Notification scoping proven at scale rather than asserted: 61,592 rows across 34 recipients, attacker sees exactly their own 82
+  - [x] `anon` sees 0 drafts / 0 bookmarks / 0 notifications but **78 public projects**, so public browsing still works
+  - [x] The documented unlisted rule re-confirmed: an unlisted project **is** readable by direct id (RLS deliberately does not hide it) but appears in **none** of hot / new / top / search / leaderboard — the app-layer `visibility='public'` filter is holding
+  - [x] Not re-run: the storage-path attack, verified in Phase 3 with a real JWT against unchanged policies
 
 **In-flight UI/UX pass — see [REMEMBER.md](REMEMBER.md) for the full checkpoint.** A three-part audit (interaction, a11y, visual system) found ~40 issues; tranche A (real bugs + a feedback layer) is implemented and **fully verified — A4 and A6, the last two open items, are now closed**. A6 (composer `beforeunload` guard) was verified across all three states — clean, dirty, and reverted-to-original — via a synthetic cancelable event, since a real unload prompt would freeze automation; the reverted case proves the signature comparison works rather than latching. A4 (onboarding dead-end) was verified against a temporary un-onboarded fixture (`username` nulled, then restored — DB confirmed back to 5/5 with usernames) with `fetch` patched to fail: the error message and "Check again" retry appear and **the submit button stays enabled**, which is the bug — that screen used to grey out its only button permanently with no message and no recovery short of a reload.
 
@@ -149,7 +158,7 @@ See [NEW_FEATURES.md](NEW_FEATURES.md) for the "why" behind each item.
   - [x] Simplification/doc pass over the 1,401 lines of Phase 7 code — **found one real defect**: `remote-image.ts`'s header told call sites to set no explicit width/height and let `fit: "contain"` size the box, which is precisely the clipped-portrait-cover bug this phase already fixed; the project card must and does set both axes from `fitContain()`. Corrected in `2a0f071`
   - [x] **Seed run** — 35 profiles / 83 projects (78 public, 80 with covers) / 207 images / 21 tags / 264 project_tags / 1069 votes / 365 comments / 175 follows. Pre-existing accounts and the `p6_*` fixtures survived (cleanup is scoped to `@seed.cobuild.dev`). Two blockers had to be cleared first: the sample `.webp`s the seed reads from `CoBuild design system/uploads/` don't exist in the repo (that folder is gitignored) so they were generated with `sharp`, incl. two portraits; and `auth.users` had `NULL` in `confirmation_token`/`recovery_token`/`email_change`/`email_change_token_new` on the three `p6_*` rows, which makes GoTrue's admin `listUsers` fail with a bare `"Database error finding users"` 500 — see the gotcha
   - [x] **Perf audit — found and fixed a real one.** `projects_hot_feed_idx` was `(hot_score DESC, created_at DESC) WHERE visibility='public'`, which does not match Hot's `ORDER BY hot_score DESC, published_at DESC, id DESC` + `published_at IS NOT NULL`; `created_at` predates the feed's move to `published_at`, and Hot is the default landing feed. Measured: 36 buffers with an `Incremental Sort` (presorted on `hot_score` only) against the 3 buffers and `Heap Fetches: 0` that the correctly-shaped `projects_top_feed_idx` achieves. `projects_new_feed_idx` had the same defect (no `id` tiebreak, no not-null predicate). Migration `align_feed_indexes_with_keyset_order` fixes both → **`Index Only Scan`, `Heap Fetches: 0`, 2 buffers each, chosen without `enable_seqscan=off`**. Everything else came back healthy: FTS via `Bitmap Index Scan on projects_search_tsv_idx`; people search on `profiles_search_trgm_idx` with the function's expression matching the index character-for-character; the Following tab's `OR` indexed on both legs (`follows_pkey`, `tag_follows_profile_idx`); the leaderboard MV correctly indexed with `Memoize` on the project join. **Honest caveat:** end-to-end `feed_page` only moved 20.2ms → 15.5ms at this size, because fixed function-planning overhead dominates 83 rows — the win is in the ranking query (45 → 2 buffers, seq scan → index-only) and it is the part that grows with the table
-  - [ ] Adversarial RLS re-run across Phase 7 surfaces (the `tag_follows` pass was already done in-phase with simulated JWT roles)
+  - [x] **Adversarial RLS re-run on real seeded data** — see the Phase 6 final-review entry; it covers Phase 7's surfaces too
 - [x] **Re-verified against real seeded covers** (80 projects now carry a `cover_image_path`), through the project card itself rather than a throwaway route. Images fetched and *looked at*, not just size-checked:
   - [x] **Portrait 900×1400 — the case the clipping bug came from — sits fully inside the cover panel**, rounded border visible on all four sides, nothing cut off. `fitContain` confirmed correct against real data for the first time
   - [x] Ultra-wide 1920×820 letterboxes correctly in the same panel; 8 further cold renders across square/landscape/portrait all rendered their covers
@@ -163,7 +172,8 @@ See [NEW_FEATURES.md](NEW_FEATURES.md) for the "why" behind each item.
 - [ ] Post → multi-image gallery → reorder → cover change → co-builder credit shows on their profile
 - [ ] Upvote/comment/bookmark persist correctly from both card and detail page
 - [ ] Hot/New/Top/Following stable under concurrent inserts, no dup/skip across pages
-- [ ] Adversarial RLS test: user A cannot vote as B, edit B's project, read B's draft, fake a view, or upload to B's storage path
+- [x] Adversarial RLS test: user A cannot vote as B, edit B's project, read B's draft, or fake a view — all verified on seeded data under Phase 6's final review. Storage-path uploads were verified in Phase 3 against policies that haven't changed since
+- [x] `get_advisors` clean (security + performance at the documented intentional baseline)
 - [ ] Logged-out browsing works; interaction prompts sign-in
 - [ ] `turbo run typecheck` clean, `get_advisors` clean
 

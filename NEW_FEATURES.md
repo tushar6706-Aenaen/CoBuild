@@ -13,7 +13,7 @@ data-leak / bad-ranking / slow-query bugs.
 
 Not new features, but nothing below can be evaluated without them:
 
-- [ ] **Run the seed** — `SUPABASE_SERVICE_ROLE_KEY` into `packages/db/.env`, then `pnpm seed`. The DB is currently 2 profiles / 0 projects. Every feature below is unjudgeable on an empty feed.
+- [x] ~~**Run the seed**~~ — **done.** 35 profiles / 83 projects / 207 images / 21 tags / 1069 votes / 365 comments. The feed, leaderboard, search and OG covers are all judgeable on real data now.
 - [ ] **Phase 6's final Opus review** — full RLS adversarial pass, `get_advisors`, perf audit, simplification pass. This is the gate before new schema lands on top.
 - [x] ~~**The open toast bug**~~ — **closed.** It was never a revalidation/remount problem: live verification had been running in a hidden automation tab, where `requestAnimationFrame` never fires, so React never revealed the Suspense boundary, the page never hydrated, and the form fell back to a native POST. The toast layer everything below depends on is verified working on a production build. See `PROJECT_INFO.md`'s gotchas before doing browser verification of any feature here.
 
