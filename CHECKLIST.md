@@ -139,7 +139,14 @@ See [NEW_FEATURES.md](NEW_FEATURES.md) for the "why" behind each item.
   - [x] embed of a **draft** returns 404
 - [x] **Security bug found and fixed by `get_advisors`**: `tag_follows_after_change()` shipped callable over PostgREST (`anon`/`authenticated` EXECUTE). Both `revoke … from public` *and* `revoke … from anon, authenticated` were needed — see the amended note in PROJECT_INFO.md. Advisors now back to the pre-existing intentional baseline
 - [x] `turbo run typecheck` (4/4) + `next build` clean (21 routes)
-- [ ] Opus review of Phase 7 as a whole
+- [ ] Opus review of Phase 7 as a whole — **partially done; the rest is seed-blocked.** Complete so far:
+  - [x] `get_advisors` security + performance back at the documented intentional baseline, and **`tag_follows_after_change()` no longer appears** — the Phase 7 double-revoke held. Only additions are one INFO for the unused `tags_name_trgm_idx` (expected at 0 tags; do **not** drop it, Phase 5 proved it used via `EXPLAIN`) and a WARN for Auth's leaked-password protection, which is moot while sign-in is OAuth + magic-link only
+  - [x] `turbo run typecheck` 4/4
+  - [x] Public-surface privacy probed against a real draft ("Alice Secret Draft"): `/badge`, `/u/[username]`, `/u/[username]/resume` and the public `/embed` all contain **zero** occurrences of the draft title, and `/embed` of the draft 404s. The badge reports 1 project, not 2
+  - [x] That privacy proven at the source rather than observed: `projects_after_change()` moves `project_count` only `if visibility = 'public'` (so drafts *and* unlisted are excluded, and a public→draft flip decrements), and `profiles_guard_client_columns()` pins the counters against any `anon`/`authenticated` write
+  - [x] Simplification/doc pass over the 1,401 lines of Phase 7 code — **found one real defect**: `remote-image.ts`'s header told call sites to set no explicit width/height and let `fit: "contain"` size the box, which is precisely the clipped-portrait-cover bug this phase already fixed; the project card must and does set both axes from `fitContain()`. Corrected in `2a0f071`
+  - [ ] Perf audit — **not meaningful until the seed runs.** DB is 3 projects / 0 covers / 0 tags / 0 images / 0 tag_follows; query plans at this size say nothing
+  - [ ] Adversarial RLS re-run across Phase 7 surfaces (the `tag_follows` pass was already done in-phase with simulated JWT roles)
 - [ ] Re-verify the OG cards against real seeded covers once `pnpm seed` has run — no project in the DB has a `cover_image_path` yet, so the cover panel was verified against a real Supabase image through a throwaway route (since deleted), not through the project card itself
 
 ### Web verification
