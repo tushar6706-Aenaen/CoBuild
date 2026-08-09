@@ -190,7 +190,7 @@ export function OnboardingForm({
           <Label htmlFor="username" className="text-[12.5px] font-semibold text-[var(--color-text-secondary-alt)]">
             Username
           </Label>
-          <div className="flex items-center overflow-hidden rounded-[var(--radius-control)] border border-[var(--color-border-default)] bg-[var(--color-bg-input)]">
+          <div className="flex items-center overflow-hidden rounded-[var(--radius-control)] border border-[var(--color-border-default)] bg-[var(--color-bg-input)] focus-within:border-[var(--color-accent)]/60 focus-within:ring-2 focus-within:ring-[var(--color-accent)]/35">
             <span className="py-3 pl-3.5 font-mono text-[13.5px] text-[var(--color-text-tertiary)]">
               cobuild.to/u/
             </span>

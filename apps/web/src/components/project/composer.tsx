@@ -492,13 +492,13 @@ export function Composer({
                       value={img.alt}
                       onChange={(e) => patchImage(index, { alt: e.target.value })}
                       placeholder="Alt text (required)"
-                      className="rounded-[4px] border border-[var(--color-border-default)] bg-[var(--color-bg-input)] px-2 py-1.5 text-[11.5px] text-[var(--color-text-secondary)] outline-none placeholder:text-[var(--color-text-placeholder)] focus:border-[var(--color-accent)]/60"
+                      className="rounded-[4px] border border-[var(--color-border-default)] bg-[var(--color-bg-input)] px-2 py-1.5 text-[11.5px] text-[var(--color-text-secondary)] outline-none placeholder:text-[var(--color-text-placeholder)] focus-visible:border-[var(--color-accent)]/60 focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]/35"
                     />
                     <input
                       value={img.caption}
                       onChange={(e) => patchImage(index, { caption: e.target.value })}
                       placeholder="Caption"
-                      className="rounded-[4px] border border-[var(--color-border-default)] bg-[var(--color-bg-input)] px-2 py-1.5 text-[11.5px] text-[var(--color-text-secondary)] outline-none placeholder:text-[var(--color-text-placeholder)] focus:border-[var(--color-accent)]/60"
+                      className="rounded-[4px] border border-[var(--color-border-default)] bg-[var(--color-bg-input)] px-2 py-1.5 text-[11.5px] text-[var(--color-text-secondary)] outline-none placeholder:text-[var(--color-text-placeholder)] focus-visible:border-[var(--color-accent)]/60 focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]/35"
                     />
                   </>
                 )}
@@ -570,7 +570,7 @@ export function Composer({
         {/* Tech stack */}
         <div className="flex flex-col gap-2">
           <Label className={labelCls}>Tech stack</Label>
-          <div className="flex flex-wrap gap-2 rounded-[var(--radius-control)] border border-[var(--color-border-default)] bg-[var(--color-bg-input)] p-2.5">
+          <div className="flex flex-wrap gap-2 rounded-[var(--radius-control)] border border-[var(--color-border-default)] bg-[var(--color-bg-input)] p-2.5 focus-within:border-[var(--color-accent)]/60 focus-within:ring-2 focus-within:ring-[var(--color-accent)]/35">
             {tags.map((t) => (
               <span key={t.id} className="flex items-center gap-1.5 rounded border border-[var(--color-accent)]/30 bg-[var(--color-accent)]/14 px-2 py-1 font-mono text-[11.5px] text-[var(--color-accent-muted-strong)]">
                 {t.name}
@@ -665,7 +665,7 @@ export function Composer({
                     setCrew((prev) => prev.map((x, xi) => (xi === i ? { ...x, roleLabel: e.target.value } : x)))
                   }
                   placeholder="Role"
-                  className="w-[110px] rounded-[4px] border border-[var(--color-border-default)] bg-[var(--color-bg-page)] px-2 py-1.5 text-[11.5px] font-semibold text-[var(--color-accent-muted-strong)] outline-none placeholder:text-[var(--color-text-placeholder)]"
+                  className="w-[110px] rounded-[4px] border border-[var(--color-border-default)] bg-[var(--color-bg-page)] px-2 py-1.5 text-[11.5px] font-semibold text-[var(--color-accent-muted-strong)] outline-none focus-visible:border-[var(--color-accent)]/60 focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]/35 placeholder:text-[var(--color-text-placeholder)]"
                 />
                 <button type="button" onClick={() => setCrew((prev) => prev.filter((_, xi) => xi !== i))} aria-label="Remove collaborator" className="px-1 text-base text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)]">×</button>
               </div>
