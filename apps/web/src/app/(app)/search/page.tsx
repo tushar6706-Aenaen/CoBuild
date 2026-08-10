@@ -197,7 +197,7 @@ export default async function SearchPage({
                   href={`/tag/${t.slug}`}
                   className="flex items-center justify-between gap-2 rounded-[var(--radius-control)] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] px-3.5 py-3 hover:border-[var(--color-accent)]/50"
                 >
-                  <span className="rounded-sm bg-[var(--color-bg-raised)] px-2 py-1 font-mono text-xs font-medium text-[var(--color-text-secondary)]">
+                  <span className="rounded-[var(--radius-pill)] bg-[var(--color-bg-raised)] px-2 py-1 font-mono text-xs font-medium text-[var(--color-text-secondary)]">
                     {t.name}
                   </span>
                   <span className="text-[11px] text-[var(--color-text-tertiary)]">

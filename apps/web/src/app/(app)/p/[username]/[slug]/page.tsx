@@ -201,7 +201,7 @@ export default async function ProjectDetailPage({
                 <Link
                   key={t.slug}
                   href={`/tag/${t.slug}`}
-                  className="rounded-sm bg-[var(--color-bg-raised)] px-2.5 py-1.5 font-mono text-[11.5px] font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-accent)]/[0.16] hover:text-[var(--color-accent-muted-strong)]"
+                  className="rounded-[var(--radius-pill)] bg-[var(--color-bg-raised)] px-2.5 py-1.5 font-mono text-[11.5px] font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-accent)]/[0.16] hover:text-[var(--color-accent-muted-strong)]"
                 >
                   {t.name}
                 </Link>

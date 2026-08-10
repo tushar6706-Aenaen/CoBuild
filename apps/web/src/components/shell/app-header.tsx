@@ -1,18 +1,35 @@
-import Image from "next/image";
 import Link from "next/link";
+import { AccountMenu } from "./account-menu";
 
 /**
- * Sticky top bar. The search field is the dominant element by design — it's a
- * link styled as an input rather than a live input, because search has its own
- * route; the real field lives there.
+ * Sticky top bar.
+ *
+ * The left rail owns orientation — brand, nav, and your account card. This bar
+ * owns *action*: find something, post something, see what happened. Without
+ * that split the bar had nothing to do on desktop, because the rail already did
+ * everything, and it showed: a single stretched field and one icon.
+ *
+ * The search is a real `<input>` inside a plain GET form, not a link dressed as
+ * one. It previously looked exactly like a text field and wasn't — clicking it
+ * navigated you to /search instead of letting you type, which is the worst kind
+ * of affordance mismatch. A native GET form needs no client JS and still works
+ * with JS disabled: submitting lands on /search?q=… , the same URL the search
+ * page already reads.
+ *
+ * The "Post" button is deliberately the *secondary* treatment even though it is
+ * a create action — the rail's full-width button is the primary one, and two
+ * near-white fills competing on the same screen is what the restyle exists to
+ * avoid. Here it reads as a toolbar shortcut.
  */
 export function AppHeader({
   username,
+  displayName,
   avatarUrl,
   unreadCount,
   signedIn,
 }: {
   username: string | null;
+  displayName: string | null;
   avatarUrl: string | null;
   unreadCount: number;
   signedIn: boolean;
@@ -26,19 +43,39 @@ export function AppHeader({
         </span>
       </Link>
 
-      <Link
-        href="/search"
-        className="flex flex-1 items-center gap-2.5 rounded-[var(--radius-control)] border border-[var(--color-border-default)] bg-[var(--color-bg-input)] px-3.5 py-2.5 text-[13.5px] text-[var(--color-text-tertiary)] hover:border-[var(--color-border-strong)] hover:text-[var(--color-text-secondary)]"
+      <form
+        action="/search"
+        method="get"
+        role="search"
+        className="flex w-full max-w-[440px] items-center gap-2.5 rounded-[var(--radius-control)] border border-[var(--color-border-default)] bg-[var(--color-bg-input)] px-3.5 py-2.5 transition-colors focus-within:border-[var(--color-border-strong)] focus-within:ring-2 focus-within:ring-[var(--color-border-default)]"
       >
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" aria-hidden="true">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" aria-hidden="true" className="flex-none text-[var(--color-text-tertiary)]">
           <circle cx="11" cy="11" r="7" />
           <path d="M20 20l-4-4" />
         </svg>
-        Search projects, people, tags
-      </Link>
+        <input
+          type="search"
+          name="q"
+          aria-label="Search projects, people, and tags"
+          placeholder="Search projects, people, tags"
+          className="min-w-0 flex-1 border-none bg-transparent p-0 text-[13.5px] text-[var(--color-text-primary)] outline-none placeholder:text-[var(--color-text-tertiary)] [&::-webkit-search-cancel-button]:hidden"
+        />
+      </form>
+
+      <div className="flex-1" />
 
       {signedIn ? (
         <>
+          <Link
+            href="/new"
+            className="hidden flex-none items-center gap-2 rounded-[var(--radius-control)] border border-[var(--color-border-default)] bg-[var(--color-bg-row-tint)] px-3.5 py-2.5 text-[13.5px] font-semibold text-[var(--color-text-primary)] transition-colors hover:border-[var(--color-border-strong)] sm:flex"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" aria-hidden="true">
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            Post
+          </Link>
+
           <Link
             href="/notifications"
             aria-label="Notifications"
@@ -53,17 +90,11 @@ export function AppHeader({
             )}
           </Link>
 
-          {/* Avatar is the profile entry point on mobile; the sidebar owns it on desktop. */}
+          {/* Shown at every width now. The rail's account card is orientation
+              ("who am I signed in as"); this is the reach-anywhere account menu,
+              and it gives the bar a right-hand anchor. */}
           {username && (
-            <Link
-              href={`/u/${username}`}
-              aria-label="Your profile"
-              className="h-10 w-10 flex-none overflow-hidden rounded-full border border-[var(--color-border-default)] bg-[repeating-linear-gradient(135deg,var(--color-bg-raised)_0_4px,var(--color-bg-panel-alt)_4px_8px)] lg:hidden"
-            >
-              {avatarUrl && (
-                <Image src={avatarUrl} alt="" width={40} height={40} unoptimized className="h-full w-full object-cover" />
-              )}
-            </Link>
+            <AccountMenu username={username} displayName={displayName} avatarUrl={avatarUrl} />
           )}
         </>
       ) : (

@@ -11,7 +11,7 @@
  * reader hears "Loading" once rather than reading out a tree of empty boxes.
  */
 export function SkeletonBar({ className = "" }: { className?: string }) {
-  return <div className={`rounded-sm bg-[var(--color-bg-panel-alt)] ${className}`} />;
+  return <div className={`rounded-[var(--radius-xs)] bg-[var(--color-bg-panel-alt)] ${className}`} />;
 }
 
 export function SkeletonBlock({ className = "" }: { className?: string }) {
