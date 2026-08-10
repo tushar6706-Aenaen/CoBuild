@@ -1,7 +1,13 @@
 # CoBuild UI restyle — design
 
 **Date:** 2026-08-09
-**Status:** approved, pending implementation plan
+**Status:** **implemented** — merged to `main` in PR #1, 2026-08-10
+
+> **Amended 2026-08-10, mid-implementation.** The original spec kept the accent
+> green for one action per screen. After seeing the near-white controls land,
+> that was overruled: **the palette is now fully monochrome and there is no
+> green anywhere.** §1.4 has been rewritten to match what shipped; §8 records
+> what implementation taught that the design could not have known.
 **Reference:** `https://ideonbuilds.vercel.app/` (values extracted live, normalised for its 110% page zoom)
 
 ---
@@ -37,11 +43,13 @@ premium because it is **restrained**:
 3. Radii are larger: `--radius: 10px`, scaling to 14 and 18, plus full pills.
 4. Micro-labels are 10px, weight 400, **3px letter-spacing**, uppercase.
 
-CoBuild currently runs the opposite playbook: a saturated `#3BE38F` across 189
-references and 8 accent-glow shadows, radii clustered tight at 3–11px, and
+CoBuild ran the opposite playbook before this work: a saturated `#3BE38F` across
+189 references and 8 accent-glow shadows, radii clustered tight at 3–11px, and
 monospace used as page texture.
 
-**Decision: green becomes an event, not a texture.**
+**Decision as first written: green becomes an event, not a texture.**
+**Decision as shipped: there is no green.** See the amendment in §1.4 — the
+reasoning above held, and was simply followed one step further than planned.
 
 ---
 
@@ -98,32 +106,38 @@ sites; keep it that way.
 | `control.onPrimary` | `#18181B` | text on the above |
 | `bg.rowTint` | `rgba(255,255,255,0.03)` | translucent inner rows |
 
-### 1.4 Green: unchanged value, shrunken usage
+### 1.4 There is no green
 
-`accent.*` keeps its exact hexes (`#3BE38F` measures 11.85:1 as text on the new
-page colour). What changes is **where it is allowed**:
+**The palette is monochrome. The accent green is gone — removed, not softened.**
 
-- **Allowed:** status dots and chips, links, focus rings, and **exactly one
-  action per screen** — that screen's primary.
-- **Replaced by `control.primary`:** active feed/tag/leaderboard tabs, active
-  filter chips, toggle-selected states, and every secondary CTA.
+The original plan reserved `#3BE38F` for one action per screen, with a table
+assigning the green button on each. That table is deleted rather than corrected,
+because keeping it would imply the rule still exists. It does not: no screen has
+a green anything.
 
-"One per screen" is a rule, not a judgement call. The green action per screen:
+`accent.*` was repointed rather than removed, so 154 call sites did not have to
+churn inside the same change that altered the colour:
 
-| screen | green | near-white |
-|---|---|---|
-| feed `/` | Post a project | tabs, window switch, sidebar CTAs |
-| composer `/new`, `/edit` | Publish | Save draft, status/visibility toggles |
-| project detail | — (Upvote keeps its own voted state) | Bookmark, Share, Edit |
-| profile `/u/[username]` | Follow | Edit profile, Résumé, tabs |
-| tag `/tag/[slug]` | Follow stack | tabs |
-| settings | Save changes | avatar upload, role chips |
-| onboarding | Create my profile | role chips, student toggle |
-| login | Send magic link | GitHub / Google (secondary) |
-| leaderboard, search, notifications, bookmarks | none | all controls |
+| token | was | now | min ratio |
+|---|---|---|---|
+| `accent.DEFAULT` | `#3BE38F` | `#F4F4F5` | 15.83 |
+| `accent.hover` | `#55EAA1` | `#FFFFFF` | 17.40 |
+| `accent.onAccent` | `#04180E` | `#18181B` | 16.12 vs DEFAULT |
+| `accent.muted` | `#8DEEBB` | `#A1A1A1` | 6.74 |
+| `accent.mutedStrong` | `#A5F2C9` | `#D4D4D4` | 11.74 |
+| `linkHover` | `#A5F2C9` | `#FFFFFF` | 17.40 |
 
-Where a screen has no creation/commit action, it has no green — that is
-intended, not an omission.
+Emphasis now comes from **lightness alone**: near-white for anything selected or
+primary, translucent tint plus a hairline for anything secondary.
+
+**`accent.*` is therefore a redundant alias for `control.*`**, which is the
+better name for the same idea. Collapsing them is a mechanical follow-up,
+deliberately deferred twice so a 150-site rename never rode along with a colour
+change.
+
+The only chroma left in the product is **semantic**, and it stays: `shipped`
+cyan, `inProgress` amber, `danger` red, and `code.highlight`. Each means
+something; nothing else is allowed to.
 
 Borders keep their current values — `rgba(255,255,255,0.12 / 0.08 / 0.22)` is
 already within a hair of the reference's `#ffffff1a`.
@@ -259,3 +273,61 @@ one drifts silently.
   Landing it as one commit would be unreviewable; the plan should stage it —
   tokens first, then radii, then mono, then component treatment — with a build
   at each stage.
+
+---
+
+## 8. What implementation changed
+
+Written after the fact. The staging held — tokens, radii, mono, component
+treatment, each with typecheck and a build — and shipped as 20 commits.
+
+**Repointing a token is not the same as changing a colour.** Ten sites wrote
+`rgba(59,227,143,…)` directly into inline `style` objects and so bypassed the
+token layer completely: the sidebar CTA panel, the tag header and its skeleton,
+the notification icon wash, the profile role chips, and the login and onboarding
+radial backdrops. Every token in the app went neutral and those ten stayed
+green. They are now `rgb(var(--color-accent-rgb) / a)`. This is the exact
+failure `colors.ts` already documented having been burned by once with
+background scrims — a grep for the *token* finds nothing; you have to grep for
+the **literal value**.
+
+**`components/ui/control-classes.ts` is a `.ts` file**, so a `--include=*.tsx`
+sweep silently misses it — and it holds the `pill` and `chip` shapes every tab
+row inherits. Any styling sweep must cover `.ts` too.
+
+**`--color-bg-panel` was set equal to `--color-bg-page`** rather than editing 38
+call sites. `panelAlt` and `raised` deliberately did **not** move: 23 hover
+states use `raised` as a lift, and flattening it would have made half the app's
+hovers invisible. Only the panel tier is page-coloured.
+
+**The OG cards and badge needed design changes, not just token inheritance.**
+Both opened with a rule running accent green into status cyan. Once the app went
+neutral that band was the only chroma left on either — and a link preview is the
+first thing anyone sees of the product. Both now fade near-white into `raised`.
+
+**Typography drift is only visible by rendering.** After the mono retreat the OG
+cards still set monospace on the project title, both `@handles` and the stat
+figures — the very "mono as texture" usage the app had given up. The code read
+fine; the rendered card did not. Five sites now inherit Jakarta.
+
+**Measure every grey.** `#808080`, the intuitive tertiary, fails at 4.41:1 on
+the new `bg.raised`. `#828282` is the lowest neutral clearing AA on all six
+surfaces. That is the second eyeballed grey to fail on this palette.
+
+**`rounded-[5px]` was two different controls wearing one number** — the shared
+pill/chip shape, and small square controls like markdown-field's Write/Preview
+toggle. A blanket replace would have turned the latter into lozenges. The 14
+sites were split by hand: tabs and filters to `pill`, buttons and containers to
+`control`, thumbnails and dropdown rows to `xs`.
+
+**Most visible single change:** project titles moved from mono to sans on the
+card, tile, detail page and embed. Correct by the rule that mono means code, but
+it is the first place to look if the feel reads wrong.
+
+### Still open
+
+- `accent.*` → `control.*` rename (mechanical, ~150 sites).
+- No page was ever reviewed in a foregrounded browser: the extension's
+  screenshot API failed throughout with a malformed CDP parameter. Verification
+  was the served CSS, the rendered OG PNGs, typecheck and builds — **not human
+  eyes on the running app**, apart from the user's own look at the buttons.
