@@ -66,7 +66,7 @@ export function ProjectTileCard({ project, cover }: { project: ProjectTile; cove
             {project.tags.slice(0, 4).map((t) => (
               <span
                 key={t.slug}
-                className="rounded-sm bg-[var(--color-bg-raised)] px-2 py-1 font-mono text-[10.5px] font-medium text-[var(--color-text-secondary)]"
+                className="rounded-[var(--radius-pill)] bg-[var(--color-bg-raised)] px-2 py-1 font-mono text-[10.5px] font-medium text-[var(--color-text-secondary)]"
               >
                 {t.name}
               </span>

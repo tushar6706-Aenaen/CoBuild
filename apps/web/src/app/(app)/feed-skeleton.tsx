@@ -9,12 +9,12 @@ export function FeedSkeleton({ count = 3 }: { count?: number }) {
         >
           <div className="aspect-[16/10] animate-pulse bg-[var(--color-bg-panel-alt)]" />
           <div className="flex flex-col gap-3 p-[17px]">
-            <div className="h-4 w-1/2 animate-pulse rounded-sm bg-[var(--color-bg-raised)]" />
-            <div className="h-3 w-3/4 rounded-sm bg-[var(--color-bg-panel-alt)]" />
+            <div className="h-4 w-1/2 animate-pulse rounded-[var(--radius-xs)] bg-[var(--color-bg-raised)]" />
+            <div className="h-3 w-3/4 rounded-[var(--radius-xs)] bg-[var(--color-bg-panel-alt)]" />
             <div className="flex gap-1.5">
-              <div className="h-5 w-14 rounded-sm bg-[var(--color-bg-panel-alt)]" />
-              <div className="h-5 w-[74px] rounded-sm bg-[var(--color-bg-panel-alt)]" />
-              <div className="h-5 w-12 rounded-sm bg-[var(--color-bg-panel-alt)]" />
+              <div className="h-5 w-14 rounded-[var(--radius-xs)] bg-[var(--color-bg-panel-alt)]" />
+              <div className="h-5 w-[74px] rounded-[var(--radius-xs)] bg-[var(--color-bg-panel-alt)]" />
+              <div className="h-5 w-12 rounded-[var(--radius-xs)] bg-[var(--color-bg-panel-alt)]" />
             </div>
             <div className="flex gap-2 border-t border-[var(--color-border-subtle)] pt-2">
               <div className="h-9 w-[92px] rounded-[var(--radius-control)] bg-[var(--color-bg-panel-alt)]" />

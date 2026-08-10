@@ -24,7 +24,7 @@ export default function Loading() {
           <SkeletonBar className="h-3.5 w-[110px]" />
           <div className="flex flex-wrap gap-[7px]">
             {Array.from({ length: 6 }).map((_, i) => (
-              <SkeletonBar key={i} className="h-[26px] w-[70px] rounded-sm" />
+              <SkeletonBar key={i} className="h-[26px] w-[70px] rounded-[var(--radius-pill)]" />
             ))}
           </div>
         </div>

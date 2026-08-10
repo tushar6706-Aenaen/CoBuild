@@ -151,7 +151,7 @@ export default async function TagPage({
               <Link
                 key={t.slug}
                 href={`/tag/${t.slug}`}
-                className="flex items-center gap-1.5 rounded-sm bg-[var(--color-bg-raised)] px-2 py-1.5 font-mono text-[11px] font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-accent)]/[0.16] hover:text-[var(--color-accent-muted-strong)]"
+                className="flex items-center gap-1.5 rounded-[var(--radius-pill)] bg-[var(--color-bg-raised)] px-2 py-1.5 font-mono text-[11px] font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-accent)]/[0.16] hover:text-[var(--color-accent-muted-strong)]"
               >
                 {t.name}
                 <span className="text-[var(--color-text-tertiary)]">{t.shared}</span>
