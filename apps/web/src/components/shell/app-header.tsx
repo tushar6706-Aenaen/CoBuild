@@ -1,5 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
+import { AccountMenu } from "./account-menu";
 
 /**
  * Sticky top bar.
@@ -23,11 +23,13 @@ import Link from "next/link";
  */
 export function AppHeader({
   username,
+  displayName,
   avatarUrl,
   unreadCount,
   signedIn,
 }: {
   username: string | null;
+  displayName: string | null;
   avatarUrl: string | null;
   unreadCount: number;
   signedIn: boolean;
@@ -89,18 +91,10 @@ export function AppHeader({
           </Link>
 
           {/* Shown at every width now. The rail's account card is orientation
-              ("who am I signed in as"); this is the reach-anywhere link to your
-              own profile, and it gives the bar a right-hand anchor. */}
+              ("who am I signed in as"); this is the reach-anywhere account menu,
+              and it gives the bar a right-hand anchor. */}
           {username && (
-            <Link
-              href={`/u/${username}`}
-              aria-label="Your profile"
-              className="h-10 w-10 flex-none overflow-hidden rounded-full border border-[var(--color-border-default)] bg-[repeating-linear-gradient(135deg,var(--color-bg-raised)_0_4px,var(--color-bg-panel-alt)_4px_8px)] transition-colors hover:border-[var(--color-border-strong)]"
-            >
-              {avatarUrl && (
-                <Image src={avatarUrl} alt="" width={40} height={40} unoptimized className="h-full w-full object-cover" />
-              )}
-            </Link>
+            <AccountMenu username={username} displayName={displayName} avatarUrl={avatarUrl} />
           )}
         </>
       ) : (
