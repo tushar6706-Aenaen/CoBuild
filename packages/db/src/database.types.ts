@@ -11,6 +11,9 @@
  *     hot_score, search_tsv
  *   - profiles: follower_count, following_count, project_count,
  *     total_upvotes_received
+ *   - tags: usage_count, follower_count (`follower_count` is owned by the
+ *     `tag_follows_after_change` trigger; `tags` has no UPDATE policy for
+ *     anon/authenticated at all, so a client cannot reach it either way)
  *
  * IMPORTANT — visibility: `projects` RLS allows SELECT when
  * `visibility IN ('public','unlisted')` OR you're the author. This means
@@ -668,9 +671,43 @@ export type Database = {
           },
         ]
       }
+      tag_follows: {
+        Row: {
+          created_at: string
+          profile_id: string
+          tag_id: string
+        }
+        Insert: {
+          created_at?: string
+          profile_id: string
+          tag_id: string
+        }
+        Update: {
+          created_at?: string
+          profile_id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tag_follows_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tag_follows_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tags: {
         Row: {
           created_at: string
+          follower_count: number
           id: string
           kind: string
           name: string
@@ -679,6 +716,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          follower_count?: number
           id?: string
           kind: string
           name: string
@@ -687,6 +725,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          follower_count?: number
           id?: string
           kind?: string
           name?: string

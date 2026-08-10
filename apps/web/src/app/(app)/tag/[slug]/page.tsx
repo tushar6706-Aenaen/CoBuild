@@ -6,12 +6,14 @@ import {
   getRelatedTags,
   getTagBySlug,
   getViewerVoteState,
+  isFollowingTag,
 } from "@cobuild/shared";
 import { createClient } from "@/lib/supabase/server";
 import { getAuthState } from "@/lib/auth/session";
 import { ProjectCard, type ProjectCardData } from "@/components/project/project-card";
 import { FeedLoadMore } from "../../feed-load-more";
 import { TagTabs, TAG_TAB_KEYS, type TagTab } from "./tag-tabs";
+import { FollowTagButton } from "./follow-tag-button";
 
 type Params = { slug: string };
 
@@ -50,11 +52,12 @@ export default async function TagPage({
 
   const { user: viewer } = await getAuthState();
 
-  const [{ items, nextCursor }, related] = await Promise.all([
+  const [{ items, nextCursor }, related, viewerFollowsTag] = await Promise.all([
     // Top on a tag page has no window selector in the design, so it means
     // "highest scoring, all time, within this tag".
     getFeedPage(supabase, { tab, window: "all", viewerId: viewer?.id ?? null, tag: slug }),
     getRelatedTags(supabase, slug),
+    viewer ? isFollowingTag(supabase, viewer.id, tag.id) : Promise.resolve(false),
   ]);
 
   const voteState =
@@ -86,15 +89,8 @@ export default async function TagPage({
   return (
     <div className="flex items-start gap-7">
       <div className="flex min-w-0 flex-1 flex-col gap-[18px]">
-        <div
-          className="flex flex-wrap items-center gap-3.5 rounded-[var(--radius-card)] border p-[18px]"
-          style={{
-            background:
-              "linear-gradient(140deg, rgba(59,227,143,0.16), rgba(59,227,143,0.03))",
-            borderColor: "rgba(59,227,143,0.24)",
-          }}
-        >
-          <div className="flex h-[52px] w-[52px] flex-none items-center justify-center rounded-[8px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-panel-alt)] font-mono text-[19px] text-[var(--color-accent-muted)]">
+        <div className="flex flex-wrap items-center gap-3.5 rounded-[var(--radius-card)] border border-[var(--color-border-default)] bg-[var(--color-bg-page)] p-[18px]">
+          <div className="flex h-[52px] w-[52px] flex-none items-center justify-center rounded-[var(--radius-control)] border border-[var(--color-border-subtle)] bg-[var(--color-bg-panel-alt)] font-mono text-[19px] text-[var(--color-accent-muted)]">
             #
           </div>
           <div className="flex min-w-0 flex-1 flex-col gap-[3px]">
@@ -106,6 +102,13 @@ export default async function TagPage({
               {tag.usage_count === 1 ? "project uses" : "projects use"} this stack
             </p>
           </div>
+          <FollowTagButton
+            tagId={tag.id}
+            tagName={tag.name}
+            viewerId={viewer?.id ?? null}
+            initialFollowing={viewerFollowsTag}
+            initialCount={tag.follower_count}
+          />
         </div>
 
         <TagTabs slug={slug} tab={tab} />
@@ -141,7 +144,7 @@ export default async function TagPage({
       </div>
 
       {related.length > 0 && (
-        <aside className="sticky top-[82px] hidden w-[296px] flex-none flex-col gap-3 rounded-[9px] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] p-[17px] lg:flex">
+        <aside className="sticky top-[82px] hidden w-[296px] flex-none flex-col gap-3 rounded-[var(--radius-control-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] p-[17px] lg:flex">
           <span className="text-[13px] font-bold">Related stacks</span>
           <div className="flex flex-wrap gap-[7px]">
             {related.map((t) => (

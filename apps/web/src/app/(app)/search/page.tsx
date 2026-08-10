@@ -29,7 +29,7 @@ function SectionHeading({ title, count }: { title: string; count: string }) {
   return (
     <div className="flex items-baseline gap-2.5">
       <h2 className="text-base font-bold">{title}</h2>
-      <span className="font-mono text-[11.5px] text-[var(--color-text-tertiary)]">{count}</span>
+      <span className="text-[11.5px] text-[var(--color-text-tertiary)]">{count}</span>
     </div>
   );
 }
@@ -39,7 +39,7 @@ function PersonRow({ person }: { person: PersonHit }) {
   const avatar = base ? transformedStorageUrl(base, { width: 80, height: 80, fit: "cover" }) : null;
 
   return (
-    <div className="flex items-center gap-3 rounded-[8px] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] px-[15px] py-[13px]">
+    <div className="flex items-center gap-3 rounded-[var(--radius-control)] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] px-[15px] py-[13px]">
       <span className="h-10 w-10 flex-none overflow-hidden rounded-full border border-[var(--color-border-default)] bg-[repeating-linear-gradient(135deg,var(--color-bg-raised)_0_4px,var(--color-bg-panel-alt)_4px_8px)]">
         {avatar && (
           <Image
@@ -57,7 +57,7 @@ function PersonRow({ person }: { person: PersonHit }) {
           <span className="text-sm font-bold text-[var(--color-text-primary)]">
             {person.display_name ?? person.username}
           </span>
-          <span className="font-mono text-[11.5px] text-[var(--color-accent)]">
+          <span className="text-[11.5px] text-[var(--color-text-primary)]">
             @{person.username}
           </span>
         </span>
@@ -134,7 +134,7 @@ export default async function SearchPage({
 
       {nothingFound ? (
         <div className="flex flex-col items-center gap-4 rounded-[var(--radius-card-lg)] border border-dashed border-[var(--color-border-default)] bg-[var(--color-bg-panel)] px-7 py-14 text-center">
-          <div className="flex h-[54px] w-[54px] items-center justify-center rounded-[8px] bg-[var(--color-bg-panel-alt)] text-[var(--color-accent)]">
+          <div className="flex h-[54px] w-[54px] items-center justify-center rounded-[var(--radius-control)] bg-[var(--color-bg-panel-alt)] text-[var(--color-accent)]">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" aria-hidden="true">
               <circle cx="11" cy="11" r="7" />
               <path d="M20 20l-4-4" />
@@ -200,7 +200,7 @@ export default async function SearchPage({
                   <span className="rounded-sm bg-[var(--color-bg-raised)] px-2 py-1 font-mono text-xs font-medium text-[var(--color-text-secondary)]">
                     {t.name}
                   </span>
-                  <span className="font-mono text-[11px] text-[var(--color-text-tertiary)]">
+                  <span className="text-[11px] text-[var(--color-text-tertiary)]">
                     {t.usage_count.toLocaleString()}
                   </span>
                 </Link>

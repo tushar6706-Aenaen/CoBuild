@@ -98,7 +98,7 @@ function ToastRow({ toast }: { toast: ToastRecord }) {
 
   return (
     <div
-      className={`pointer-events-auto flex max-w-[min(92vw,380px)] items-start gap-2.5 rounded-[var(--radius-control-lg)] border bg-[var(--color-bg-raised)] py-3 pr-2.5 pl-3.5 shadow-[0_20px_44px_rgba(0,0,0,0.6)] duration-200 animate-in fade-in slide-in-from-bottom-2 ${
+      className={`pointer-events-auto flex max-w-[min(92vw,380px)] items-start gap-2.5 rounded-[var(--radius-control-lg)] border bg-[var(--color-bg-raised)] py-3 pr-2.5 pl-3.5 shadow-[var(--shadow-popover)] duration-200 animate-in fade-in slide-in-from-bottom-2 ${
         danger ? "border-[var(--color-status-danger)]/40" : "border-[var(--color-border-strong)]"
       }`}
     >

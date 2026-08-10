@@ -36,7 +36,7 @@ export async function FeedSidebar() {
   return (
     <aside className="sticky top-[82px] hidden w-[296px] flex-none flex-col gap-4 lg:flex">
       {trending.length > 0 && (
-        <div className="flex flex-col gap-3 rounded-[9px] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] p-[17px]">
+        <div className="flex flex-col gap-3 rounded-[var(--radius-control-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] p-[17px]">
           <div className="flex items-center justify-between">
             <span className="text-[13px] font-bold">Trending stacks</span>
             <Link href="/search" className="text-xs">
@@ -59,7 +59,7 @@ export async function FeedSidebar() {
       )}
 
       {topBuilders.length > 0 && (
-        <div className="flex flex-col gap-[13px] rounded-[9px] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] p-[17px]">
+        <div className="flex flex-col gap-[13px] rounded-[var(--radius-control-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] p-[17px]">
           <div className="flex items-center justify-between">
             <span className="text-[13px] font-bold">Top builders this week</span>
             <Link href="/leaderboard" className="text-xs">
@@ -78,7 +78,7 @@ export async function FeedSidebar() {
                   href={`/u/${b.username}`}
                   className="flex items-center gap-2.5"
                 >
-                  <span className="w-3.5 font-mono text-[11.5px] text-[var(--color-text-tertiary)]">
+                  <span className="w-3.5 text-[11.5px] text-[var(--color-text-tertiary)]">
                     {b.rank}
                   </span>
                   <span className="h-7 w-7 flex-none overflow-hidden rounded-full border border-[var(--color-border-default)] bg-[repeating-linear-gradient(135deg,var(--color-bg-raised)_0_4px,var(--color-bg-panel-alt)_4px_8px)]">
@@ -90,11 +90,11 @@ export async function FeedSidebar() {
                     <span className="truncate text-[12.5px] font-semibold text-[var(--color-text-primary)]">
                       {b.display_name ?? b.username}
                     </span>
-                    <span className="truncate font-mono text-[10.5px] text-[var(--color-text-tertiary)]">
+                    <span className="truncate text-[10.5px] text-[var(--color-text-tertiary)]">
                       @{b.username}
                     </span>
                   </span>
-                  <span className="font-mono text-[11.5px] text-[var(--color-accent-muted)]">
+                  <span className="text-[11.5px] text-[var(--color-text-primary)]">
                     {b.votes}
                   </span>
                 </Link>
@@ -104,20 +104,14 @@ export async function FeedSidebar() {
         </div>
       )}
 
-      <div
-        className="flex flex-col gap-2.5 rounded-[9px] border p-[17px]"
-        style={{
-          background: "linear-gradient(150deg, rgba(59,227,143,0.18), rgba(59,227,143,0.04))",
-          borderColor: "rgba(59,227,143,0.25)",
-        }}
-      >
+      <div className="flex flex-col gap-2.5 rounded-[var(--radius-control-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-page)] p-[17px]">
         <span className="text-[13.5px] font-bold">Built something this term?</span>
         <span className="text-[12.5px] leading-snug text-[var(--color-text-secondary)]">
           Post it with screenshots and credit your teammates.
         </span>
         <Link
           href="/new"
-          className="rounded-[var(--radius-control)] bg-[var(--color-accent)] py-2.5 text-center text-[13px] font-bold text-[var(--color-accent-on)] hover:bg-[var(--color-accent-hover)]"
+          className="rounded-[var(--radius-control)] border border-[var(--color-border-default)] bg-[var(--color-bg-row-tint)] py-2.5 text-center text-[13px] font-bold text-[var(--color-text-primary)] hover:border-[var(--color-border-strong)]"
         >
           Post a project
         </Link>

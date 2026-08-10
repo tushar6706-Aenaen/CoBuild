@@ -18,17 +18,17 @@ export function AppHeader({
   signedIn: boolean;
 }) {
   return (
-    <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-[var(--color-border-subtle)] bg-[rgb(var(--color-bg-page-rgb)/0.86)] px-5 py-3 backdrop-blur-[14px]">
+    <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-[var(--color-border-subtle)] bg-[rgb(var(--color-bg-page-rgb)/0.86)] px-5 py-3 backdrop-blur-[14px] print:hidden">
       {/* Compact logo — only when the sidebar is hidden. */}
       <Link href="/" className="flex items-center gap-2 lg:hidden" aria-label="CoBuild home">
-        <span className="flex h-[27px] w-[27px] items-center justify-center rounded-[4px] bg-[var(--color-accent)] text-[14px] font-extrabold text-[var(--color-accent-on)]">
+        <span className="flex h-[27px] w-[27px] items-center justify-center rounded-[var(--radius-xs)] bg-[var(--color-accent)] text-[14px] font-extrabold text-[var(--color-accent-on)]">
           C
         </span>
       </Link>
 
       <Link
         href="/search"
-        className="flex flex-1 items-center gap-2.5 rounded-[6px] border border-[var(--color-border-default)] bg-[var(--color-bg-input)] px-3.5 py-2.5 text-[13.5px] text-[var(--color-text-tertiary)] hover:border-[var(--color-border-strong)] hover:text-[var(--color-text-secondary)]"
+        className="flex flex-1 items-center gap-2.5 rounded-[var(--radius-control)] border border-[var(--color-border-default)] bg-[var(--color-bg-input)] px-3.5 py-2.5 text-[13.5px] text-[var(--color-text-tertiary)] hover:border-[var(--color-border-strong)] hover:text-[var(--color-text-secondary)]"
       >
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" aria-hidden="true">
           <circle cx="11" cy="11" r="7" />
@@ -42,7 +42,7 @@ export function AppHeader({
           <Link
             href="/notifications"
             aria-label="Notifications"
-            className="relative flex h-10 w-10 flex-none items-center justify-center rounded-[6px] border border-[var(--color-border-default)] bg-[var(--color-bg-input)] text-[var(--color-text-secondary)] hover:border-[var(--color-border-strong)] hover:bg-[var(--color-bg-panel-alt)] hover:text-[var(--color-text-primary)]"
+            className="relative flex h-10 w-10 flex-none items-center justify-center rounded-[var(--radius-control)] border border-[var(--color-border-default)] bg-[var(--color-bg-input)] text-[var(--color-text-secondary)] hover:border-[var(--color-border-strong)] hover:bg-[var(--color-bg-panel-alt)] hover:text-[var(--color-text-primary)]"
           >
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.9} strokeLinecap="round" aria-hidden="true">
               <path d="M18 8a6 6 0 10-12 0c0 7-3 8-3 8h18s-3-1-3-8" />
@@ -69,7 +69,7 @@ export function AppHeader({
       ) : (
         <Link
           href="/login"
-          className="flex-none rounded-[6px] bg-[var(--color-text-primary)] px-4 py-2.5 text-[13.5px] font-bold text-[var(--color-bg-page)] hover:bg-white"
+          className="flex-none rounded-[var(--radius-control)] bg-[var(--color-text-primary)] px-4 py-2.5 text-[13.5px] font-bold text-[var(--color-bg-page)] hover:bg-white"
         >
           Sign in
         </Link>

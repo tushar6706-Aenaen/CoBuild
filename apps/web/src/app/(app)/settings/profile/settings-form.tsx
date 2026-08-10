@@ -216,8 +216,8 @@ export function SettingsForm({ userId, initial }: { userId: string; initial: Ini
           <Label htmlFor="username" className="text-[12.5px] font-semibold text-[var(--color-text-secondary-alt)]">
             Username
           </Label>
-          <div className="flex items-center overflow-hidden rounded-[var(--radius-control)] border border-[var(--color-border-default)] bg-[var(--color-bg-input)]">
-            <span className="py-3 pl-3.5 font-mono text-[13.5px] text-[var(--color-text-placeholder)]">
+          <div className="flex items-center overflow-hidden rounded-[var(--radius-control)] border border-[var(--color-border-default)] bg-[var(--color-bg-input)] focus-within:border-[var(--color-accent)]/60 focus-within:ring-2 focus-within:ring-[var(--color-accent)]/35">
+            <span className="py-3 pl-3.5 font-mono text-[13.5px] text-[var(--color-text-tertiary)]">
               cobuild.to/u/
             </span>
             <input
@@ -270,7 +270,7 @@ export function SettingsForm({ userId, initial }: { userId: string; initial: Ini
               // eslint-disable-next-line @next/next/no-img-element
               <img src={avatarPreview} alt="Avatar preview" className="h-full w-full object-cover" />
             ) : (
-              <span className="absolute inset-0 flex items-center justify-center font-mono text-[9px] text-[var(--color-text-tertiary)]">
+              <span className="absolute inset-0 flex items-center justify-center text-[9px] text-[var(--color-text-tertiary)]">
                 AVATAR
               </span>
             )}
@@ -353,7 +353,7 @@ export function SettingsForm({ userId, initial }: { userId: string; initial: Ini
                   }
                   className={
                     active
-                      ? "rounded-[var(--radius-control)] border border-[var(--color-accent)]/45 bg-[var(--color-accent)]/12 px-3.5 py-2 text-[13px] font-semibold text-[var(--color-accent-muted)]"
+                      ? "rounded-[var(--radius-control)] border border-transparent bg-[var(--color-control-primary)] px-3.5 py-2 text-[13px] font-semibold text-[var(--color-control-on-primary)]"
                       : "rounded-[var(--radius-control)] border border-[var(--color-border-default)] bg-[var(--color-bg-input)] px-3.5 py-2 text-[13px] font-semibold text-[var(--color-text-secondary)]"
                   }
                 >
@@ -378,7 +378,7 @@ export function SettingsForm({ userId, initial }: { userId: string; initial: Ini
           {isStudent && (
             <div className="grid grid-cols-[1fr_130px] gap-2.5">
               <Input name="college" placeholder="College" defaultValue={initial.college ?? ""} maxLength={COLLEGE_MAX} className="rounded-[var(--radius-control)] border-[var(--color-border-default)] bg-[var(--color-bg-input)] py-3 text-sm" />
-              <Input name="gradYear" placeholder="Year" type="number" defaultValue={initial.gradYear ?? undefined} className="rounded-[var(--radius-control)] border-[var(--color-border-default)] bg-[var(--color-bg-input)] py-3 font-mono text-sm" />
+              <Input name="gradYear" placeholder="Year" type="number" defaultValue={initial.gradYear ?? undefined} className="rounded-[var(--radius-control)] border-[var(--color-border-default)] bg-[var(--color-bg-input)] py-3 text-sm" />
             </div>
           )}
         </div>
@@ -410,7 +410,7 @@ export function SettingsForm({ userId, initial }: { userId: string; initial: Ini
       <Button
         type="submit"
         disabled={!canSubmit}
-        className="rounded-[var(--radius-control-lg)] bg-[var(--color-accent)] py-3.5 text-[15px] font-bold text-[var(--color-accent-on)] shadow-[0_10px_26px_rgba(59,227,143,0.32)] hover:bg-[var(--color-accent-hover)]"
+        className="rounded-[var(--radius-control-lg)] bg-[var(--color-accent)] py-3.5 text-[15px] font-bold text-[var(--color-accent-on)] hover:bg-[var(--color-accent-hover)]"
       >
         {pending ? "Saving…" : "Save changes"}
       </Button>

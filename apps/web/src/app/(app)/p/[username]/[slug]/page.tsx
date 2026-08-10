@@ -50,14 +50,16 @@ export async function generateMetadata({
   const project = await getProjectDetail(supabase, username, slug);
   if (!project) return { title: "Project not found — CoBuild" };
 
-  const cover = publicStorageUrl(supabase, "project-media", project.cover_image_path);
   return {
     title: `${project.title} — CoBuild`,
     description: project.tagline ?? undefined,
     openGraph: {
       title: project.title,
       description: project.tagline ?? undefined,
-      images: cover ? [cover] : undefined,
+      type: "article",
+      // No `images` here on purpose: setting it would override the generated
+      // card from `opengraph-image.tsx` in this segment, and the raw cover is a
+      // worse preview — arbitrary aspect ratio, no title, no attribution.
     },
     // Unlisted projects are reachable by direct link on purpose, but must not
     // be indexed — that's the difference between "unlisted" and "public".
@@ -139,12 +141,12 @@ export default async function ProjectDetailPage({
                   {project.visibility === "draft" ? "Draft" : "Unlisted"}
                 </span>
               )}
-              <span className="font-mono text-[11.5px] text-[var(--color-text-tertiary)]">
+              <span className="text-[11.5px] text-[var(--color-text-tertiary)]">
                 {project.view_count.toLocaleString()} views · posted {timeAgo(project.published_at ?? project.created_at)}
               </span>
             </div>
 
-            <h1 className="font-mono text-[29px] leading-tight font-medium tracking-tight">{project.title}</h1>
+            <h1 className="text-[29px] leading-tight font-medium tracking-tight">{project.title}</h1>
             {project.tagline && (
               <p className="max-w-[640px] text-base leading-relaxed text-[var(--color-text-secondary-alt)]">
                 {project.tagline}
@@ -154,7 +156,7 @@ export default async function ProjectDetailPage({
 
           <Gallery images={galleryImages} title={project.title} />
 
-          <div className="flex flex-wrap items-center gap-2.5 rounded-[8px] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] p-3.5">
+          <div className="flex flex-wrap items-center gap-2.5 rounded-[var(--radius-control)] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] p-3.5">
             <VoteButton
               projectId={project.id}
               viewerId={viewer?.id ?? null}
@@ -236,7 +238,7 @@ export default async function ProjectDetailPage({
                         )}
                       </span>
                       <span className="flex flex-col">
-                        <span className="font-mono text-xs text-[var(--color-text-primary)]">{label}</span>
+                        <span className="text-xs text-[var(--color-text-primary)]">{label}</span>
                         {c.role_label && (
                           <span className="text-[11.5px] font-semibold text-[var(--color-accent)]">{c.role_label}</span>
                         )}
@@ -244,7 +246,7 @@ export default async function ProjectDetailPage({
                     </>
                   );
                   const className =
-                    "flex items-center gap-2.5 rounded-[7px] border border-[var(--color-border-default)] bg-[var(--color-bg-panel-alt)] py-2 pr-3.5 pl-2 text-left hover:border-[var(--color-border-strong)] hover:bg-[var(--color-bg-raised)]";
+                    "flex items-center gap-2.5 rounded-[var(--radius-control-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-panel-alt)] py-2 pr-3.5 pl-2 text-left hover:border-[var(--color-border-strong)] hover:bg-[var(--color-bg-raised)]";
                   return c.profile?.username ? (
                     <Link key={`${c.profile_id}-${i}`} href={`/u/${c.profile.username}`} className={className}>
                       {inner}
@@ -271,7 +273,7 @@ export default async function ProjectDetailPage({
         </div>
 
         <aside className="flex min-w-0 flex-col gap-3.5">
-          <div className="flex flex-col gap-3.5 rounded-[9px] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] p-[18px]">
+          <div className="flex flex-col gap-3.5 rounded-[var(--radius-control-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] p-[18px]">
             <div className="flex items-center gap-3">
               <span className="h-12 w-12 flex-none overflow-hidden rounded-full border border-[var(--color-border-default)] bg-[repeating-linear-gradient(135deg,var(--color-bg-raised)_0_4px,var(--color-bg-panel-alt)_4px_8px)]">
                 {authorAvatar && (
@@ -287,7 +289,7 @@ export default async function ProjectDetailPage({
               </span>
               <div className="flex min-w-0 flex-col gap-0.5">
                 <span className="text-[15px] font-bold">{project.author.display_name ?? project.author.username}</span>
-                <Link href={`/u/${project.author.username}`} className="text-left font-mono text-xs text-[var(--color-accent-muted)]">
+                <Link href={`/u/${project.author.username}`} className="text-left text-xs text-[var(--color-accent-muted)]">
                   @{project.author.username}
                 </Link>
               </div>
@@ -319,7 +321,7 @@ export default async function ProjectDetailPage({
             )}
           </div>
 
-          <div className="flex flex-col gap-2.5 rounded-[9px] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] p-[18px]">
+          <div className="flex flex-col gap-2.5 rounded-[var(--radius-control-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] p-[18px]">
             <span className="text-[13px] font-bold">Project stats</span>
             {[
               { k: "Upvotes", v: project.upvote_count },
@@ -329,7 +331,7 @@ export default async function ProjectDetailPage({
             ].map((s) => (
               <div key={s.k} className="flex items-center justify-between text-[13px]">
                 <span className="text-[var(--color-text-secondary)]">{s.k}</span>
-                <span className="font-mono text-[var(--color-text-primary)]">{s.v.toLocaleString()}</span>
+                <span className="text-[var(--color-text-primary)]">{s.v.toLocaleString()}</span>
               </div>
             ))}
           </div>

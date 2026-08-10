@@ -45,7 +45,7 @@ export default async function OnboardingPage({
       className="flex min-h-screen items-center justify-center px-5 py-10"
       style={{
         background:
-          "radial-gradient(900px 520px at 50% -10%, rgba(59,227,143,0.16), transparent 70%), var(--color-bg-page)",
+          "radial-gradient(900px 520px at 50% -10%, rgb(var(--color-accent-rgb) / 0.16), transparent 70%), var(--color-bg-page)",
       }}
     >
       <OnboardingForm

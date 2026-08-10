@@ -95,7 +95,7 @@ export function VoteButton({
       aria-label={voted ? "Remove upvote" : "Upvote"}
       className={
         voted
-          ? `${base} border border-transparent bg-[var(--color-accent)] text-[var(--color-accent-on)] shadow-[0_6px_18px_rgba(59,227,143,0.35)]`
+          ? `${base} border border-transparent bg-[var(--color-accent)] text-[var(--color-accent-on)]`
           : `${base} border border-[var(--color-accent)]/40 bg-[var(--color-accent)]/10 text-[var(--color-accent-muted)] hover:bg-[var(--color-accent)]/20`
       }
     >

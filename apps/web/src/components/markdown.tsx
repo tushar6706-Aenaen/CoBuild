@@ -27,11 +27,11 @@ export function Markdown({ content }: { content: string }) {
             className ? (
               <code className={className} {...p} />
             ) : (
-              <code className="rounded-[3px] bg-[var(--color-bg-raised)] px-1.5 py-0.5 font-mono text-[13px] text-[var(--color-text-primary)]" {...p} />
+              <code className="rounded-[var(--radius-xs)] bg-[var(--color-bg-raised)] px-1.5 py-0.5 font-mono text-[13px] text-[var(--color-text-primary)]" {...p} />
             ),
           pre: (p) => (
             <pre
-              className="overflow-x-auto rounded-[6px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-input)] p-[15px] font-mono text-[12.5px] leading-relaxed text-[var(--color-code-highlight)]"
+              className="overflow-x-auto rounded-[var(--radius-control)] border border-[var(--color-border-subtle)] bg-[var(--color-bg-input)] p-[15px] font-mono text-[12.5px] leading-relaxed text-[var(--color-code-highlight)]"
               {...p}
             />
           ),

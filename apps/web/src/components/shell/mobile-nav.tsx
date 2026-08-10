@@ -12,7 +12,7 @@ export function MobileNav({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-30 flex border-t border-[var(--color-border-subtle)] bg-[rgb(var(--color-bg-page-rgb)/0.94)] backdrop-blur-[14px] lg:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-30 flex border-t border-[var(--color-border-subtle)] bg-[rgb(var(--color-bg-page-rgb)/0.94)] backdrop-blur-[14px] lg:hidden print:hidden">
       {items.map((item) => {
         const active = item.matchPrefix
           ? pathname === item.href || pathname.startsWith(`${item.href}/`)

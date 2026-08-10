@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { LeaderboardWindow } from "@cobuild/shared";
+import { pillActive, pillInactive, chipActive, chipInactive } from "@/components/ui/control-classes";
 
 export const BOARD_TABS = [
   { key: "projects", label: "Top projects" },
@@ -13,8 +14,6 @@ export const BOARD_WINDOWS = [
   { key: "week", label: "This week" },
 ] as const;
 
-const pill = "rounded-[5px] px-3.5 py-2 text-[13px] font-semibold transition-colors";
-const chip = "rounded-[5px] border px-2.5 py-1.5 text-xs font-semibold transition-colors";
 
 function href(tab: BoardTab, window: LeaderboardWindow) {
   const params = new URLSearchParams();
@@ -28,7 +27,7 @@ function href(tab: BoardTab, window: LeaderboardWindow) {
 export function BoardControls({ tab, window }: { tab: BoardTab; window: LeaderboardWindow }) {
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <div className="flex gap-1.5 rounded-[7px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-panel)] p-1.5">
+      <div className="flex gap-1.5 rounded-[var(--radius-control-lg)] border border-[var(--color-border-subtle)] bg-[var(--color-bg-panel)] p-1.5">
         {BOARD_TABS.map((t) => (
           <Link
             key={t.key}
@@ -36,8 +35,8 @@ export function BoardControls({ tab, window }: { tab: BoardTab; window: Leaderbo
             aria-current={t.key === tab ? "page" : undefined}
             className={
               t.key === tab
-                ? `${pill} bg-[var(--color-accent)] text-[var(--color-accent-on)]`
-                : `${pill} text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]`
+                ? pillActive
+                : pillInactive
             }
           >
             {t.label}
@@ -55,8 +54,8 @@ export function BoardControls({ tab, window }: { tab: BoardTab; window: Leaderbo
             aria-current={w.key === window ? "page" : undefined}
             className={
               w.key === window
-                ? `${chip} border-[var(--color-accent)]/45 bg-[var(--color-accent)]/12 text-[var(--color-accent-muted)]`
-                : `${chip} border-[var(--color-border-default)] bg-[var(--color-bg-panel)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]`
+                ? chipActive
+                : chipInactive
             }
           >
             {w.label}

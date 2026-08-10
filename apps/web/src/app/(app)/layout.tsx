@@ -53,11 +53,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="flex min-h-screen">
+      {/* Navigation is chrome, not content: it is hidden from print on every
+          route, which is what makes `/u/[username]/resume` print as a clean
+          document without needing a layout of its own. */}
       <Sidebar username={username} displayName={displayName} avatarUrl={avatarUrl} unreadCount={unreadCount} />
 
       <div className="flex min-w-0 flex-1 flex-col">
         <AppHeader username={username} avatarUrl={avatarUrl} unreadCount={unreadCount} signedIn={!!user} />
-        <main className="mx-auto w-full max-w-[1080px] flex-1 px-5 pt-[26px] pb-[100px] lg:px-7 lg:pb-[60px]">
+        <main className="mx-auto w-full max-w-[1080px] flex-1 px-5 pt-[26px] pb-[100px] lg:px-7 lg:pb-[60px] print:max-w-none print:p-0">
           {children}
         </main>
       </div>

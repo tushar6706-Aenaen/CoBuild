@@ -89,14 +89,14 @@ export function AuthorHoverCard({
       >
         @{username}
       </Link>
-      <span className="text-xs text-[var(--color-text-placeholder)]">·</span>
+      <span className="text-xs text-[var(--color-text-tertiary)]">·</span>
       <span className="text-[12.5px] text-[var(--color-text-tertiary)]">{timeAgo}</span>
 
       {open && (
         <span
           onMouseEnter={handleEnter}
           onMouseLeave={handleLeave}
-          className="absolute bottom-[30px] left-0 z-40 flex w-[268px] flex-col gap-2.5 rounded-[8px] border border-[var(--color-border-strong)] bg-[var(--color-bg-raised)] p-[15px] shadow-[0_20px_44px_rgba(0,0,0,0.6)]"
+          className="absolute bottom-[30px] left-0 z-40 flex w-[268px] flex-col gap-2.5 rounded-[var(--radius-control)] border border-[var(--color-border-strong)] bg-[var(--color-bg-raised)] p-[15px] shadow-[var(--shadow-popover)]"
         >
           <span className="flex items-center gap-2.5">
             <span className="h-[42px] w-[42px] flex-none overflow-hidden rounded-full border border-[var(--color-border-default)] bg-[repeating-linear-gradient(135deg,var(--color-bg-panel-alt)_0_4px,var(--color-bg-panel)_4px_8px)]">
@@ -108,7 +108,7 @@ export function AuthorHoverCard({
               <span className="text-sm font-bold text-[var(--color-text-primary)]">
                 {summary?.display_name ?? username}
               </span>
-              <span className="font-mono text-[11px] text-[var(--color-accent)]">@{username}</span>
+              <span className="text-[11px] text-[var(--color-text-secondary)]">@{username}</span>
             </span>
           </span>
           {summary?.headline && (
@@ -116,7 +116,7 @@ export function AuthorHoverCard({
               {summary.headline}
             </span>
           )}
-          <span className="flex gap-3.5 font-mono text-[11.5px] text-[var(--color-text-secondary)]">
+          <span className="flex gap-3.5 text-[11.5px] text-[var(--color-text-secondary)]">
             <span>
               <b className="text-[var(--color-text-primary)]">{summary?.project_count ?? 0}</b> projects
             </span>
@@ -126,7 +126,7 @@ export function AuthorHoverCard({
           </span>
           <Link
             href={`/u/${username}`}
-            className="w-full rounded-[5px] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] py-2 text-center text-[12.5px] font-semibold text-[var(--color-text-primary)] hover:border-[var(--color-border-strong)] hover:bg-[var(--color-bg-panel-alt)]"
+            className="w-full rounded-[var(--radius-control)] border border-[var(--color-border-default)] bg-[var(--color-bg-panel)] py-2 text-center text-[12.5px] font-semibold text-[var(--color-text-primary)] hover:border-[var(--color-border-strong)] hover:bg-[var(--color-bg-panel-alt)]"
           >
             View profile
           </Link>

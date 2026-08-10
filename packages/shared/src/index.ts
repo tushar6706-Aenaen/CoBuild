@@ -107,7 +107,7 @@ export {
 } from "./search";
 export type { SearchProjectHit, PersonHit, TagHit, SearchResult } from "./search";
 
-export { getTagBySlug, getRelatedTags } from "./tags";
+export { getTagBySlug, getRelatedTags, isFollowingTag, getFollowedTags } from "./tags";
 export type { TagSummary, RelatedTag } from "./tags";
 
 export {

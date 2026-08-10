@@ -12,7 +12,7 @@ export default function Loading() {
       <LoadingLabel>Loading projects</LoadingLabel>
       <div aria-hidden className="flex items-start gap-7">
         <div className="flex min-w-0 flex-1 flex-col gap-[18px]">
-          <div className="h-[52px] w-[334px] max-w-full rounded-[7px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-panel)]" />
+          <div className="h-[52px] w-[334px] max-w-full rounded-[var(--radius-control-lg)] border border-[var(--color-border-subtle)] bg-[var(--color-bg-panel)]" />
           <FeedSkeleton />
         </div>
       </div>

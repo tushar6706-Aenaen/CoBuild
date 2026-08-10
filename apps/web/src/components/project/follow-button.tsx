@@ -108,7 +108,7 @@ export function FollowButton({
       onClick={toggle}
       disabled={pending}
       aria-busy={pending}
-      className="rounded-[var(--radius-control)] bg-[var(--color-accent)] px-5 py-2.5 text-[13.5px] font-bold text-[var(--color-accent-on)] shadow-[0_8px_20px_rgba(59,227,143,0.3)] hover:bg-[var(--color-accent-hover)]"
+      className="rounded-[var(--radius-control)] bg-[var(--color-accent)] px-5 py-2.5 text-[13.5px] font-bold text-[var(--color-accent-on)] hover:bg-[var(--color-accent-hover)]"
     >
       Follow
     </Button>

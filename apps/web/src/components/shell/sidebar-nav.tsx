@@ -28,8 +28,8 @@ export function SidebarNav({ items, unreadCount }: { items: NavItem[]; unreadCou
             href={item.href}
             className={
               active
-                ? "flex w-full items-center gap-[11px] rounded-[6px] bg-[var(--color-accent)]/[0.14] px-3 py-2.5 text-[13.5px] font-bold text-[var(--color-accent-muted-strong)]"
-                : "flex w-full items-center gap-[11px] rounded-[6px] px-3 py-2.5 text-[13.5px] font-semibold text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-panel)] hover:text-[var(--color-text-primary)]"
+                ? "flex w-full items-center gap-[11px] rounded-[var(--radius-control)] border border-[var(--color-border-default)] bg-[var(--color-bg-row-tint)] px-3 py-2.5 text-[13.5px] font-bold text-[var(--color-text-primary)]"
+                : "flex w-full items-center gap-[11px] rounded-[var(--radius-control)] px-3 py-2.5 text-[13.5px] font-semibold text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-row-tint)] hover:text-[var(--color-text-primary)]"
             }
           >
             <span className="flex w-[18px] flex-none items-center justify-center">{item.icon}</span>

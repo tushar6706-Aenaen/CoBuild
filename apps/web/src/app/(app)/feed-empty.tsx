@@ -11,8 +11,8 @@ export function FeedEmpty({ tab, signedIn }: { tab: string; signedIn: boolean })
       ? {
           title: signedIn ? "Nothing here yet" : "Sign in to build a feed",
           body: signedIn
-            ? "You're not following anyone who has posted. Follow a few builders, or explore what shipped this week."
-            : "Follow builders you like and their projects show up here.",
+            ? "Nobody you follow has posted, and no project matches the stacks you follow. Follow a few builders or stacks, or see what shipped this week."
+            : "Follow builders and stacks you like, and their projects show up here.",
         }
       : tab === "top"
         ? {
@@ -25,8 +25,8 @@ export function FeedEmpty({ tab, signedIn }: { tab: string; signedIn: boolean })
           };
 
   return (
-    <div className="flex flex-col items-center gap-4 rounded-[11px] border border-dashed border-[var(--color-border-default)] bg-[var(--color-bg-panel)] px-7 py-16 text-center">
-      <div className="flex h-[54px] w-[54px] items-center justify-center rounded-[8px] bg-[var(--color-bg-panel-alt)] text-[var(--color-accent)]">
+    <div className="flex flex-col items-center gap-4 rounded-[var(--radius-card-lg)] border border-dashed border-[var(--color-border-default)] bg-[var(--color-bg-panel)] px-7 py-16 text-center">
+      <div className="flex h-[54px] w-[54px] items-center justify-center rounded-[var(--radius-control)] bg-[var(--color-bg-panel-alt)] text-[var(--color-accent)]">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" aria-hidden="true">
           <path d="M4 6h16M4 12h10M4 18h7" />
         </svg>

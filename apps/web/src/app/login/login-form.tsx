@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { AUTH_CALLBACK_PATH, DEFAULT_SIGNED_IN_PATH } from "@/lib/auth/redirects";
 import { AUTH_ERROR_MESSAGES, isAuthErrorCode } from "./error-messages";
 import { Button } from "@/components/ui/button";
+import { microLabel } from "@/components/ui/control-classes";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
@@ -86,7 +87,7 @@ export function LoginForm() {
   return (
     <div className="flex w-full max-w-[412px] flex-col gap-6 text-center">
       <div className="flex flex-col items-center gap-3.5">
-        <div className="flex h-[46px] w-[46px] items-center justify-center rounded-[var(--radius-control-lg)] bg-[var(--color-accent)] text-[20px] font-extrabold text-[var(--color-accent-on)] shadow-[0_10px_30px_rgba(59,227,143,0.4)]">
+        <div className="flex h-[46px] w-[46px] items-center justify-center rounded-[var(--radius-control-lg)] bg-[var(--color-accent)] text-[20px] font-extrabold text-[var(--color-accent-on)]">
           C
         </div>
         <h1 className="text-[27px] font-extrabold tracking-tight">Sign in to CoBuild</h1>
@@ -117,7 +118,7 @@ export function LoginForm() {
           onClick={() => handleOAuth("google")}
           disabled={oauthPending !== null}
           variant="outline"
-          className="flex h-auto items-center justify-center gap-2.5 rounded-[var(--radius-control)] border-[var(--color-border-strong)] bg-[var(--color-bg-raised)] py-3.5 text-[14.5px] font-bold text-[var(--color-text-primary)] hover:bg-[var(--color-bg-panel)]"
+          className="flex h-auto items-center justify-center gap-2.5 rounded-[var(--radius-control)] border-[var(--color-border-strong)] bg-[var(--color-bg-raised)] py-3.5 text-[14.5px] font-bold text-[var(--color-text-primary)] hover:bg-[var(--color-bg-row-tint)]"
         >
           <GoogleDot />
           {oauthPending === "google" ? "Redirecting…" : "Continue with Google"}
@@ -125,7 +126,7 @@ export function LoginForm() {
 
         <div className="my-1.5 flex items-center gap-3">
           <Separator className="flex-1 bg-[var(--color-border-default)]" />
-          <span className="font-mono text-[11.5px] text-[var(--color-text-tertiary)]">OR</span>
+          <span className={microLabel}>OR</span>
           <Separator className="flex-1 bg-[var(--color-border-default)]" />
         </div>
 
@@ -155,7 +156,7 @@ export function LoginForm() {
             <Button
               type="submit"
               disabled={status === "sending"}
-              className="rounded-[var(--radius-control)] bg-[var(--color-accent)] py-3.5 text-[14.5px] font-bold text-[var(--color-accent-on)] shadow-[0_8px_22px_rgba(59,227,143,0.3)] hover:bg-[var(--color-accent-hover)]"
+              className="rounded-[var(--radius-control)] bg-[var(--color-accent)] py-3.5 text-[14.5px] font-bold text-[var(--color-accent-on)] hover:bg-[var(--color-accent-hover)]"
             >
               {status === "sending" ? "Sending…" : "Send me a link"}
             </Button>

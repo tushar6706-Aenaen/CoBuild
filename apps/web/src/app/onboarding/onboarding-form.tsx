@@ -10,6 +10,7 @@ import {
   COLLEGE_MAX,
 } from "@cobuild/shared";
 import { FieldCounter } from "@/components/ui/field-counter";
+import { microLabel } from "@/components/ui/control-classes";
 import { completeOnboarding, type OnboardingState } from "./actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -176,7 +177,7 @@ export function OnboardingForm({
   return (
     <form action={formAction} className="flex w-full max-w-[520px] flex-col gap-5">
       <div className="flex flex-col gap-2">
-        <span className="font-mono text-[11.5px] tracking-[0.12em] text-[var(--color-accent)]">
+        <span className={microLabel}>
           STEP 1 OF 1 · WELCOME
         </span>
         <h1 className="text-[27px] font-extrabold tracking-tight">Claim your handle</h1>
@@ -190,8 +191,8 @@ export function OnboardingForm({
           <Label htmlFor="username" className="text-[12.5px] font-semibold text-[var(--color-text-secondary-alt)]">
             Username
           </Label>
-          <div className="flex items-center overflow-hidden rounded-[var(--radius-control)] border border-[var(--color-border-default)] bg-[var(--color-bg-input)]">
-            <span className="py-3 pl-3.5 font-mono text-[13.5px] text-[var(--color-text-placeholder)]">
+          <div className="flex items-center overflow-hidden rounded-[var(--radius-control)] border border-[var(--color-border-default)] bg-[var(--color-bg-input)] focus-within:border-[var(--color-accent)]/60 focus-within:ring-2 focus-within:ring-[var(--color-accent)]/35">
+            <span className="py-3 pl-3.5 font-mono text-[13.5px] text-[var(--color-text-tertiary)]">
               cobuild.to/u/
             </span>
             <input
@@ -244,7 +245,7 @@ export function OnboardingForm({
               // eslint-disable-next-line @next/next/no-img-element
               <img src={avatarPreview} alt="Avatar preview" className="h-full w-full object-cover" />
             ) : (
-              <span className="absolute inset-0 flex items-center justify-center font-mono text-[9px] text-[var(--color-text-tertiary)]">
+              <span className="absolute inset-0 flex items-center justify-center text-[9px] text-[var(--color-text-tertiary)]">
                 AVATAR
               </span>
             )}
@@ -289,7 +290,7 @@ export function OnboardingForm({
 
         <div className="flex flex-col gap-2">
           <Label htmlFor="bio" className="text-[12.5px] font-semibold text-[var(--color-text-secondary-alt)]">
-            Short bio <span className="font-normal text-[var(--color-text-placeholder)]">· optional</span>
+            Short bio <span className="font-normal text-[var(--color-text-tertiary)]">· optional</span>
           </Label>
           <Textarea
             id="bio"
@@ -306,7 +307,7 @@ export function OnboardingForm({
 
         <div className="flex flex-col gap-2.5">
           <Label className="text-[12.5px] font-semibold text-[var(--color-text-secondary-alt)]">
-            I am a… <span className="font-normal text-[var(--color-text-placeholder)]">· pick one or more</span>
+            I am a… <span className="font-normal text-[var(--color-text-tertiary)]">· pick one or more</span>
           </Label>
           <div className="flex flex-wrap gap-2">
             {ROLE_CHIPS.map((chip) => {
@@ -325,7 +326,7 @@ export function OnboardingForm({
                   }
                   className={
                     active
-                      ? "rounded-[var(--radius-control)] border border-[var(--color-accent)]/45 bg-[var(--color-accent)]/12 px-3.5 py-2 text-[13px] font-semibold text-[var(--color-accent-muted)]"
+                      ? "rounded-[var(--radius-control)] border border-transparent bg-[var(--color-control-primary)] px-3.5 py-2 text-[13px] font-semibold text-[var(--color-control-on-primary)]"
                       : "rounded-[var(--radius-control)] border border-[var(--color-border-default)] bg-[var(--color-bg-input)] px-3.5 py-2 text-[13px] font-semibold text-[var(--color-text-secondary)]"
                   }
                 >
@@ -368,7 +369,7 @@ export function OnboardingForm({
                 placeholder="Year"
                 type="number"
                 defaultValue={initial.gradYear ?? undefined}
-                className="rounded-[var(--radius-control)] border-[var(--color-border-default)] bg-[var(--color-bg-input)] py-3 text-sm font-mono"
+                className="rounded-[var(--radius-control)] border-[var(--color-border-default)] bg-[var(--color-bg-input)] py-3 text-sm"
               />
             </div>
           )}
@@ -384,7 +385,7 @@ export function OnboardingForm({
       <Button
         type="submit"
         disabled={!canSubmit}
-        className="rounded-[var(--radius-control-lg)] bg-[var(--color-accent)] py-3.5 text-[15px] font-bold text-[var(--color-accent-on)] shadow-[0_10px_26px_rgba(59,227,143,0.32)] hover:bg-[var(--color-accent-hover)]"
+        className="rounded-[var(--radius-control-lg)] bg-[var(--color-accent)] py-3.5 text-[15px] font-bold text-[var(--color-accent-on)] hover:bg-[var(--color-accent-hover)]"
       >
         {pending ? "Creating…" : "Create my profile"}
       </Button>

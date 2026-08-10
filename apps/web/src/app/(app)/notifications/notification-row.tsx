@@ -43,7 +43,7 @@ const ICONS: Record<NotificationType, React.ReactNode> = {
 /** Icon tint per type, from `scNotifs`: upvote reads as accent, credit as a star/award. */
 function iconTone(type: NotificationType) {
   if (type === "upvote") {
-    return { background: "rgba(59,227,143,0.16)", color: "var(--color-accent-muted)" };
+    return { background: "rgb(var(--color-accent-rgb) / 0.16)", color: "var(--color-accent-muted)" };
   }
   if (type === "credit") {
     return { background: "rgba(245,185,80,0.13)", color: "var(--color-status-in-progress)" };
@@ -81,7 +81,7 @@ export function NotificationRow({ notification }: { notification: NotificationIt
   const body = (
     <>
       <span
-        className="flex h-[34px] w-[34px] flex-none items-center justify-center rounded-[6px]"
+        className="flex h-[34px] w-[34px] flex-none items-center justify-center rounded-[var(--radius-control)]"
         style={tone}
         aria-hidden="true"
       >
@@ -90,7 +90,7 @@ export function NotificationRow({ notification }: { notification: NotificationIt
 
       <span className="flex min-w-0 flex-1 flex-col gap-1">
         <span className="text-[13.5px] leading-normal text-[var(--color-text-secondary-alt)]">
-          <b className="font-mono text-[12.5px] font-medium text-[var(--color-text-primary)]">
+          <b className="text-[12.5px] font-medium text-[var(--color-text-primary)]">
             {who}
           </b>{" "}
           {describe(notification)}
@@ -117,7 +117,7 @@ export function NotificationRow({ notification }: { notification: NotificationIt
   );
 
   const className = [
-    "flex gap-3 rounded-[8px] border p-3.5 text-left",
+    "flex gap-3 rounded-[var(--radius-control)] border p-3.5 text-left",
     read
       ? "border-[var(--color-border-subtle)] bg-[var(--color-bg-panel)]"
       : "border-[var(--color-accent)]/[0.22] bg-[var(--color-accent)]/[0.06]",
