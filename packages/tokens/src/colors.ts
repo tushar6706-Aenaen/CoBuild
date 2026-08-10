@@ -13,11 +13,10 @@
  * a brightness step. If elevation ever needs to read more strongly, widen the
  * gaps here — do not reach back for a blue-grey.
  *
- * Nothing in the UI chrome is blue-tinted any more: `linkHover` was a lavender
- * `#D3C6FF` and `status.archived` a Slate `#94A3B8`; both are now in the
- * green/neutral family. `status.shipped` stays cyan — it is a semantic badge
- * from the design file, and the one place a cool hue earns its keep by not
- * colliding with the accent green.
+ * The chrome now carries no hue at all — see the `accent` note below. The
+ * only chroma left in the palette is semantic: `status.shipped` (cyan),
+ * `status.inProgress` (amber), `status.danger` (red) and `code.highlight`.
+ * Those earn their colour by meaning something; nothing else does.
  *
  * `*Rgb` entries are the same colours as space-separated channels, for
  * composing translucent scrims (`rgb(var(--color-bg-page-rgb)/0.72)`) over
@@ -63,8 +62,8 @@ export const colors = {
     primary: "#F4F4F5",
     onPrimary: "#18181B",
   },
-  /** `accent` as bare channels, for composing the accent glow shadows. */
-  accentRgb: "59 227 143",
+  /** `accent` as bare channels. Kept for translucent accent tints. */
+  accentRgb: "244 244 245",
   border: {
     default: "rgba(255,255,255,0.12)",
     subtle: "rgba(255,255,255,0.08)",
@@ -88,14 +87,28 @@ export const colors = {
     // content; reach for `tertiary` instead.
     placeholder: "#5A5A5A",
   },
+  /**
+   * There is no brand hue any more. This palette is monochrome: emphasis comes
+   * from lightness alone, so `accent` is a near-white and every ratio below is
+   * measured against the six surfaces.
+   *
+   * The green (`#3BE38F`) is gone deliberately — not softened, removed. Do not
+   * reintroduce a chroma accent here without revisiting the restyle spec; the
+   * whole design depends on nothing in the chrome competing for attention.
+   *
+   * NOTE: these now duplicate `control.*`, which is the clearer name for the
+   * same idea. They are kept as an alias only so 150+ call sites did not have
+   * to churn in the same commit that changed the colour. Collapsing `accent.*`
+   * into `control.*` is a mechanical follow-up.
+   */
   accent: {
-    DEFAULT: "#3BE38F",
-    hover: "#55EAA1",
-    onAccent: "#04180E",
-    muted: "#8DEEBB",
-    mutedStrong: "#A5F2C9",
+    DEFAULT: "#F4F4F5", // 15.83:1
+    hover: "#FFFFFF", // 17.40:1
+    onAccent: "#18181B", // 16.12:1 against DEFAULT
+    muted: "#A1A1A1", // 6.74:1
+    mutedStrong: "#D4D4D4", // 11.74:1
   },
-  linkHover: "#A5F2C9",
+  linkHover: "#FFFFFF",
   status: {
     shipped: "#6FD2E8",
     inProgress: "#F5B950",

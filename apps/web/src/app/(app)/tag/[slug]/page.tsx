@@ -93,8 +93,8 @@ export default async function TagPage({
           className="flex flex-wrap items-center gap-3.5 rounded-[var(--radius-card)] border p-[18px]"
           style={{
             background:
-              "linear-gradient(140deg, rgba(59,227,143,0.16), rgba(59,227,143,0.03))",
-            borderColor: "rgba(59,227,143,0.24)",
+              "linear-gradient(140deg, rgb(var(--color-accent-rgb) / 0.16), rgb(var(--color-accent-rgb) / 0.03))",
+            borderColor: "rgb(var(--color-accent-rgb) / 0.24)",
           }}
         >
           <div className="flex h-[52px] w-[52px] flex-none items-center justify-center rounded-[var(--radius-control)] border border-[var(--color-border-subtle)] bg-[var(--color-bg-panel-alt)] font-mono text-[19px] text-[var(--color-accent-muted)]">

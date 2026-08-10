@@ -107,8 +107,8 @@ export async function FeedSidebar() {
       <div
         className="flex flex-col gap-2.5 rounded-[var(--radius-control-lg)] border p-[17px]"
         style={{
-          background: "linear-gradient(150deg, rgba(59,227,143,0.18), rgba(59,227,143,0.04))",
-          borderColor: "rgba(59,227,143,0.25)",
+          background: "linear-gradient(150deg, rgb(var(--color-accent-rgb) / 0.18), rgb(var(--color-accent-rgb) / 0.04))",
+          borderColor: "rgb(var(--color-accent-rgb) / 0.25)",
         }}
       >
         <span className="text-[13.5px] font-bold">Built something this term?</span>

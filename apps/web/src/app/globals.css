@@ -12,11 +12,11 @@
  * TS source directly. If you change a value in packages/tokens, update it
  * here too (mobile's tailwind.config.js reads the TS file directly).
  *
- * Neutrals are the design file's green-tinted near-blacks, sampled from
- * colotheme/colortheme.png — see packages/tokens/src/colors.ts for the full
- * note, including why the surfaces sit so close together on purpose and why
- * borders did NOT move with them. Nothing in the chrome carries a blue cast:
- * link-hover and status-archived both left the Slate/lavender family.
+ * Neutrals are TRUE NEUTRAL near-blacks — see packages/tokens/src/colors.ts
+ * for the full note, including why the surfaces sit so close together on
+ * purpose and why borders did NOT move with them. There is no brand hue in
+ * the chrome at all: this palette is monochrome and emphasis comes from
+ * lightness. The accent green was removed, not softened.
  *
  * `--color-bg-*-rgb` are the same colours as bare channels, so a scrim can be
  * written `rgb(var(--color-bg-page-rgb)/0.72)` instead of hardcoding the page
@@ -38,9 +38,8 @@
 
   --color-bg-page-rgb: 10 10 10;
   --color-bg-panel-rgb: 15 15 15;
-  /* Same channels as --color-accent, so the glow shadows below compose from
-     the palette instead of re-hardcoding it at every call site. */
-  --color-accent-rgb: 59 227 143;
+  /* Same channels as --color-accent, for translucent accent tints. */
+  --color-accent-rgb: 244 244 245;
 
   --color-border-default: rgba(255, 255, 255, 0.12);
   --color-border-subtle: rgba(255, 255, 255, 0.08);
@@ -65,13 +64,17 @@
   --color-control-primary: #f4f4f5; /* 15.83:1 */
   --color-control-on-primary: #18181b;
 
-  --color-accent: #3be38f;
-  --color-accent-hover: #55eaa1;
-  --color-accent-on: #04180e;
-  --color-accent-muted: #8deebb;
-  --color-accent-muted-strong: #a5f2c9;
+  /* No brand hue: this palette is monochrome and emphasis comes from lightness
+     alone. The green (#3be38f) was removed, not softened — see colors.ts.
+     These duplicate --color-control-* and are kept as an alias so 150+ call
+     sites did not churn in the same change; collapsing them is a follow-up. */
+  --color-accent: #f4f4f5; /* 15.83:1 */
+  --color-accent-hover: #ffffff; /* 17.40:1 */
+  --color-accent-on: #18181b;
+  --color-accent-muted: #a1a1a1; /* 6.74:1 */
+  --color-accent-muted-strong: #d4d4d4; /* 11.74:1 */
 
-  --color-link-hover: #a5f2c9;
+  --color-link-hover: #ffffff;
 
   --color-status-shipped: #6fd2e8;
   --color-status-in-progress: #f5b950;
@@ -117,8 +120,8 @@
    * dark-first with no light/dark toggle yet, so :root IS the dark theme —
    * there is deliberately no separate `.dark` override block. Note
    * shadcn's `--accent` (a subtle hover background for menus/dropdowns)
-   * is NOT the same thing as our brand `--color-accent` (green) — don't
-   * conflate them when styling new components.
+   * is NOT the same thing as our `--color-accent` (the near-white emphasis
+   * colour) — don't conflate them when styling new components.
    */
   --background: var(--color-bg-page);
   --foreground: var(--color-text-primary);

@@ -43,7 +43,7 @@ const ICONS: Record<NotificationType, React.ReactNode> = {
 /** Icon tint per type, from `scNotifs`: upvote reads as accent, credit as a star/award. */
 function iconTone(type: NotificationType) {
   if (type === "upvote") {
-    return { background: "rgba(59,227,143,0.16)", color: "var(--color-accent-muted)" };
+    return { background: "rgb(var(--color-accent-rgb) / 0.16)", color: "var(--color-accent-muted)" };
   }
   if (type === "credit") {
     return { background: "rgba(245,185,80,0.13)", color: "var(--color-status-in-progress)" };

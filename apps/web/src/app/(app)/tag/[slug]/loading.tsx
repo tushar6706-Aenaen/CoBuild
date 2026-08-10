@@ -10,8 +10,8 @@ export default function Loading() {
           <div
             className="flex items-center gap-3.5 rounded-[var(--radius-card)] border p-[18px]"
             style={{
-              background: "linear-gradient(140deg, rgba(59,227,143,0.16), rgba(59,227,143,0.03))",
-              borderColor: "rgba(59,227,143,0.24)",
+              background: "linear-gradient(140deg, rgb(var(--color-accent-rgb) / 0.16), rgb(var(--color-accent-rgb) / 0.03))",
+              borderColor: "rgb(var(--color-accent-rgb) / 0.24)",
             }}
           >
             <div className="h-[52px] w-[52px] flex-none animate-pulse rounded-[var(--radius-control)] bg-[var(--color-bg-panel-alt)]" />

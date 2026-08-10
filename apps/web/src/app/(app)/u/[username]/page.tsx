@@ -154,7 +154,7 @@ export default async function ProfilePage({
                   <span
                     key={r}
                     className="rounded bg-[var(--color-accent)]/12 px-2.5 py-1 text-[11.5px] font-semibold text-[var(--color-accent-muted)]"
-                    style={{ border: "1px solid rgba(59,227,143,0.24)" }}
+                    style={{ border: "1px solid rgb(var(--color-accent-rgb) / 0.24)" }}
                   >
                     {r[0].toUpperCase() + r.slice(1)}
                   </span>
