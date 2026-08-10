@@ -88,7 +88,6 @@ export default async function ProfileOgImage({
               <div
                 style={{
                   display: "flex",
-                  fontFamily: OG.mono,
                   fontSize: 26,
                   color: OG.accentMuted,
                 }}
@@ -202,7 +201,6 @@ function StatBlock({
       <div
         style={{
           display: "flex",
-          fontFamily: OG.mono,
           fontSize: 38,
           fontWeight: 500,
           color: accent ? OG.accent : OG.text,

@@ -160,7 +160,6 @@ export default async function ProjectOgImage({
               <div
                 style={{
                   display: "flex",
-                  fontFamily: OG.mono,
                   // With no cover panel the column is ~500px wider, so the
                   // type scale and the character budgets both open up.
                   fontSize: cover ? 46 : 58,
@@ -215,7 +214,6 @@ export default async function ProjectOgImage({
                 <div
                   style={{
                     display: "flex",
-                    fontFamily: OG.mono,
                     fontSize: 19,
                     color: OG.accentMuted,
                   }}

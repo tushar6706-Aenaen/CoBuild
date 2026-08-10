@@ -86,14 +86,24 @@ export function Avatar({
   );
 }
 
-/** The accent rule every card opens with — keeps the fallback on-brand too. */
+/**
+ * The rule every card opens with — the fallback card included, so an unresolved
+ * link still reads as ours.
+ *
+ * Monochrome, like the rest of the palette. This used to run accent green into
+ * status cyan, which was the single loudest element on the card and the only
+ * chroma left once the app went neutral: a link preview is the first thing
+ * anyone sees of CoBuild, so a two-hue band there would have undone the
+ * restraint everywhere else. It now fades near-white into the raised surface,
+ * which reads as a highlight catching the top edge rather than as a brand bar.
+ */
 export function AccentStrip() {
   return (
     <div
       style={{
         display: "flex",
         height: 8,
-        backgroundImage: `linear-gradient(90deg, ${OG.accent} 0%, ${OG.status.shipped} 100%)`,
+        backgroundImage: `linear-gradient(90deg, ${OG.accent} 0%, ${OG.raised} 100%)`,
       }}
     />
   );
@@ -121,7 +131,6 @@ export function Stat({
         border: `1px solid ${OG.border}`,
         backgroundColor: OG.panel,
         color,
-        fontFamily: OG.mono,
         fontSize: 20,
         fontWeight: 500,
       }}

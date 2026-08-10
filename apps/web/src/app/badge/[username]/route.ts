@@ -68,9 +68,13 @@ function svgResponse(body: string, status = 200): Response {
 function shell(inner: string): string {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img">
   <defs>
+    <!-- Monochrome, matching the OG cards and the app: near-white fading into
+         the raised surface. This ran accent into status cyan while the palette
+         had a brand hue; it was the only chroma left on the badge afterwards,
+         and a README badge is the most-repeated impression of the product. -->
     <linearGradient id="edge" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0" stop-color="${colors.accent.DEFAULT}"/>
-      <stop offset="1" stop-color="${colors.status.shipped}"/>
+      <stop offset="1" stop-color="${colors.bg.raised}"/>
     </linearGradient>
     <clipPath id="avatar"><circle cx="52" cy="66" r="30"/></clipPath>
     <clipPath id="card"><rect x="0" y="0" width="${W}" height="${H}" rx="11"/></clipPath>
@@ -78,7 +82,7 @@ function shell(inner: string): string {
   <rect x="0.5" y="0.5" width="${W - 1}" height="${H - 1}" rx="11"
         fill="${colors.bg.panel}" stroke="rgba(255,255,255,0.12)"/>
   <!-- Clipped to the card, or the square-cornered bar overhangs the rounded
-       top corners — visible as two green nicks at 1× in a README. -->
+       top corners — visible as two bright nicks at 1x in a README. -->
   <rect x="0" y="0" width="${W}" height="4" fill="url(#edge)" clip-path="url(#card)"/>
   ${inner}
 </svg>`;
