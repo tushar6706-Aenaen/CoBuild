@@ -114,10 +114,7 @@ export default async function ProfilePage({
 
   return (
     <div className="flex flex-col gap-[22px]">
-      <div
-        className="flex flex-col gap-[18px] rounded-[var(--radius-card-lg)] border border-[var(--color-border-default)] p-[22px]"
-        style={{ background: "linear-gradient(160deg, var(--color-bg-panel-alt), var(--color-bg-panel))" }}
-      >
+      <div className="flex flex-col gap-[18px] rounded-[var(--radius-card-lg)] border border-[var(--color-border-default)] bg-[var(--color-bg-page)] p-[22px]">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
           <div className="h-[92px] w-[92px] flex-none overflow-hidden rounded-full border border-[var(--color-border-default)] bg-[repeating-linear-gradient(135deg,var(--color-bg-raised)_0_5px,var(--color-bg-panel-alt)_5px_10px)]">
             {avatarUrl && (

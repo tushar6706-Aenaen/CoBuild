@@ -28,7 +28,7 @@
      competes with the one saturated element per screen instead of setting it
      off. Do not reintroduce a green tint here. */
   --color-bg-page: #0a0a0a;
-  --color-bg-panel: #0f0f0f;
+  --color-bg-panel: #0a0a0a;
   --color-bg-panel-alt: #121212;
   --color-bg-input: #111111;
   --color-bg-raised: #1a1a1a;
@@ -37,7 +37,7 @@
   --color-bg-row-tint: rgba(255, 255, 255, 0.03);
 
   --color-bg-page-rgb: 10 10 10;
-  --color-bg-panel-rgb: 15 15 15;
+  --color-bg-panel-rgb: 10 10 10;
   /* Same channels as --color-accent, for translucent accent tints. */
   --color-accent-rgb: 244 244 245;
 

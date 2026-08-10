@@ -118,7 +118,7 @@ export function LoginForm() {
           onClick={() => handleOAuth("google")}
           disabled={oauthPending !== null}
           variant="outline"
-          className="flex h-auto items-center justify-center gap-2.5 rounded-[var(--radius-control)] border-[var(--color-border-strong)] bg-[var(--color-bg-raised)] py-3.5 text-[14.5px] font-bold text-[var(--color-text-primary)] hover:bg-[var(--color-bg-panel)]"
+          className="flex h-auto items-center justify-center gap-2.5 rounded-[var(--radius-control)] border-[var(--color-border-strong)] bg-[var(--color-bg-raised)] py-3.5 text-[14.5px] font-bold text-[var(--color-text-primary)] hover:bg-[var(--color-bg-row-tint)]"
         >
           <GoogleDot />
           {oauthPending === "google" ? "Redirecting…" : "Continue with Google"}

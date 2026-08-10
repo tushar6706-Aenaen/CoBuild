@@ -36,7 +36,7 @@ export const colors = {
   // land. Do not reintroduce a tint here without revisiting that decision.
   bg: {
     page: "#0A0A0A",
-    panel: "#0F0F0F",
+    panel: "#0A0A0A",
     panelAlt: "#121212",
     input: "#111111",
     raised: "#1A1A1A",
@@ -49,7 +49,7 @@ export const colors = {
   /** Space-separated channels for `rgb(... / alpha)` scrims. Keep in sync with `bg`. */
   bgRgb: {
     page: "10 10 10",
-    panel: "15 15 15",
+    panel: "10 10 10",
   },
   /**
    * Near-white control fill. This is the emphasis colour for anything that is
