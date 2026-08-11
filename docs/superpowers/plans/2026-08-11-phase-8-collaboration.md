@@ -42,7 +42,9 @@ Every task below states its own red step and its own green step. **A step that s
 - **If dynamic routes 404 while `/` and `/search` return 200**, the cause is a stale `apps/web/.next`. Delete it and restart before debugging anything else. The tell is the dev server logging `application-code: 12ms` for a page whose first act is a Supabase round-trip.
 - **`apps/web/AGENTS.md` applies**: this is Next.js 16 and its APIs differ from older versions. Read the relevant guide under `apps/web/node_modules/next/dist/docs/` before writing route or server-action code.
 - **Vocabulary, exact strings, used everywhere:** `co-builder`, `feedback`, `beta-testers`, `designer`. Empty array means "not looking" — there is no `nothing` value.
-- Commit at the end of each task. Do not batch commits.
+- **Every migration is written to a repo file *before* being applied**, at
+  `supabase/migrations/<YYYYMMDDTHHMM>_<migration_name>.sql`, containing the exact SQL passed to `apply_migration`. That directory is currently empty — all schema history for Phases 0–7 lives only in the remote Supabase project, which is a real gap this phase stops widening. Do **not** backfill earlier phases; only write the migrations this plan adds.
+- Commit at the end of each task. Do not batch commits. (Tasks 3 and 4 are the one exception the plan itself defines: Task 3 deliberately ends with typecheck red, so it carries no commit of its own and the two are implemented and committed together.)
 
 ---
 
@@ -336,13 +338,23 @@ Expected: `nulls = 0`, `empties = total`.
 
 Run `get_advisors` with `type: "security"` and again with `type: "performance"`. Expected: no new entries beyond the documented intentional baseline (RLS-enabled-no-policy on the leaderboard snapshot table; SECURITY DEFINER RPCs as the sole read path to the ungranted MV; the unused-index INFO for `tags_name_trgm_idx`; the Auth leaked-password WARN). A brand-new unused-index INFO for `projects_looking_for_idx` is expected and correct at this point — nothing filters on it yet.
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 7: Commit the migration file**
 
-There is nothing in the working tree (migrations are applied through the MCP server, and `supabase/migrations/` is empty in this repo). Record the migration in the tracker instead:
+The SQL from Step 2 must already exist at `supabase/migrations/20260811T1400_add_projects_looking_for.sql`, byte-identical to what was applied.
 
 ```bash
-# no-op commit step — migration lives in the remote project.
-# Note the migration name in NEW_FEATURES_TODO.md's session log at the end of Task 6.
+git add supabase/migrations/20260811T1400_add_projects_looking_for.sql
+git commit -m "feat(db): projects.looking_for column, CHECK, and partial GIN index
+
+Fixed four-value vocabulary enforced by CHECK rather than a lookup table:
+this is product policy, not user data. Empty array means 'not looking' —
+no sentinel value, so the state has only one representation.
+
+Author-writable, so deliberately NOT added to
+projects_guard_client_columns().
+
+First migration checked into this repo. supabase/migrations/ was empty;
+Phases 0-7 schema history lives only in the remote project."
 ```
 
 ---
@@ -739,12 +751,12 @@ end $$;
 
 Expected: `PASS` notice. Then run the identical block with `array['designer']` as the final `feed_page` argument and the row-count assertion changed to count only projects carrying `designer`. Both must pass.
 
-- [ ] **Step 7: Advisors, then commit the regenerated types**
+- [ ] **Step 7: Advisors, then commit the migration files and regenerated types**
 
-Run `get_advisors` for both types. Then regenerate DB types (the RPC return shapes changed) and commit:
+Run `get_advisors` for both types. Both migrations must already be on disk as `supabase/migrations/20260811T1410_feed_page_looking_for.sql` and `supabase/migrations/20260811T1420_search_projects_looking_for.sql`, byte-identical to what was applied. Then regenerate DB types (the RPC return shapes changed) and commit:
 
 ```bash
-git add packages/db/src/database.types.ts packages/shared/src
+git add supabase/migrations packages/db/src/database.types.ts packages/shared/src
 git commit -m "feat(feed,search): looking_for facet on feed_page and search_projects
 
 Both functions were dropped and recreated rather than replaced: adding a
@@ -1106,7 +1118,29 @@ Expected: `false/false` for the three trigger functions; `false/true` for `accep
 
 `get_advisors` for `security` and `performance`. Expected: **no new security entries.** If `collab_requests_guard`, `collab_requests_rate_limit` or `notify_on_collab_request` appears, a revoke was missed — fix it in a follow-up migration and re-run before continuing.
 
-- [ ] **Step 6: Record the migration name in the tracker session log** (committed with Task 9)
+- [ ] **Step 6: Commit the migration file**
+
+The SQL from Step 2 must already exist at `supabase/migrations/20260811T1430_add_collab_requests.sql`, byte-identical to what was applied.
+
+```bash
+git add supabase/migrations/20260811T1430_add_collab_requests.sql
+git commit -m "feat(db): collab_requests table, RLS, guards, and accept RPC
+
+RLS cannot express an old->new status transition, so a guard trigger
+pins the immutable columns and enforces the legal transitions.
+
+DELETE is withheld at the GRANT level rather than by policy: withdrawal
+is a status change, so the record survives.
+
+Rate limit lives in the database because the UI is not the only
+PostgREST client. Accept is a SECURITY INVOKER RPC so the status change
+and the credit row are one transaction while authorization stays with
+the existing policies.
+
+No collab_accepted notification type: inserting the
+project_collaborators row already fires notify_on_credit, and a second
+type would double-notify."
+```
 
 ---
 
@@ -1316,7 +1350,21 @@ Roll back or delete every fixture row created outside a transaction. Confirm:
 select count(*) as leftover from public.collab_requests;
 ```
 
-Expected: `0`. Record every `PASS` in `CHECKLIST.md` when Task 10 closes the phase.
+Expected: `0`.
+
+- [ ] **Step 12: Write the evidence file and commit**
+
+Record the results at `docs/superpowers/evidence/2026-08-11-phase-8-collab-rls.md`: one section per step above, each with the SQL actually run and the actual output. Record failures and surprises too — an evidence file that only contains passes is not evidence, it is a summary. If any check failed and was fixed, record both the failure and the fix.
+
+```bash
+git add docs/superpowers/evidence/2026-08-11-phase-8-collab-rls.md
+git commit -m "test(collab): adversarial RLS evidence for collab_requests
+
+Simulated-JWT attacks from both sides: forged requester_id, self-request,
+third-party reads, requester self-accept, owner message rewrite, final-status
+reopen, duplicate pending, GRANT-level delete, the 24h rate limit, and the
+accept RPC from a non-author."
+```
 
 ---
 
