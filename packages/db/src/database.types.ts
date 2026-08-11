@@ -43,6 +43,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      bookmarks: {
+        Row: {
+          created_at: string
+          profile_id: string
+          project_id: string
+        }
+        Insert: {
+          created_at?: string
+          profile_id: string
+          project_id: string
+        }
+        Update: {
+          created_at?: string
+          profile_id?: string
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookmarks_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookmarks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       comment_votes: {
         Row: {
           comment_id: string
@@ -75,39 +108,6 @@ export type Database = {
             columns: ["profile_id"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      bookmarks: {
-        Row: {
-          created_at: string
-          profile_id: string
-          project_id: string
-        }
-        Insert: {
-          created_at?: string
-          profile_id: string
-          project_id: string
-        }
-        Update: {
-          created_at?: string
-          profile_id?: string
-          project_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "bookmarks_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "bookmarks_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
@@ -553,6 +553,7 @@ export type Database = {
           hot_score: number
           id: string
           live_url: string | null
+          looking_for: string[]
           published_at: string | null
           repo_url: string | null
           search_tsv: unknown
@@ -575,6 +576,7 @@ export type Database = {
           hot_score?: number
           id?: string
           live_url?: string | null
+          looking_for?: string[]
           published_at?: string | null
           repo_url?: string | null
           search_tsv?: unknown
@@ -597,6 +599,7 @@ export type Database = {
           hot_score?: number
           id?: string
           live_url?: string | null
+          looking_for?: string[]
           published_at?: string | null
           repo_url?: string | null
           search_tsv?: unknown

@@ -51,12 +51,15 @@ export {
   ROLE_LABEL_MAX,
   PROJECT_STATUSES,
   PROJECT_VISIBILITIES,
+  LOOKING_FOR_OPTIONS,
+  LOOKING_FOR_LABELS,
+  parseLookingFor,
   projectImageSchema,
   collaboratorSchema,
   projectDraftSchema,
   validateForPublish,
 } from "./project-schema";
-export type { ProjectStatus, ProjectVisibility, ProjectDraft } from "./project-schema";
+export type { ProjectStatus, ProjectVisibility, LookingFor, ProjectDraft } from "./project-schema";
 
 export {
   getAuthorSlugs,

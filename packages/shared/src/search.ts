@@ -24,6 +24,7 @@ export type SearchProjectHit = {
   comment_count: number;
   view_count: number;
   published_at: string | null;
+  looking_for: string[];
   author: { username: string | null; display_name: string | null; avatar_url: string | null };
   tags: { slug: string; name: string }[];
 };
@@ -74,6 +75,7 @@ export async function searchProjects(
     statuses?: readonly ProjectStatus[];
     tags?: readonly string[];
     limit?: number;
+    lookingFor?: readonly string[];
   },
 ): Promise<SearchResult<SearchProjectHit>> {
   const q = opts.q.trim();
@@ -81,12 +83,14 @@ export async function searchProjects(
 
   const statuses = opts.statuses?.length ? [...opts.statuses] : undefined;
   const tags = opts.tags?.length ? [...opts.tags] : undefined;
+  const lookingFor = opts.lookingFor?.length ? [...opts.lookingFor] : undefined;
 
   const { data, error } = await client.rpc("search_projects", {
     p_q: q,
     p_status: statuses,
     p_tags: tags,
     p_limit: opts.limit ?? SEARCH_PROJECT_LIMIT,
+    p_looking_for: lookingFor,
   });
   if (error) throw error;
 
@@ -103,6 +107,11 @@ export async function searchProjects(
       comment_count: r.comment_count,
       view_count: r.view_count,
       published_at: r.published_at ?? null,
+      // `looking_for` isn't in the RPC's declared Returns yet — that lands in
+      // Task 5 alongside the `p_looking_for` filter param above. Cast rather
+      // than widen the whole row so this line goes from a dead cast to a live
+      // field with a one-word diff once the function catches up.
+      looking_for: (r as unknown as { looking_for?: string[] | null }).looking_for ?? [],
       author: (r.author as SearchProjectHit["author"] | null) ?? {
         username: null,
         display_name: null,

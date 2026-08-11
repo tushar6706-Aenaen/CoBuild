@@ -11,6 +11,36 @@ export const ROLE_LABEL_MAX = 40;
 export const PROJECT_STATUSES = ["shipped", "in_progress", "archived"] as const;
 export const PROJECT_VISIBILITIES = ["public", "unlisted", "draft"] as const;
 
+/**
+ * What a project is asking for. Fixed vocabulary enforced by a CHECK on
+ * `projects.looking_for` — keep this array and that constraint in sync.
+ *
+ * There is deliberately no "nothing" member: an empty array *is* "not
+ * looking", and a sentinel would be a second representation of the same
+ * state for the two to drift apart on.
+ */
+export const LOOKING_FOR_OPTIONS = [
+  "co-builder",
+  "feedback",
+  "beta-testers",
+  "designer",
+] as const;
+
+export type LookingFor = (typeof LOOKING_FOR_OPTIONS)[number];
+
+export const LOOKING_FOR_LABELS: Record<LookingFor, string> = {
+  "co-builder": "Co-builder",
+  feedback: "Feedback",
+  "beta-testers": "Beta testers",
+  designer: "Designer",
+};
+
+/** Narrows arbitrary URL or form input down to real vocabulary values. */
+export function parseLookingFor(input: readonly string[]): LookingFor[] {
+  const allowed = new Set<string>(LOOKING_FOR_OPTIONS);
+  return [...new Set(input.filter((v) => allowed.has(v)))] as LookingFor[];
+}
+
 export type ProjectStatus = (typeof PROJECT_STATUSES)[number];
 export type ProjectVisibility = (typeof PROJECT_VISIBILITIES)[number];
 
@@ -64,6 +94,7 @@ export const projectDraftSchema = z.object({
   coverIndex: z.number().int().min(0),
   images: z.array(projectImageSchema).max(MAX_IMAGES),
   tagIds: z.array(z.string().uuid()),
+  lookingFor: z.array(z.enum(LOOKING_FOR_OPTIONS)).default([]),
   collaborators: z.array(collaboratorSchema),
 });
 

@@ -129,6 +129,7 @@ export async function saveProject(
     repo_url: draft.repoUrl.trim() || null,
     status: draft.status,
     visibility: draft.visibility,
+    looking_for: draft.lookingFor,
     cover_image_path: cover?.storagePath ?? null,
     // Set once, when it first becomes publicly visible — this is what the feed
     // ranks on, so re-publishing an edit must not reset it to "brand new".

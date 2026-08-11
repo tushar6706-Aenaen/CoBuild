@@ -39,6 +39,7 @@ export type FeedItem = {
   view_count: number;
   published_at: string | null;
   hot_score: number;
+  looking_for: string[];
   author: { username: string | null; display_name: string | null; avatar_url: string | null };
   tags: { slug: string; name: string }[];
 };
@@ -60,6 +61,7 @@ type FeedRpcRow = {
   view_count: number;
   published_at: string | null;
   hot_score: number;
+  looking_for: string[];
   author: { username: string | null; display_name: string | null; avatar_url: string | null } | null;
   tags: { slug: string; name: string }[] | null;
 };
@@ -77,6 +79,7 @@ function toItem(row: FeedRpcRow): FeedItem {
     view_count: row.view_count,
     published_at: row.published_at,
     hot_score: row.hot_score,
+    looking_for: row.looking_for ?? [],
     author: row.author ?? { username: null, display_name: null, avatar_url: null },
     tags: row.tags ?? [],
   };
@@ -119,6 +122,10 @@ function toItem(row: FeedRpcRow): FeedItem {
  * anomaly, and since Postgres orders DESC as NULLS FIRST it would pin itself
  * to the top of New forever while being unreachable by any cursor.
  *
+ * @param opts.lookingFor Restricts the page to projects asking for at least
+ *   one of these. A pure filter: it does not enter the sort tuple, does not
+ *   change what the cursor encodes, and introduces no float into the paging
+ *   key — so the `FeedCursor` contract is unchanged by it.
  * @param opts.viewerId Only meaningful for `following`. Hot/New/Top are
  *   identical signed-out; pass `null`. `following` without a viewer returns an
  *   empty page rather than throwing, so the tab can render logged-out. A
@@ -139,6 +146,7 @@ export async function getFeedPage(
     cursor?: FeedCursor;
     limit?: number;
     tag?: string | null;
+    lookingFor?: readonly string[] | null;
   },
 ): Promise<{ items: FeedItem[]; nextCursor: FeedCursor | null }> {
   const limit = Math.max(1, Math.min(opts.limit ?? FEED_PAGE_SIZE, FEED_MAX_PAGE_SIZE));
@@ -160,6 +168,7 @@ export async function getFeedPage(
     p_cur_ts: cursor ? cursor.b : undefined,
     p_cur_id: cursor ? cursor.c : undefined,
     p_tag: opts.tag ?? undefined,
+    p_looking_for: opts.lookingFor?.length ? [...opts.lookingFor] : undefined,
   });
   if (error) throw error;
 

@@ -13,6 +13,7 @@ export type ProjectDetail = {
   repo_url: string | null;
   status: string;
   visibility: string;
+  looking_for: string[];
   upvote_count: number;
   comment_count: number;
   bookmark_count: number;
@@ -44,7 +45,7 @@ export type ProjectDetail = {
 
 const DETAIL_FIELDS = `
   id, slug, title, tagline, description, cover_image_path, live_url, repo_url,
-  status, visibility, upvote_count, comment_count, bookmark_count, view_count,
+  status, visibility, looking_for, upvote_count, comment_count, bookmark_count, view_count,
   created_at, published_at,
   author:profiles!projects_author_id_fkey(
     id, username, display_name, avatar_url, headline, roles, is_student, college, grad_year
