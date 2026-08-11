@@ -11,9 +11,12 @@ import {
   isFollowing,
   publicStorageUrl,
   transformedStorageUrl,
+  LOOKING_FOR_LABELS,
+  type LookingFor,
 } from "@cobuild/shared";
 import { createClient } from "@/lib/supabase/server";
 import { getAuthState } from "@/lib/auth/session";
+import { chip } from "@/components/ui/control-classes";
 import { Markdown } from "@/components/markdown";
 import { VoteButton } from "@/components/project/vote-button";
 import { BookmarkButton } from "@/components/project/bookmark-button";
@@ -144,6 +147,13 @@ export default async function ProjectDetailPage({
               <span className="text-[11.5px] text-[var(--color-text-tertiary)]">
                 {project.view_count.toLocaleString()} views · posted {timeAgo(project.published_at ?? project.created_at)}
               </span>
+              {project.looking_for.length > 0 && (
+                <span
+                  className={`${chip} border-[var(--color-accent)]/25 bg-[var(--color-accent)]/12 text-[var(--color-accent-muted)]`}
+                >
+                  Looking for {project.looking_for.map((v) => LOOKING_FOR_LABELS[v as LookingFor] ?? v).join(", ")}
+                </span>
+              )}
             </div>
 
             <h1 className="text-[29px] leading-tight font-medium tracking-tight">{project.title}</h1>

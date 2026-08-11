@@ -167,6 +167,46 @@ See [NEW_FEATURES.md](NEW_FEATURES.md) for the "why" behind each item.
   - [x] `og:image` meta resolves to the generated route at 1200×630 `image/png`, so the manual-`openGraph.images` override gotcha still holds. Note the real URL carries a per-route hash (`opengraph-image-y3nwlq`); the bare `/opengraph-image` path 404s
   - [ ] **One transient miss worth knowing about:** the very first render of one card came back coverless (55kB vs 119kB for the identical URL moments later) with no error surfaced. Not reproducible — 8/8 subsequent cold renders were fine, and cold transforms measure ~0.7s against `fetchOgImage`'s 3s timeout, so the timeout is not demonstrably the cause and was left alone. It matters anyway because `fetchOgImage` returns `null` on *any* failure by design, and social platforms cache the first response they get — so one blip on a project's first share caches a coverless card indefinitely. A single retry is the cheap mitigation; not added without evidence of the cause
 
+### Phase 8 — Collaboration ("Looking for")
+Migrations: `add_projects_looking_for`, `feed_page_looking_for`, `search_projects_looking_for`.
+- [x] `projects.looking_for text[]` + CHECK constraint + partial GIN index
+- [x] `feed_page` extended with `p_looking_for` (OR-matches; pure filter, doesn't enter the sort
+      tuple or the keyset cursor) — precedent from Phase 5's `p_tag`, not a forked RPC
+- [x] `search_projects` extended with `p_looking_for` the same way
+- [x] Composer UI (`/new`, `/p/[username]/[slug]/edit`) — toggleable chip row, 0–4 values
+- [x] `ProjectCard` chip — stayed in the Server Component part (the card's client islands exist
+      so a feed page ships one card's worth of JS, not one per card; a static "Looking for …"
+      string doesn't belong in one)
+- [x] Project detail page chip, next to the status/visibility badges
+- [x] Feed filter (`/`, `?looking_for=`) — `FeedTabs` renders toggle links built fresh from
+      `{tab, window, lookingFor}` per request (no patched `location.search`), so tab/window
+      switches now preserve the filter and there is no way for a stray param to ride along
+- [x] `FeedLoadMore` threads the same `lookingFor` through client-side pagination
+- [x] Search facet row on `/search` (`SearchFilters`) — generalized the existing 2-facet
+      `toggleHref` (status/tag) to a 3rd facet rather than forking it
+- [x] Seed: `packages/db/src/seed/seed.ts` assigns `looking_for` to ~1/3 of projects (1–2 values,
+      drawn from `co-builder`/`feedback`/`beta-testers`/`designer`), and — closing the gap noted
+      in 8.0 above — now also assigns `open_to_collab`/`weekly_hours_available` to ~1/3 of
+      profiles. Both draws go through a small seeded `mulberry32` PRNG added for this purpose;
+      the rest of the file is unchanged and still runs on `Math.random()`/unseeded `faker` (see
+      the RNG doc comment in `seed.ts` for why only these fields needed to be reproducible)
+- [x] **Seed run** (this task) — 30 profiles / 80 projects. `looking_for`: 57 `(none)`, 6
+      `co-builder`, 4 `feedback`, 7 `beta-testers`, 6 `designer`, 5 with two values — all four
+      values represented, `(none)` the majority as intended. `open_to_collab`: 10/30 true (7 with
+      an hours value, 3 null — both states of the "available, hours unspecified" chip present)
+- [x] `turbo run typecheck` (4/4 packages) + `pnpm --filter web build` clean (20 routes)
+- [x] RPC-level verification via `execute_sql` (no browser access this session — see below):
+      unfiltered `feed_page('hot', limit 50)` returns the full 50; `p_looking_for := ['co-builder']`
+      returns 8 rows, every one carrying `co-builder`; `p_looking_for := ['beta-testers','designer']`
+      returns 17 rows, every one carrying at least one of the two (OR semantics confirmed);
+      `search_projects('Warmup', p_looking_for := ['feedback'])` hits the one matching project,
+      `p_looking_for := ['designer']` against the same query returns zero
+- [ ] **Not verified — no browser access in this session.** Everything in Step 7 of the task brief
+      that requires a live browser is open: chips rendering on real cards, clicking a filter chip
+      narrowing the feed with every visible card carrying the value, "load more" staying scoped
+      to the filter, clearing the filter restoring the full feed, and the same facet working on
+      `/search`. RPC-level checks above give strong indirect evidence but are not a substitute.
+
 ### Web verification
 - [ ] All three sign-in methods work end-to-end
 - [ ] Post → multi-image gallery → reorder → cover change → co-builder credit shows on their profile

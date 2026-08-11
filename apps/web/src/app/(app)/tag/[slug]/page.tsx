@@ -81,6 +81,7 @@ export default async function TagPage({
       comment_count: item.comment_count,
       view_count: item.view_count,
       published_at: item.published_at,
+      looking_for: item.looking_for,
       author: item.author,
       tags: item.tags,
     };

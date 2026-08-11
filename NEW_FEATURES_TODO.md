@@ -7,7 +7,8 @@ when a task here is finished *and verified*, mirror it there and mark it `[x]` i
 **Legend:** `[ ]` not started · `[~]` in progress · `[x]` done + verified · `[!]` blocked ·
 `[?]` needs a decision from Tushar
 
-Last updated: 2026-08-11 · Current position: **Phase 7 shipped; Phase 8 not started.**
+Last updated: 2026-08-11 · Current position: **Phase 7 shipped; Phase 8.0/8.1 done pending one
+live-verify item; 8.2 ("Request to join") not started.**
 
 ---
 
@@ -17,7 +18,7 @@ Last updated: 2026-08-11 · Current position: **Phase 7 shipped; Phase 8 not sta
 |---|---|---|
 | 0–6 (product) | done | Web app is feature-complete per `WEB_APP_PLAN.md` |
 | 7 — Distribution | **done, 2 loose ends** | see §1 |
-| 8 — Collaboration | **not started ← next** | blocked on decision D2 for one sub-item only |
+| 8 — Collaboration | **8.0/8.1 done, 8.2 next** | 8.2 ("Request to join") blocked on decision D2 |
 | 9 — Devlogs | not started | |
 | 10 — Verified builds | not started | **blocked on decision D1** — shapes the whole phase |
 | 11 — Retention | not started | blocked on decision D3 (email provider) |
@@ -86,35 +87,48 @@ Each one blocks real work. Answer before the phase it gates starts.
 The defensible difference: the product is named CoBuild and is currently one-way.
 
 ### 8.0 Groundwork — surface the fields that already exist
-`profiles.open_to_collab` and `profiles.weekly_hours_available` are live in the schema and
-populated by the seed, but nothing reads or writes them. **No migration needed.** Cheapest
-possible start and it de-risks the rest of the phase. — *Sonnet*
+`profiles.open_to_collab` and `profiles.weekly_hours_available` are live in the schema.
+**Correction:** the "populated by the seed" claim in the original note above was wrong — as of
+this task's start, neither column appeared anywhere in `packages/db/src/seed/seed.ts` and all 35
+seeded profiles sat at defaults (`false` / `null`). Fixed as part of Task 6's seed work (see 8.1
+below); the seed now assigns both. **No migration needed.** — *Sonnet*
 
-- [ ] Add both columns to `PROFILE_COLUMNS` (`packages/shared/src/profiles.ts:34`)
-- [ ] `/settings/profile`: toggle for `open_to_collab`, number input for `weekly_hours_available`
-- [ ] Zod schema + server-side validation (hours: sane bounds, nullable)
-- [ ] Render on `/u/[username]` — "open to collaborate · ~N hrs/week" chip
-- [ ] Confirm `profiles_guard_client_columns()` does **not** pin these two (they *are* meant to
-      be client-writable, unlike the counters) before wiring the form
+- [x] Add both columns to `PROFILE_COLUMNS` (`packages/shared/src/profiles.ts:34`)
+- [x] `/settings/profile`: toggle for `open_to_collab`, number input for `weekly_hours_available`
+- [x] Server-side validation (hours: bounds `WEEKLY_HOURS_MIN`–`WEEKLY_HOURS_MAX`, nullable) —
+      manual `Number.isFinite` + range check in `settings/profile/actions.ts`, not a Zod schema
+      as originally envisioned; functionally equivalent (out-of-range/blank/unparseable all
+      collapse to `null` rather than erroring)
+- [x] Render on `/u/[username]` — "Open to collaborate · ~N hrs/week" chip
+- [x] Confirmed `profiles_guard_client_columns()` does **not** pin these two — read the live
+      function definition via `execute_sql`; it only re-pins `id`/counters/`created_at`
 - [ ] Verify live: set both, reload, values persist; toast fires (production build, visible tab)
+      — **not verified in this session** (no browser access); commit `bd01639` ("stop native
+      min/max on hours input from blocking whole-form submit") implies a prior live pass found
+      and fixed a real bug here, but this task did not re-confirm it
 
 ### 8.1 "Looking for" on a project — *Sonnet*
 Values: `co-builder` · `feedback` · `beta-testers` · `designer` · `nothing` (default).
 
-- [ ] **Decide the shape first:** `projects.looking_for text[]` with a CHECK constraint, vs. a
-      small enum-constrained join table. `/search` already has facet chips, so pick whichever
-      the facet query wants — decide *with* the search work, not before it. Write the choice here.
-- [ ] Migration + RLS review (owner-writable, public-readable; nothing new to leak)
-- [ ] Composer UI in `/new` and `/p/[username]/[slug]/edit`
-- [ ] Chip on `ProjectCard` + project detail page
-- [ ] Feed filter axis (`?looking_for=`) — **must go through `feed_page`**, not a forked RPC.
-      Phase 5 extended it with `p_tag` rather than forking; do the same.
-- [ ] Search facet chips on `/search`
-- [ ] **Pagination re-verified** after touching `feed_page` — the keyset cursor is the one thing
-      in this codebase that has already broken once (Phase 4's `extra_float_digits` bug, found
-      by testing, not by reading). Re-run the dup/skip scan across pages.
-- [ ] Regenerate DB types
-- [ ] `turbo run typecheck` + `next build` clean
+- [x] **Shape decided:** `projects.looking_for text[]` with a CHECK constraint + a partial GIN
+      index (`add_projects_looking_for` migration), not a join table.
+- [x] Migration + RLS review — `feed_page_looking_for`, `search_projects_looking_for`.
+      `looking_for` is a plain column on `projects`; Postgres RLS is row-level, so the table's
+      existing owner-writable/public-readable policies already cover it, nothing new to leak.
+- [x] Composer UI in `/new` and `/p/[username]/[slug]/edit` (both routes render `Composer`)
+- [x] Chip on `ProjectCard` (server part — no client-island change) + project detail page
+- [x] Feed filter axis (`?looking_for=`) — goes through `feed_page`'s existing `p_looking_for`,
+      not a forked RPC, matching the `p_tag` precedent. Filter chips are links (`FeedTabs`),
+      built fresh per request so no stray param (a `?cursor=`, if this app had one in the URL —
+      it doesn't; pagination is client state) can leak onto a filtered link.
+- [x] Search facet chips on `/search` (`SearchFilters`, generalized `toggleHref` to a 3rd facet)
+- [x] **Pagination re-verified** — `feed_page`/`search_projects` themselves were not touched in
+      this task (already extended and verified per this task's brief); re-confirmed the `looking_for`
+      filter live via `execute_sql`: unfiltered Hot page returns the full 50-row limit, a
+      `co-builder` filter returns 8 rows all carrying it, a `beta-testers`/`designer` filter
+      returns 17 rows each carrying at least one — OR semantics, no dup/skip observed
+- [x] Regenerate DB types — already current (`looking_for` present in `database.types.ts`)
+- [x] `turbo run typecheck` (4/4) + `next build` clean (20 routes)
 
 ### 8.2 Request to join — *Opus*
 **The first path where a stranger writes a row a project owner reads.** Treat accordingly.
@@ -262,6 +276,18 @@ Learned the hard way in Phases 0–7. Violating one of these is how the known bu
 
 Newest first. One line per working session — what moved, what broke, what's next.
 
+- **2026-08-11** — Task 6 (slice 8.1 finish): `looking_for` chips on `ProjectCard` (server part)
+  and project detail; `?looking_for=` feed filter (`FeedTabs`, `FeedLoadMore`) and `/search` facet
+  (`SearchFilters`, generalized `toggleHref` to a 3rd facet); seed now assigns `looking_for` to
+  ~1/3 of projects via a new seeded `mulberry32` PRNG (the file had no deterministic RNG despite
+  the plan assuming one — added the minimal one needed rather than refactoring the whole file).
+  Also closed the 8.0 gap flagged by Tushar: `open_to_collab`/`weekly_hours_available` were never
+  actually seeded despite the tracker claiming otherwise — now ~1/3 of profiles get
+  `open_to_collab = true`, most with an hours value, some deliberately left `null`. `turbo run
+  typecheck` 4/4, `next build` clean (20 routes), seed re-run, distributions verified by SQL, and
+  `feed_page`/`search_projects` re-confirmed live against the new data via `execute_sql`. **No
+  browser access this session** — Step 7's live-browser pass (chip rendering, click-to-filter,
+  load-more within a filtered set, clear filter, search facet) is still open.
 - **2026-08-11** — Read `NEW_FEATURES.md`, created this tracker. Nothing implemented yet.
   Phase 8 is next; §1 and the D1–D5 decisions are the open gates. Flagged one doc discrepancy
   (`NEW_FEATURES.md:17` vs `CHECKLIST.md:103` on the Phase 6 Opus review) and one genuinely

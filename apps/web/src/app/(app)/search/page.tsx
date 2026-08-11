@@ -4,6 +4,7 @@ import Link from "next/link";
 import {
   getViewerVoteState,
   parseStatusFilters,
+  parseLookingFor,
   searchPeople,
   searchProjects,
   searchTagDirectory,
@@ -78,7 +79,12 @@ function PersonRow({ person }: { person: PersonHit }) {
 export default async function SearchPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string | string[]; status?: string | string[]; tag?: string | string[] }>;
+  searchParams: Promise<{
+    q?: string | string[];
+    status?: string | string[];
+    tag?: string | string[];
+    looking_for?: string | string[];
+  }>;
 }) {
   const params = await searchParams;
   const q = (Array.isArray(params.q) ? params.q[0] : params.q)?.trim() ?? "";
@@ -87,12 +93,13 @@ export default async function SearchPage({
   // matches nothing in `search_projects`, and the value is passed as a bound
   // array parameter, never interpolated.
   const tags = [...new Set(asArray(params.tag))].slice(0, 8);
+  const lookingFor = parseLookingFor(asArray(params.looking_for));
 
   const supabase = await createClient();
   const { user: viewer } = await getAuthState();
 
   const [projects, people, tagResults, directory] = await Promise.all([
-    searchProjects(supabase, { q, statuses, tags }),
+    searchProjects(supabase, { q, statuses, tags, lookingFor }),
     searchPeople(supabase, { q }),
     searchTagDirectory(supabase, { q }),
     // The unfiltered directory: it feeds the filter row's chips (which must not
@@ -129,6 +136,7 @@ export default async function SearchPage({
         q={q}
         statuses={statuses}
         tags={tags}
+        lookingFor={lookingFor}
         tagOptions={directory.items.slice(0, 8)}
       />
 

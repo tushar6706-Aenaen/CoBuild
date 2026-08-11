@@ -26,6 +26,7 @@ function toCardData(item: FeedItem): ProjectCardData {
     comment_count: item.comment_count,
     view_count: item.view_count,
     published_at: item.published_at,
+    looking_for: item.looking_for,
     author: item.author,
     tags: item.tags,
   };
@@ -44,6 +45,7 @@ export function FeedLoadMore({
   initialCursor,
   initialVoteState,
   tag = null,
+  lookingFor = [],
 }: {
   tab: FeedTab;
   window: TopWindow;
@@ -52,6 +54,8 @@ export function FeedLoadMore({
   initialVoteState: VoteState;
   /** Scopes continuation to one tag slug — set by `/tag/[slug]`. */
   tag?: string | null;
+  /** Scopes continuation to the `?looking_for=` filter active on the first page. */
+  lookingFor?: readonly string[];
 }) {
   const [items, setItems] = useState<FeedItem[]>([]);
   const [cursor, setCursor] = useState<FeedCursor>(initialCursor);
@@ -70,6 +74,7 @@ export function FeedLoadMore({
       viewerId,
       cursor,
       tag,
+      lookingFor,
     });
 
     if (viewerId && nextItems.length > 0) {

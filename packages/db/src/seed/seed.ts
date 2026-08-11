@@ -45,6 +45,39 @@ const NUM_PROJECTS = 80;
 const SEED_EMAIL_DOMAIN = "seed.cobuild.dev";
 const SEED_PASSWORD = "cobuild-seed-" + faker.string.alphanumeric(24);
 
+// --- Deterministic RNG for the collaboration fields ----------------------
+//
+// Everything else in this file draws from `Math.random()` / unseeded
+// `faker`, so re-running it produces different (though structurally
+// identical) random data every time — fine for most fields, since nothing
+// downstream depends on any one project or profile getting a specific
+// value. `looking_for`, `open_to_collab`, and `weekly_hours_available` are
+// different: they exist so a reviewer can query the resulting distribution
+// and judge the feed filter / search facet / profile chip against a known
+// corpus, and a distribution that reshuffles on every `pnpm seed` defeats
+// that. `rng()` is a tiny seeded PRNG (mulberry32) used only for those three
+// fields — everything else stays on `Math.random()` rather than widening
+// the scope of this change to a full-file refactor.
+function mulberry32(seed: number) {
+  let a = seed;
+  return function rng() {
+    a |= 0;
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const rng = mulberry32(0xc0b01d);
+
+const LOOKING_FOR_POOL = ["co-builder", "feedback", "beta-testers", "designer"] as const;
+
+// Mirrors WEEKLY_HOURS_MIN / WEEKLY_HOURS_MAX in
+// packages/shared/src/profile-limits.ts. Not imported directly — this
+// package carries no dependency on @cobuild/shared.
+const WEEKLY_HOURS_MIN = 1;
+const WEEKLY_HOURS_MAX = 80;
+
 const ROLE_POOL = ["developer", "designer", "founder"] as const;
 const TIMEZONES = [
   "America/New_York",
@@ -220,6 +253,16 @@ async function seedUsers(images: ReturnType<typeof loadSampleImages>) {
     const roles: string[] = faker.helpers.arrayElements(ROLE_POOL, { min: 1, max: 2 });
     if (isStudent) roles.push("student");
 
+    // Roughly a third of profiles are open to collaborate; of those, most
+    // (75%) give a hours-per-week estimate and the rest leave it null — a
+    // real, distinct state ("available, hours unspecified") that the profile
+    // chip renders differently, so both variants need to exist in the seed.
+    const openToCollab = rng() < 0.34;
+    const weeklyHoursAvailable =
+      openToCollab && rng() < 0.75
+        ? WEEKLY_HOURS_MIN + Math.floor(rng() * (WEEKLY_HOURS_MAX - WEEKLY_HOURS_MIN + 1))
+        : null;
+
     const avatarPath = await uploadImage("avatars", `${userId}/avatar.webp`, pickImage(images));
 
     const links: Record<string, string> = {};
@@ -250,6 +293,8 @@ async function seedUsers(images: ReturnType<typeof loadSampleImages>) {
         grad_year: isStudent ? faker.number.int({ min: 2026, max: 2029 }) : null,
         location: `${faker.location.city()}, ${faker.location.countryCode()}`,
         timezone: faker.helpers.arrayElement(TIMEZONES),
+        open_to_collab: openToCollab,
+        weekly_hours_available: weeklyHoursAvailable,
         links,
       })
       .eq("id", userId);
@@ -300,6 +345,20 @@ function weightedVisibility(): "public" | "unlisted" | "draft" {
   return "draft";
 }
 
+// Most real projects aren't asking for anything; a facet that matches most of
+// the corpus tells a browser nothing, so this is sparse on purpose — roughly
+// one in three, with a smaller chance of a second, distinct value.
+function pickLookingFor(): string[] {
+  if (rng() >= 0.34) return [];
+  const first = LOOKING_FOR_POOL[Math.floor(rng() * LOOKING_FOR_POOL.length)];
+  if (rng() < 0.3) {
+    const rest = LOOKING_FOR_POOL.filter((v) => v !== first);
+    const second = rest[Math.floor(rng() * rest.length)];
+    return [...new Set([first, second])];
+  }
+  return [first];
+}
+
 // Seed vote rows only — never hand-set `comments.upvote_count` directly.
 // The counter trigger computes it from these rows; a client-supplied value
 // would be silently discarded for anon/authenticated roles but ADDED on
@@ -346,6 +405,7 @@ async function seedProjects(
       visibility === "draft"
         ? null
         : faker.date.recent({ days: 120 }).toISOString();
+    const lookingFor = pickLookingFor();
 
     const { data: project, error: projectErr } = await admin
       .from("projects")
@@ -358,6 +418,7 @@ async function seedProjects(
         status,
         visibility,
         published_at: publishedAt,
+        looking_for: lookingFor,
         live_url: status !== "in_progress" && Math.random() < 0.7
           ? `https://${slug}.vercel.app`
           : null,
