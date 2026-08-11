@@ -19,3 +19,12 @@ export const BIO_MAX = 280;
 export const LOCATION_MAX = 120;
 export const TIMEZONE_MAX = 60;
 export const COLLEGE_MAX = 120;
+
+/**
+ * Bounds for `profiles.weekly_hours_available`. Null means "open to
+ * collaborate, hours unspecified" — a real and common state — so a blank
+ * input must store null, never 0. Zero would render as "~0 hrs/week",
+ * which reads as the opposite of being available.
+ */
+export const WEEKLY_HOURS_MIN = 1;
+export const WEEKLY_HOURS_MAX = 80;

@@ -22,6 +22,8 @@ export type ProfileSummary = {
   grad_year: number | null;
   location: string | null;
   timezone: string | null;
+  open_to_collab: boolean;
+  weekly_hours_available: number | null;
   links: Json;
   follower_count: number;
   following_count: number;
@@ -31,7 +33,7 @@ export type ProfileSummary = {
 };
 
 const PROFILE_COLUMNS =
-  "id, username, display_name, avatar_url, bio, headline, github_username, roles, is_student, college, grad_year, location, timezone, links, follower_count, following_count, project_count, total_upvotes_received, created_at";
+  "id, username, display_name, avatar_url, bio, headline, github_username, roles, is_student, college, grad_year, location, timezone, open_to_collab, weekly_hours_available, links, follower_count, following_count, project_count, total_upvotes_received, created_at";
 
 /**
  * Public profile lookup by handle. `profiles` is world-readable, so this

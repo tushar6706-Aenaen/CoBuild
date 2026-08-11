@@ -12,6 +12,8 @@ import {
   LOCATION_MAX,
   TIMEZONE_MAX,
   COLLEGE_MAX,
+  WEEKLY_HOURS_MIN,
+  WEEKLY_HOURS_MAX,
 } from "@cobuild/shared";
 
 /**
@@ -73,6 +75,18 @@ export async function updateProfile(
   const gradYear =
     isStudent && gradYearRaw ? Number.parseInt(String(gradYearRaw), 10) || null : null;
 
+  const openToCollab = formData.get("openToCollab") === "on";
+  const hoursRaw = String(formData.get("weeklyHours") ?? "").trim();
+  const hoursParsed = hoursRaw ? Number.parseInt(hoursRaw, 10) : Number.NaN;
+  // Blank, unparseable, or out-of-range all collapse to null rather than
+  // erroring: this is a soft signal on a settings form, not a gate.
+  const weeklyHours =
+    Number.isFinite(hoursParsed) &&
+    hoursParsed >= WEEKLY_HOURS_MIN &&
+    hoursParsed <= WEEKLY_HOURS_MAX
+      ? hoursParsed
+      : null;
+
   const links: Record<string, string> = {};
   for (const key of LINK_KEYS) {
     const value = String(formData.get(`link_${key}`) ?? "").trim();
@@ -93,6 +107,10 @@ export async function updateProfile(
       grad_year: gradYear,
       location: location || null,
       timezone: timezone || null,
+      open_to_collab: openToCollab,
+      // Hours without the toggle on would render nowhere and confuse a later
+      // read; clear them when the user closes availability.
+      weekly_hours_available: openToCollab ? weeklyHours : null,
       links,
     })
     .eq("id", user.id);

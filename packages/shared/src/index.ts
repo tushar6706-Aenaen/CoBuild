@@ -24,6 +24,8 @@ export {
   LOCATION_MAX,
   TIMEZONE_MAX,
   COLLEGE_MAX,
+  WEEKLY_HOURS_MIN,
+  WEEKLY_HOURS_MAX,
 } from "./profile-limits";
 
 export { publicStorageUrl, transformedStorageUrl, IMAGE_SIZES } from "./storage";
