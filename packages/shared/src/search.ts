@@ -107,11 +107,7 @@ export async function searchProjects(
       comment_count: r.comment_count,
       view_count: r.view_count,
       published_at: r.published_at ?? null,
-      // `looking_for` isn't in the RPC's declared Returns yet — that lands in
-      // Task 5 alongside the `p_looking_for` filter param above. Cast rather
-      // than widen the whole row so this line goes from a dead cast to a live
-      // field with a one-word diff once the function catches up.
-      looking_for: (r as unknown as { looking_for?: string[] | null }).looking_for ?? [],
+      looking_for: r.looking_for ?? [],
       author: (r.author as SearchProjectHit["author"] | null) ?? {
         username: null,
         display_name: null,

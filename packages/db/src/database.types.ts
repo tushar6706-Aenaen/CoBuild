@@ -799,6 +799,7 @@ export type Database = {
           p_cur_num?: number
           p_cur_ts?: string
           p_limit?: number
+          p_looking_for?: string[]
           p_tab: string
           p_tag?: string
           p_viewer?: string
@@ -810,6 +811,7 @@ export type Database = {
           cover_image_path: string
           hot_score: number
           id: string
+          looking_for: string[]
           published_at: string
           slug: string
           status: string
@@ -888,6 +890,7 @@ export type Database = {
       search_projects: {
         Args: {
           p_limit?: number
+          p_looking_for?: string[]
           p_q: string
           p_status?: string[]
           p_tags?: string[]
@@ -897,6 +900,7 @@ export type Database = {
           comment_count: number
           cover_image_path: string
           id: string
+          looking_for: string[]
           published_at: string
           slug: string
           status: string
