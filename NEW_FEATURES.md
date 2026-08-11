@@ -2,6 +2,9 @@
 
 Companion files: [PROJECT_INFO.md](PROJECT_INFO.md) · [WEB_APP_PLAN.md](WEB_APP_PLAN.md) · [CHECKLIST.md](CHECKLIST.md) · [MOBILE_APP_PLAN.md](MOBILE_APP_PLAN.md)
 
+**Working tracker: [NEW_FEATURES_TODO.md](NEW_FEATURES_TODO.md)** — this file is the *why*; that
+one is *where we are*. Update it as work lands.
+
 Everything in `WEB_APP_PLAN.md` Phases 0–6 is the *product*. This file is what makes it
 **outstanding** — the features that separate CoBuild from "a Reddit clone for projects".
 Same agent-assignment rules as the web plan: Sonnet owns broken-button bugs, Opus owns
