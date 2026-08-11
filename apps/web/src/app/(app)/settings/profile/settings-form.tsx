@@ -12,8 +12,6 @@ import {
   LOCATION_MAX,
   TIMEZONE_MAX,
   COLLEGE_MAX,
-  WEEKLY_HOURS_MIN,
-  WEEKLY_HOURS_MAX,
 } from "@cobuild/shared";
 import { FieldCounter } from "@/components/ui/field-counter";
 import { updateProfile, type SettingsState } from "./actions";
@@ -405,8 +403,6 @@ export function SettingsForm({ userId, initial }: { userId: string; initial: Ini
                 id="weeklyHours"
                 name="weeklyHours"
                 type="number"
-                min={WEEKLY_HOURS_MIN}
-                max={WEEKLY_HOURS_MAX}
                 defaultValue={initial.weeklyHoursAvailable ?? ""}
                 placeholder="Optional"
                 className="rounded-[var(--radius-control)] border-[var(--color-border-default)] bg-[var(--color-bg-input)] py-3 text-sm"
