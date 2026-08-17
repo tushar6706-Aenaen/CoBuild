@@ -178,8 +178,11 @@ callable over PostgREST and both were caught by `get_advisors`, not by review â€
 advisors runs immediately after this migration, not at the end of the phase.
 
 **Notifications.** `notifications.type`'s CHECK currently allows
-`upvote | comment | reply | follow | credit` and must be widened with
-`collab_request | collab_accepted | collab_declined`. No new column is needed:
+`upvote | comment | reply | follow | credit` and is widened with
+`collab_request | collab_declined` â€” **not** three new types as originally planned here.
+`collab_accepted` was dropped: inserting the `project_collaborators` row already fires
+`notify_on_credit`, so a third type would double-notify the requester on acceptance. The
+existing `credit` notification is acceptance's signal. No new column is needed:
 `recipient_id`, `actor_id` and `project_id` carry everything the notification list needs
 to render and link. Notification rows are written by SECURITY DEFINER triggers, matching
 `notify_on_vote` / `notify_on_comment` / `notify_on_follow` / `notify_on_credit`;

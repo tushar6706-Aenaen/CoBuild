@@ -7,8 +7,10 @@ when a task here is finished *and verified*, mirror it there and mark it `[x]` i
 **Legend:** `[ ]` not started · `[~]` in progress · `[x]` done + verified · `[!]` blocked ·
 `[?]` needs a decision from Tushar
 
-Last updated: 2026-08-11 · Current position: **Phase 7 shipped; Phase 8.0/8.1 done pending one
-live-verify item; 8.2 ("Request to join") not started.**
+Last updated: 2026-08-18 · Current position: **Phase 7 shipped. Phase 8 code-complete
+(8.0/8.1/8.2 all landed) — 8.1 has full live browser evidence; 8.0's settings-form write path and
+8.2's two-account request/accept/decline/withdraw round-trip are still unverified in a browser.
+Not a regression: both are genuinely open, human-blocked items, not skipped work.**
 
 ---
 
@@ -18,7 +20,7 @@ live-verify item; 8.2 ("Request to join") not started.**
 |---|---|---|
 | 0–6 (product) | done | Web app is feature-complete per `WEB_APP_PLAN.md` |
 | 7 — Distribution | **done, 2 loose ends** | see §1 |
-| 8 — Collaboration | **8.0/8.1 done, 8.2 next** | 8.2 ("Request to join") blocked on decision D2 |
+| 8 — Collaboration | **code-complete, 2 items browser-unverified** | 8.1 fully verified live; 8.0 write-path and 8.2's two-account round-trip need a human browser session — see §3 |
 | 9 — Devlogs | not started | |
 | 10 — Verified builds | not started | **blocked on decision D1** — shapes the whole phase |
 | 11 — Retention | not started | blocked on decision D3 (email provider) |
@@ -69,22 +71,25 @@ Each one blocks real work. Answer before the phase it gates starts.
 | # | Decision | Gates | Default if unanswered |
 |---|---|---|---|
 | D1 | **GitHub verification mechanism** — GitHub App install (durable, higher trust, more setup) vs. capture `provider_token` at OAuth sign-in and verify in that window (simple, one-shot, no refresh) | Phase 10 — decides its whole shape | none; genuinely blocking |
-| D2 | **Does an accepted collaborator get edit rights?** | Phase 8.2 | **credit-only** (safe; editing means new RLS on `projects` *and* on the `{userId}/{projectId}/…` storage prefix) |
+| D2 | **Does an accepted collaborator get edit rights?** | Phase 8.2 | **ANSWERED: credit-only.** Shipped that way — `project_collaborators` rows are credit-only, zero changes to any existing RLS policy. The storage re-keying and orphan-cleanup costs this row originally warned about were checked against the live database during design and are **false** — see the spec's "Corrections to NEW_FEATURES.md's stated gotchas" and `NEW_FEATURES.md`'s open decision #2 for the real cost, recorded for a future edit-rights phase |
 | D3 | **Email provider** — Resend is the obvious fit with Supabase Edge Functions | Phase 11 | Resend |
 | D4 | **Do devlog updates affect ranking?** | Phase 9 | **no** (plan's own recommendation; bumping old projects on every edit ruins a ranked feed) |
 | D5 | **Mobile parity** — ship Phases 0–6 parity first, or track 7–11 as they land | mobile plan | Phases 0–6 parity first |
 
 - [ ] D1 answered
-- [ ] D2 answered
+- [x] D2 answered — credit-only, shipped in Phase 8.2
 - [ ] D3 answered
 - [ ] D4 answered
 - [ ] D5 answered
 
 ---
 
-## 3. Phase 8 — Collaboration ("Looking for") — NEXT
+## 3. Phase 8 — Collaboration ("Looking for") — CODE-COMPLETE, 2 items browser-unverified
 
 The defensible difference: the product is named CoBuild and is currently one-way.
+Evidence mirrored into `CHECKLIST.md`'s Phase 8 section (Task 10) — that is now the fuller
+record; this section stays ticked to match but read `CHECKLIST.md` for what is and is not
+actually browser-verified.
 
 ### 8.0 Groundwork — surface the fields that already exist
 `profiles.open_to_collab` and `profiles.weekly_hours_available` are live in the schema.
@@ -103,9 +108,11 @@ below); the seed now assigns both. **No migration needed.** — *Sonnet*
 - [x] Confirmed `profiles_guard_client_columns()` does **not** pin these two — read the live
       function definition via `execute_sql`; it only re-pins `id`/counters/`created_at`
 - [ ] Verify live: set both, reload, values persist; toast fires (production build, visible tab)
-      — **not verified in this session** (no browser access); commit `bd01639` ("stop native
-      min/max on hours input from blocking whole-form submit") implies a prior live pass found
-      and fixed a real bug here, but this task did not re-confirm it
+      — **still not verified as of Task 10.** Commit `bd01639` ("stop native min/max on hours
+      input from blocking whole-form submit") implies a prior live pass found and fixed a real
+      bug here, and the profile chip's *render* path was verified live in the 8.1 browser pass —
+      but the settings form's own toggle/input/save/toast write path has never been re-confirmed
+      in a browser. Genuinely open, not a regression
 
 ### 8.1 "Looking for" on a project — *Sonnet*
 Values: `co-builder` · `feedback` · `beta-testers` · `designer` · `nothing` (default).
@@ -130,37 +137,48 @@ Values: `co-builder` · `feedback` · `beta-testers` · `designer` · `nothing` 
 - [x] Regenerate DB types — already current (`looking_for` present in `database.types.ts`)
 - [x] `turbo run typecheck` (4/4) + `next build` clean (20 routes)
 
-### 8.2 Request to join — *Opus*
+### 8.2 Request to join — *Opus* — code-complete, browser round-trip unverified
 **The first path where a stranger writes a row a project owner reads.** Treat accordingly.
 
 Schema: `collab_requests(id, project_id, requester_id, message, status, created_at)`,
 status `pending | accepted | declined | withdrawn`, unique partial index on
 `(project_id, requester_id) where status = 'pending'`.
 
-- [ ] Migration: table, PK, unique partial index, `updated_at` trigger if the codebase has one
-- [ ] RLS, written before any UI:
-  - [ ] requester: insert own, read own, withdraw own
-  - [ ] owner: read requests to *their* projects, update `status` only
-  - [ ] nobody else reads either side; `anon` reads nothing
-  - [ ] status transitions constrained (no `declined` → `accepted` reopen)
-- [ ] **DB-level rate limit**, not UI-level — free-text field on a near-public write path is a
-      spam vector. `reports` exists but has no moderation queue behind it (backlog).
-- [ ] Any new trigger function: `revoke all on function … from public` **and**
-      `from anon, authenticated` — Phase 5 and Phase 7 both shipped a callable-over-PostgREST
-      function and both were caught by `get_advisors`, not by review. Run advisors right after
-      the migration, every time.
-- [ ] Request composer UI (short pitch) on project detail, auth-gated
-- [ ] Notification to owner on request (extend the existing trigger family:
-      `notify_on_vote` / `notify_on_comment` / `notify_on_follow` / `notify_on_credit`)
-- [ ] Accept/decline from `/notifications`
-- [ ] Accept → `project_collaborators` row (`pending` → `accepted`), which already auto-adds to
-      the collaborator's portfolio
-- [ ] **Accepting must not grant `projects` write access** unless D2 says otherwise
-- [ ] Notification to requester on accept/decline
-- [ ] **Opus review: adversarial RLS with real JWTs on both sides**, the way Phase 2's bookmarks
-      tab and Phase 7's `tag_follows` were tested. Not asserted — attacked.
-- [ ] `get_advisors` clean
-- [ ] Mirror into `CHECKLIST.md` with evidence
+- [x] Migration: table, PK, unique partial index, `updated_at` trigger (`collab_requests_guard`
+      sets it on every update)
+- [x] RLS, written before any UI:
+  - [x] requester: insert own, read own, withdraw own
+  - [x] owner: read requests to *their* projects, update `status` only
+  - [x] nobody else reads either side; `anon` reads nothing
+  - [x] status transitions constrained (no `declined` → `accepted` reopen)
+- [x] **DB-level rate limit**, not UI-level — 10 requests per requester per 24h, in
+      `collab_requests_rate_limit()`
+- [x] Trigger functions revoked from `public` **and** `anon, authenticated` — but see the bug
+      below: both trigger functions shipped `SECURITY DEFINER`, which made the revokes moot for a
+      different reason (the guards never ran for any caller). Fixed by dropping the SECURITY
+      clause, not by the revokes, which were correct all along
+- [x] Request composer UI (short pitch, 500-char dialog) on project detail, auth-gated
+- [x] Notification to owner on request (`notify_on_collab_request`, extending the existing
+      trigger family)
+- [x] Accept/decline from `/notifications`
+- [x] Accept → `project_collaborators` row (`pending` → `accepted`) via the SECURITY INVOKER
+      `accept_collab_request` RPC, which already auto-adds to the collaborator's portfolio
+- [x] **Accepting does not grant `projects` write access** — D2 shipped credit-only, zero RLS
+      changes on `projects`
+- [x] Notification to requester on decline (`collab_declined`); acceptance reuses the existing
+      `credit` notification rather than a new `collab_accepted` type — see the spec correction
+- [x] **Adversarial RLS with real JWTs on both sides — attacked, not asserted.** Found and fixed
+      a real security hole (both trigger functions were `SECURITY DEFINER` and completely inert);
+      full re-run after the fix: 23 attacks, 22 blocked, 1 expected/accepted success, 9 positive
+      controls, GATE PASS. Full record: `docs/superpowers/evidence/2026-08-11-phase-8-collab-rls.md`
+- [x] `get_advisors` clean — security at the documented baseline; one new performance INFO
+      (`collab_requests_project_idx` unused, expected at 0 live rows)
+- [x] Mirrored into `CHECKLIST.md` with evidence (Task 10)
+- [ ] **Still open: the live two-account browser round-trip** (request → notification → accept /
+      decline / withdraw) has never been run. Blocked on a human foregrounding the browser tab and
+      running `auth.admin.generateLink` to sign in as a second account. Everything above is
+      verified by adversarial RLS, typecheck, and the production build — none of that substitutes
+      for actually clicking through the flow as two real users
 
 ---
 
@@ -276,6 +294,26 @@ Learned the hard way in Phases 0–7. Violating one of these is how the known bu
 
 Newest first. One line per working session — what moved, what broke, what's next.
 
+- **2026-08-18** — Task 10 (Phase 8 close): full advisors pass (security back at the documented
+  baseline; performance shows one new expected INFO, `collab_requests_project_idx` unused at 0
+  live rows, and confirms `projects_looking_for_idx` is **no longer** unused now that the seed and
+  filter exercise it). Policy-drift query re-run against `projects`/`project_images`/
+  `project_tags`/`project_collaborators` — identical to the pre-phase state, no drift.
+  `turbo run typecheck` 4/4, `pnpm --filter web build` clean, 20 routes. Spec corrected at the one
+  narrowing (no `collab_accepted` type — acceptance reuses the `credit` notification). Renamed all
+  six Phase 8 migration files with `git mv` from their on-disk `YYYYMMDDTHHMM_` names to the
+  versions Supabase actually registered — `add_projects_looking_for` would have failed on a future
+  `supabase db push` otherwise. `CHECKLIST.md`'s Phase 8 section rewritten to be honest about scope:
+  8.1 has full live browser evidence; 8.0's settings-form write path and 8.2's two-account
+  request/accept/decline/withdraw round-trip are still unverified in a browser, both blocked on
+  human action (foregrounding the automation tab, and running `auth.admin.generateLink` with the
+  service-role key). D2 marked answered (credit-only, as shipped). Corrected two stale doc claims:
+  `NEW_FEATURES.md`'s "populated by the seed" line for `open_to_collab`/`weekly_hours_available`
+  (was false when written; true as of Task 6), and `PROJECT_INFO.md`'s stale claim that
+  `tags_name_trgm_idx` would always show up in `get_advisors` as unused — it no longer does
+  (`idx_scan = 1`), though that is one manual verification query, not proven organic traffic; the
+  underlying "small table, seq scan is cheap" reasoning still holds. No RLS policy touched; no new
+  migration added.
 - **2026-08-11** — Task 6 (slice 8.1 finish): `looking_for` chips on `ProjectCard` (server part)
   and project detail; `?looking_for=` feed filter (`FeedTabs`, `FeedLoadMore`) and `/search` facet
   (`SearchFilters`, generalized `toggleHref` to a 3rd facet); seed now assigns `looking_for` to

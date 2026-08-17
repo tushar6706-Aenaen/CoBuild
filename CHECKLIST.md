@@ -168,7 +168,35 @@ See [NEW_FEATURES.md](NEW_FEATURES.md) for the "why" behind each item.
   - [ ] **One transient miss worth knowing about:** the very first render of one card came back coverless (55kB vs 119kB for the identical URL moments later) with no error surfaced. Not reproducible — 8/8 subsequent cold renders were fine, and cold transforms measure ~0.7s against `fetchOgImage`'s 3s timeout, so the timeout is not demonstrably the cause and was left alone. It matters anyway because `fetchOgImage` returns `null` on *any* failure by design, and social platforms cache the first response they get — so one blip on a project's first share caches a coverless card indefinitely. A single retry is the cheap mitigation; not added without evidence of the cause
 
 ### Phase 8 — Collaboration ("Looking for")
-Migrations: `add_projects_looking_for`, `feed_page_looking_for`, `search_projects_looking_for`.
+Migrations (filenames corrected in Task 10 — see the note at the end of this section; contents
+byte-unchanged): `20260811082728_add_projects_looking_for`, `20260811085500_feed_page_looking_for`,
+`20260811085656_search_projects_looking_for`, `20260811100818_add_collab_requests`,
+`20260811102131_project_collaborators_unique_credit`, `20260811104338_collab_requests_guard_invoker`.
+
+**Honest top line: 8.0 and 8.2 are code-complete but not end-to-end browser-verified. 8.1 is the
+only slice with full live browser evidence.** Details and exactly what *is* confirmed for each
+are below — do not read any `[x]` in this section as "verified in a browser" unless it says so.
+
+#### 8.0 — Availability signals (`open_to_collab`, `weekly_hours_available`)
+- [x] Both columns added to `PROFILE_COLUMNS` (`packages/shared/src/profiles.ts:34`)
+- [x] `/settings/profile`: toggle for `open_to_collab`, number input for `weekly_hours_available`,
+      server-side clamp (`WEEKLY_HOURS_MIN`–`WEEKLY_HOURS_MAX`; blank/out-of-range/unparseable all
+      collapse to `null` rather than erroring)
+- [x] `/u/[username]` chip — "Open to collaborate · ~N hrs/week", hours clause omitted when null
+- [x] Confirmed live via `execute_sql` that `profiles_guard_client_columns()` does **not** pin
+      either column — it only re-pins `id`/counters/`created_at`
+- [x] **Bug found by testing, not reading**: native `min`/`max` on the hours input triggered
+      whole-form HTML5 validation, blocking submission of unrelated edits too — contradicted the
+      "soft signal, not a gate" requirement. Fixed by removing `min`/`max` and keeping the
+      server-side clamp (commit `bd01639`)
+- [x] Profile chip **render path** verified live, in a visible browser tab on a production build,
+      both variants — `open_to_collab=true, hours=15` → "Open to collaborate · ~15 hrs/week";
+      `hours=null` → bare "Open to collaborate" — see the 8.1 evidence file below
+- [ ] **Not verified live**: the settings form *write* path itself (toggle, hours input, save,
+      toast). Deferred when this slice first landed and never re-confirmed in a later browser
+      session — still open
+
+#### 8.1 — "Looking for" on projects
 - [x] `projects.looking_for text[]` + CHECK constraint + partial GIN index
 - [x] `feed_page` extended with `p_looking_for` (OR-matches; pure filter, doesn't enter the sort
       tuple or the keyset cursor) — precedent from Phase 5's `p_tag`, not a forked RPC
@@ -185,27 +213,124 @@ Migrations: `add_projects_looking_for`, `feed_page_looking_for`, `search_project
 - [x] Search facet row on `/search` (`SearchFilters`) — generalized the existing 2-facet
       `toggleHref` (status/tag) to a 3rd facet rather than forking it
 - [x] Seed: `packages/db/src/seed/seed.ts` assigns `looking_for` to ~1/3 of projects (1–2 values,
-      drawn from `co-builder`/`feedback`/`beta-testers`/`designer`), and — closing the gap noted
-      in 8.0 above — now also assigns `open_to_collab`/`weekly_hours_available` to ~1/3 of
-      profiles. Both draws go through a small seeded `mulberry32` PRNG added for this purpose;
-      the rest of the file is unchanged and still runs on `Math.random()`/unseeded `faker` (see
-      the RNG doc comment in `seed.ts` for why only these fields needed to be reproducible)
-- [x] **Seed run** (this task) — 30 profiles / 80 projects. `looking_for`: 57 `(none)`, 6
-      `co-builder`, 4 `feedback`, 7 `beta-testers`, 6 `designer`, 5 with two values — all four
-      values represented, `(none)` the majority as intended. `open_to_collab`: 10/30 true (7 with
-      an hours value, 3 null — both states of the "available, hours unspecified" chip present)
+      drawn from `co-builder`/`feedback`/`beta-testers`/`designer`), and — closing the 8.0 gap —
+      now also assigns `open_to_collab`/`weekly_hours_available` to ~1/3 of profiles. Both draws
+      go through a small seeded `mulberry32` PRNG added for this purpose; the rest of the file is
+      unchanged and still runs on `Math.random()`/unseeded `faker`
+- [x] **Seed run** — 30 profiles / 80 projects. `looking_for`: 57 `(none)`, 6 `co-builder`, 4
+      `feedback`, 7 `beta-testers`, 6 `designer`, 5 with two values — all four values represented,
+      `(none)` the majority as intended. `open_to_collab`: 10/30 true (7 with an hours value, 3
+      null — both states of the "available, hours unspecified" chip present)
+- [x] **Full live browser verification — PASS**
+      (`docs/superpowers/evidence/2026-08-11-phase-8-slice-8.1-browser.md`, commits
+      `c627595..5e9ec02`, run in a visible tab against a production build):
+  - [x] Feed filter `/?looking_for=designer` — DOM extraction over every card: 9 rendered = 9 in
+        SQL, all 9 carry "Designer" including the two multi-value cards, confirming `&&` overlap
+        rather than equality
+  - [x] Composer round-trip (the path with **no** automated guard, since `saveProjectAction` takes
+        `payload: unknown`): real mouse clicks selected Co-builder + Designer, wrote
+        `looking_for = ["co-builder","designer"]` to the DB, and reopening the edit page read both
+        chips back `aria-pressed="true"`. Test draft deleted afterwards, 0 leftover rows
+  - [x] Search facet: `q=app&looking_for=designer` → 0 cards, confirmed correct (not broken) by
+        matching the RPC's own 0; `q=track&looking_for=designer` → 2 cards, matching the RPC's 2
+  - [x] Profile availability chip — both variants (see 8.0 above)
 - [x] `turbo run typecheck` (4/4 packages) + `pnpm --filter web build` clean (20 routes)
-- [x] RPC-level verification via `execute_sql` (no browser access this session — see below):
-      unfiltered `feed_page('hot', limit 50)` returns the full 50; `p_looking_for := ['co-builder']`
-      returns 8 rows, every one carrying `co-builder`; `p_looking_for := ['beta-testers','designer']`
-      returns 17 rows, every one carrying at least one of the two (OR semantics confirmed);
-      `search_projects('Warmup', p_looking_for := ['feedback'])` hits the one matching project,
-      `p_looking_for := ['designer']` against the same query returns zero
-- [ ] **Not verified — no browser access in this session.** Everything in Step 7 of the task brief
-      that requires a live browser is open: chips rendering on real cards, clicking a filter chip
-      narrowing the feed with every visible card carrying the value, "load more" staying scoped
-      to the filter, clearing the filter restoring the full feed, and the same facet working on
-      `/search`. RPC-level checks above give strong indirect evidence but are not a substitute.
+- [x] Found (pre-existing, **not** a Phase 8 regression, logged for triage — see the end of this
+      section): `composer.tsx:379` captures the `beforeunload` dirty-check baseline once and never
+      refreshes it after a save, so the form is permanently dirty and prompts spuriously on every
+      navigation after any edit. Phase 6 tranche A's guard; line 383 disarms it during the save
+      itself, so saves themselves are never blocked — only the post-save prompt is spurious
+
+#### 8.2 — Request to join
+- [x] `collab_requests(id, project_id, requester_id, message, status, created_at, updated_at)` +
+      RLS: requester can insert/read/withdraw own; author can read/update status on requests to
+      their own projects; nobody else reads either side; no DELETE policy (withdrawal is a status
+      change, not a delete) — DELETE withheld at the GRANT level, stronger than RLS
+- [x] Partial unique index `collab_requests_one_pending` — one pending request per
+      (project, requester); partial on purpose so a decline doesn't permanently block a
+      better-argued retry
+- [x] Status-transition guard trigger (BEFORE UPDATE) + 10-per-24h rate-limit trigger
+      (BEFORE INSERT) + `notify_on_collab_request` (types `collab_request`, `collab_declined` —
+      **no** `collab_accepted`; see the spec correction below)
+- [x] `accept_collab_request(p_request_id, p_role_label)` — SECURITY INVOKER, atomic status flip +
+      `project_collaborators` insert with `on conflict do nothing` against Task 7's partial unique
+      index (`project_collaborators_project_profile_uniq`)
+- [x] Data layer `packages/shared/src/collab.ts` (7 functions) + UI: `request-to-join.tsx`,
+      `collab-actions.ts`, accept/decline inline on the `/notifications` collab_request row
+- [x] **Security bug found by adversarial RLS testing, not by reading.** Both
+      `collab_requests_guard()` and `collab_requests_rate_limit()` shipped as `SECURITY DEFINER`,
+      which made **both triggers completely inert for every real caller since creation** — inside
+      a DEFINER function `current_user` is the function owner (`postgres`), so the guards' own
+      `current_user not in ('anon','authenticated')` early-return always fired. Live attacks
+      confirmed all five holes this opened: requester self-accept/self-decline of their own
+      request, an author rewriting the requester's message and backdating `created_at` (and even
+      the primary key), a `declined → accepted` reopen, the 10-per-24h rate limit never firing,
+      and a requester repointing a request onto a project they cannot see. Fixed in
+      `20260811104338_collab_requests_guard_invoker.sql` (commit `3729db4`) by dropping the
+      SECURITY clause only — the two function bodies were proven byte-identical to the originals
+      by md5 across file, migration, and live `prosrc`. **This passed two rounds of code review
+      before the live-attack suite caught it.** Full record:
+      `docs/superpowers/evidence/2026-08-11-phase-8-collab-rls.md`
+- [x] **Adversarial RLS suite re-run against the fix — GATE PASS.** 23 attacks: 22 blocked as
+      expected, 1 expected/accepted success (an author can bypass the RPC via a direct PATCH and
+      end up with `status='accepted'` and no credit row — by design, since the guard must permit
+      the author's `pending → accepted` for the SECURITY INVOKER RPC to work at all; the
+      mitigation is that the server action must call the RPC exclusively and never write `status`
+      directly, and Task 9's reviewer independently confirmed this is true by tracing every write
+      to `status` in the diff), 0 surprises. Plus 9 positive controls proving no over-blocking
+      (rate limit allows exactly 10 requests, not 9) and 2 independent confirmations: the
+      rate-limit count stays complete under RLS even when 3 of 9 requested-against projects are
+      flipped to draft mid-transaction (9 counted, only 6 still visible), and
+      `private.is_project_author` resolves correctly from the now-INVOKER trigger in all three
+      directions (non-author/author/third-party)
+- [x] **Bug found by testing, not reading (Task 9)**: the inherited `requestToJoin` action never
+      returned the new request's id, so the `status === "pending" && requestId` render gate fell
+      through to the "Request to join" branch immediately after a successful send. Fixed by
+      reading back via `getViewerCollabRequest` and gating on status alone (commit `1aed241`)
+- [x] `turbo run typecheck` (4/4) + `pnpm --filter web build` clean (20 routes)
+- [ ] **NOT verified end-to-end in a live browser — this is genuinely outstanding.** The
+      two-account request → accept/decline/withdraw round-trip has not been run. It is blocked on
+      two things only a human can do: foregrounding the automation tab (a hidden tab never fires
+      `requestAnimationFrame`, so the page never hydrates and forms native-POST instead) and
+      running `auth.admin.generateLink` with the service-role key to sign in as a second account.
+      **What IS confirmed for 8.2**: the adversarial RLS suite above (23 attacks, 22 blocked, 1
+      expected success, 9 positive controls), `typecheck`, the production build, and a static
+      check that `/p/leviwunsch426/sprout` renders the "Request to join" control for a signed-in
+      non-author and the "Looking for Co-builder, Feedback" chip. **Do not read any of the above
+      as end-to-end verification of the request/accept/decline/withdraw flow — it is not.**
+- [ ] Ten Minor findings from Task 9's review, deferred and unfixed — full list in
+      `.superpowers/sdd/2026-08-11-phase-8-collaboration/progress.md`. The two worth naming here:
+      `revalidatePath()` is called with a client-supplied path read from a hidden input (blast
+      radius is cache-busting, not data — `projectId` is already present so the path could be
+      derived server-side instead of trusted from the client); and the Postgres `23505` "you
+      already have a request pending" error is a UI dead end — the copy says a request is pending
+      but the button still offers "Request to join" with no way to withdraw, recoverable only by
+      a page reload
+- [x] `get_advisors` security — back at the documented intentional baseline (3 pre-existing
+      `rls_enabled_no_policy` INFOs, 3 pre-existing `SECURITY DEFINER`-callable-by-anon WARN pairs
+      for the leaderboard/view-count RPCs, 1 pre-existing leaked-password-protection WARN, moot
+      while sign-in is OAuth + magic-link only). No new findings attributable to Phase 8
+- [x] `get_advisors` performance — one new INFO: `collab_requests_project_idx` unused. Expected
+      and not a regression — `collab_requests` genuinely has 0 live rows (the browser round-trip
+      that would populate it hasn't been run yet), so there is nothing for the index to serve.
+      `projects_looking_for_idx` (8.1) **no longer reports as unused** — Task 6's seed and the
+      feed/search `looking_for` filter now exercise it
+
+#### Policy-drift check (Task 10, read-only — this phase must not touch existing RLS)
+- [x] `projects`/`project_images`/`project_tags`/`project_collaborators` policies queried directly
+      against the live DB and confirmed **identical to the pre-phase state**: `projects` still
+      gated on `author_id = auth.uid()` (`projects_update_own`, `projects_delete_own`); the three
+      child tables still on `private.is_project_author`/`private.can_see_project`. Phase 8 is
+      credit-only as designed (decision D-B) — no drift, no fix needed
+
+#### Migration filenames (Task 10)
+- [x] The six migration files above were renamed with `git mv` (contents byte-unchanged) from
+      their original `YYYYMMDDTHHMM_` on-disk names to the versions Supabase actually registered
+      in `supabase_migrations.schema_migrations` (`20260811082728`, `20260811085500`,
+      `20260811085656`, `20260811100818`, `20260811102131`, `20260811104338`). Left as they were,
+      a future `supabase db push` would have treated all six as new migrations, and
+      `add_projects_looking_for`'s `alter table ... add column` would have **failed** on re-apply
+      against a database that already has the column
 
 ### Web verification
 - [ ] All three sign-in methods work end-to-end
