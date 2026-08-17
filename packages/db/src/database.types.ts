@@ -26,6 +26,15 @@
  * partial indexes on `visibility = 'public'`, so a correctly-filtered feed
  * query hits the index and a query missing the filter loses it — a feed
  * that starts seq-scanning is a cheap smoke signal someone dropped it.
+ *
+ * IMPORTANT — collab_requests: status transitions are guarded by a trigger
+ * (RLS cannot express old->new), and `pending -> accepted` is only ever
+ * legal through the `accept_collab_request` RPC, which is SECURITY INVOKER
+ * and makes the status change and the `project_collaborators` credit row one
+ * transaction. Application code must never `update collab_requests set
+ * status = 'accepted'` directly — the trigger permits it for the project
+ * author (so the RPC can do its job), which means a direct PATCH would also
+ * succeed, but with no credit row behind it.
  */
 export type Json =
   | string
@@ -72,6 +81,51 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      collab_requests: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          project_id: string
+          requester_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          project_id: string
+          requester_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          project_id?: string
+          requester_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collab_requests_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collab_requests_requester_id_fkey"
+            columns: ["requester_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -789,6 +843,10 @@ export type Database = {
       }
     }
     Functions: {
+      accept_collab_request: {
+        Args: { p_request_id: string; p_role_label?: string }
+        Returns: undefined
+      }
       compute_hot_score: {
         Args: { score: number; ts: string }
         Returns: number

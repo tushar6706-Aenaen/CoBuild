@@ -2,7 +2,15 @@ import type { Database, SupabaseClient } from "@cobuild/db";
 
 type Client = SupabaseClient<Database>;
 
-export const NOTIFICATION_TYPES = ["upvote", "comment", "reply", "follow", "credit"] as const;
+export const NOTIFICATION_TYPES = [
+  "upvote",
+  "comment",
+  "reply",
+  "follow",
+  "credit",
+  "collab_request",
+  "collab_declined",
+] as const;
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
 
 /** Page size for `/notifications`. */
@@ -15,6 +23,12 @@ export type NotificationItem = {
   type: NotificationType;
   read: boolean;
   created_at: string;
+  /** Raw id, alongside the embedded `actor` below — `collab_request` /
+   *  `collab_declined` need it to resolve the `collab_requests` row the
+   *  notification refers to (see `getPendingCollabRequestFor`). */
+  actor_id: string | null;
+  /** Raw id, for the same reason as `actor_id`. */
+  project_id: string | null;
   actor: { username: string | null; display_name: string | null; avatar_url: string | null } | null;
   /** Null when the referenced project is gone or no longer readable by the viewer. */
   project: { slug: string; title: string; author_username: string | null } | null;
@@ -27,6 +41,8 @@ type Row = {
   type: string;
   read_at: string | null;
   created_at: string;
+  actor_id: string | null;
+  project_id: string | null;
   actor: { username: string | null; display_name: string | null; avatar_url: string | null } | null;
   project: {
     slug: string;
@@ -42,7 +58,7 @@ type Row = {
  * unqualified `profiles(...)` is ambiguous and PostgREST rejects it.
  */
 const SELECT = `
-  id, type, read_at, created_at,
+  id, type, read_at, created_at, actor_id, project_id,
   actor:profiles!notifications_actor_id_fkey (username, display_name, avatar_url),
   project:projects!notifications_project_id_fkey (
     slug, title,
@@ -66,6 +82,8 @@ function toItem(row: Row): NotificationItem | null {
     type: row.type,
     read: row.read_at !== null,
     created_at: row.created_at,
+    actor_id: row.actor_id,
+    project_id: row.project_id,
     actor: row.actor ?? null,
     project: row.project
       ? {

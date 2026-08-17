@@ -7,6 +7,7 @@ import {
   getProjectComments,
   getViewerProjectState,
   getViewerCommentVotes,
+  getViewerCollabRequest,
   collectCommentIds,
   isFollowing,
   publicStorageUrl,
@@ -22,6 +23,7 @@ import { VoteButton } from "@/components/project/vote-button";
 import { BookmarkButton } from "@/components/project/bookmark-button";
 import { ShareProjectButton } from "@/components/project/share-button";
 import { FollowButton } from "@/components/project/follow-button";
+import { RequestToJoinButton } from "@/components/project/request-to-join";
 import { Gallery, type GalleryImage } from "./gallery";
 import { Comments } from "./comments";
 import { ViewTracker } from "./view-tracker";
@@ -84,7 +86,9 @@ export default async function ProjectDetailPage({
   const { user: viewer } = await getAuthState();
   const isAuthor = viewer?.id === project.author.id;
 
-  const [comments, viewerState, viewerFollowsAuthor] = await Promise.all([
+  const wantsCollaborators = project.looking_for.length > 0;
+
+  const [comments, viewerState, viewerFollowsAuthor, viewerCollabRequest] = await Promise.all([
     getProjectComments(supabase, project.id),
     viewer
       ? getViewerProjectState(supabase, project.id, viewer.id)
@@ -92,6 +96,9 @@ export default async function ProjectDetailPage({
     viewer && !isAuthor
       ? isFollowing(supabase, viewer.id, project.author.id)
       : Promise.resolve(false),
+    viewer && !isAuthor && wantsCollaborators
+      ? getViewerCollabRequest(supabase, project.id, viewer.id)
+      : Promise.resolve(null),
   ]);
 
   // Keyed off the comment tree, so this can't join the Promise.all above.
@@ -201,6 +208,15 @@ export default async function ProjectDetailPage({
               </a>
             )}
             <div className="flex-1" />
+            {!isAuthor && wantsCollaborators && (
+              <RequestToJoinButton
+                projectId={project.id}
+                projectPath={`/p/${username}/${slug}`}
+                viewerId={viewer?.id ?? null}
+                initialRequestId={viewerCollabRequest?.id ?? null}
+                initialStatus={viewerCollabRequest?.status ?? null}
+              />
+            )}
             <BookmarkButton projectId={project.id} viewerId={viewer?.id ?? null} initialBookmarked={viewerState.bookmarked} />
             <ShareProjectButton href={`/p/${username}/${slug}`} />
           </div>
