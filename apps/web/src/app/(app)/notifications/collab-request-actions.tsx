@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import type { CollabRequestStatus } from "@cobuild/shared";
 import {
@@ -74,22 +74,20 @@ export function CollabRequestActions({
 }) {
   const [acceptState, acceptAction] = useActionState(acceptRequest, idle);
   const [declineState, declineAction] = useActionState(declineRequest, idle);
-  const [justResolved, setJustResolved] = useState<
-    Exclude<CollabRequestStatus, "pending"> | null
-  >(null);
 
-  useEffect(() => {
-    if (acceptState.ok) setJustResolved("accepted");
-  }, [acceptState]);
-
-  useEffect(() => {
-    if (declineState.ok) setJustResolved("declined");
-  }, [declineState]);
-
-  // Derived, not seeded into state: a `useState` initialiser only runs at
-  // mount, so a status arriving from a later server render would be shadowed
-  // by the stale initial value for as long as the component stays mounted.
-  const resolved = justResolved ?? (status && status !== "pending" ? status : null);
+  // Fully derived — no state and no effect. The action results are already the
+  // "just resolved" signal, and `status` is the server's view; mirroring either
+  // into `useState` would only add a copy that can go stale (a `useState`
+  // initialiser runs once, so a status from a later server render would be
+  // shadowed for as long as this stays mounted). Locally-resolved wins, since
+  // the click is newer than the render that produced `status`.
+  const resolved: Exclude<CollabRequestStatus, "pending"> | null = acceptState.ok
+    ? "accepted"
+    : declineState.ok
+      ? "declined"
+      : status && status !== "pending"
+        ? status
+        : null;
 
   if (resolved) {
     return (
