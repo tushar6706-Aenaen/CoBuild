@@ -371,6 +371,18 @@ fixed, not taken on the report's word.
       `collab_declined` (direction inverted, which is the point); `accept_collab_request` ⇒ status
       **and** credit row **with** `role_label` **and** credit notification, from one call.
       Residue verified zero afterwards
+- [x] **Lint run for the first time on this branch — and it is not in this project's gate.**
+      Standing rule 10 is typecheck + build; `turbo run lint` was never part of it, and it is
+      **already red on `main`** (13 problems / 6 errors). Measured across three trees: `main` 6
+      errors, `6e0bd15` (Phase 8 before these fixes) 10, this branch 8. So **Phase 8 introduced 4
+      `react-hooks` errors nobody saw**, and the 2026-08-18 fix pass introduced none. Two of the
+      four are now fixed (`collab-request-actions.tsx` — both effects deleted, the state they
+      mirrored is fully derived). The other two are deliberately left, in `request-to-join.tsx`:
+      its effects cannot be collapsed the same way, because `withdrawState.ok` stays true after a
+      withdrawal, so a naive derivation would report "withdrawn" for a *later* successful
+      request — breaking the withdraw-then-re-request cycle the partial unique index exists to
+      permit. Correcting it needs the blocked browser round-trip, so it is tracked, not changed
+      blind
 - [x] `turbo run typecheck` 4/4, `pnpm --filter web build` clean (20 routes), `check:invariants` OK
 - [ ] **Still not browser-verified.** These fixes are typechecked and built, not clicked through.
       `collab_requests` has 0 live rows, so the two new surfaces have never rendered with real

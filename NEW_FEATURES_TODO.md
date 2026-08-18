@@ -208,6 +208,11 @@ evidence in `CHECKLIST.md`'s "8.3" section. Summary:
 - [x] **A17 enforced**, not just commented — `pnpm check:invariants`, negative-controlled
 - [x] **P24–P26 positive controls** for all three notification links, against the live DB
 - [x] `turbo run typecheck` 4/4 · `pnpm --filter web build` clean (20 routes) · `check:invariants` OK
+- [~] **Lint is red, and was red before this branch** — `main` carries 6 errors, so it has never
+      been part of standing rule 10's gate. Phase 8 added 4 more without anyone noticing; 2 are
+      fixed, 2 are tracked (see `CHECKLIST.md` 8.3 for why `request-to-join.tsx` is left alone).
+      Worth a decision: either put `turbo run lint` in the gate and pay down the 8, or say
+      explicitly that it is advisory. Right now it is neither
 - [ ] **Browser-unverified.** `collab_requests` has 0 live rows; neither new surface has rendered
       with real data. Same human-blocked prerequisites as 8.2
 
