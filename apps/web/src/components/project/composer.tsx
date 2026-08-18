@@ -10,11 +10,14 @@ import {
   TITLE_MAX,
   PROJECT_STATUSES,
   PROJECT_VISIBILITIES,
+  LOOKING_FOR_OPTIONS,
+  LOOKING_FOR_LABELS,
   searchTags,
   findOrCreateTag,
   searchProfiles,
   type ProjectStatus,
   type ProjectVisibility,
+  type LookingFor,
   type TagOption,
   type CollaboratorOption,
 } from "@cobuild/shared";
@@ -25,7 +28,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MarkdownField } from "@/components/project/markdown-field";
-import { microLabel } from "@/components/ui/control-classes";
+import { microLabel, chipActive, chipInactive } from "@/components/ui/control-classes";
 
 type ImageSlot = {
   /** Stable key for React across reorder. */
@@ -52,6 +55,7 @@ export type ComposerInitial = {
   visibility: ProjectVisibility;
   images: { storagePath: string; url: string; alt: string; caption: string; width: number | null; height: number | null }[];
   tags: TagOption[];
+  lookingFor: LookingFor[];
   collaborators: { profileId: string | null; username: string | null; invitedName: string | null; roleLabel: string }[];
 };
 
@@ -107,6 +111,8 @@ export function Composer({
   const [tags, setTags] = useState<TagOption[]>(initial.tags);
   const [tagQuery, setTagQuery] = useState("");
   const [tagResults, setTagResults] = useState<TagOption[]>([]);
+
+  const [lookingFor, setLookingFor] = useState<LookingFor[]>(initial.lookingFor ?? []);
 
   const [crew, setCrew] = useState(initial.collaborators);
   const [crewQuery, setCrewQuery] = useState("");
@@ -322,6 +328,7 @@ export function Composer({
         height: i.height,
       })),
       tagIds: tags.map((t) => t.id),
+      lookingFor,
       collaborators: crew.map((c) => ({
         profileId: c.profileId,
         invitedName: c.invitedName,
@@ -365,6 +372,7 @@ export function Composer({
     coverIndex,
     images: images.map((i) => ({ p: i.storagePath, a: i.alt, c: i.caption })),
     tags: tags.map((t) => t.id),
+    lookingFor,
     crew: crew.map((c) => ({ p: c.profileId, n: c.invitedName, r: c.roleLabel })),
   });
   const initialSignature = useRef<string | null>(null);
@@ -618,6 +626,36 @@ export function Composer({
               </button>
             </div>
           )}
+        </div>
+
+        {/* Looking for */}
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-0.5">
+            <Label className={labelCls}>Looking for</Label>
+            <span className="text-[11.5px] text-[var(--color-text-tertiary)]">
+              Optional. Shows a chip on your project and lets people filter for it.
+            </span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {LOOKING_FOR_OPTIONS.map((option) => {
+              const active = lookingFor.includes(option);
+              return (
+                <button
+                  key={option}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() =>
+                    setLookingFor((prev) =>
+                      prev.includes(option) ? prev.filter((v) => v !== option) : [...prev, option],
+                    )
+                  }
+                  className={active ? chipActive : chipInactive}
+                >
+                  {LOOKING_FOR_LABELS[option]}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Status */}

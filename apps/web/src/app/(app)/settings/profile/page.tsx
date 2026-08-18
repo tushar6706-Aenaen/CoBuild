@@ -20,6 +20,8 @@ type ProfileRow = {
   grad_year: number | null;
   location: string | null;
   timezone: string | null;
+  open_to_collab: boolean;
+  weekly_hours_available: number | null;
   links: Record<string, string> | null;
 };
 
@@ -29,7 +31,9 @@ export default async function SettingsProfilePage() {
   const supabase = await createClient();
   const { data: profile } = await supabase
     .from("profiles")
-    .select("username, display_name, headline, bio, avatar_url, roles, is_student, college, grad_year, location, timezone, links")
+    .select(
+      "username, display_name, headline, bio, avatar_url, roles, is_student, college, grad_year, location, timezone, open_to_collab, weekly_hours_available, links",
+    )
     .eq("id", user.id)
     .maybeSingle<ProfileRow>();
 
@@ -49,6 +53,8 @@ export default async function SettingsProfilePage() {
           gradYear: profile?.grad_year ?? null,
           location: profile?.location ?? null,
           timezone: profile?.timezone ?? null,
+          openToCollab: profile?.open_to_collab ?? false,
+          weeklyHoursAvailable: profile?.weekly_hours_available ?? null,
           links: profile?.links ?? {},
         }}
       />

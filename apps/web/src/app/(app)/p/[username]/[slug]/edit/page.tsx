@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import { getProjectDetail, publicStorageUrl } from "@cobuild/shared";
+import { getProjectDetail, publicStorageUrl, parseLookingFor } from "@cobuild/shared";
 import { createClient } from "@/lib/supabase/server";
 import { requireOnboardedUser } from "@/lib/auth/session";
 import { Composer } from "@/components/project/composer";
@@ -48,6 +48,7 @@ export default async function EditProjectPage({
           height: img.height,
         })),
         tags: project.tags,
+        lookingFor: parseLookingFor(project.looking_for),
         collaborators: project.collaborators.map((c) => ({
           profileId: c.profile_id,
           username: c.profile?.username ?? null,

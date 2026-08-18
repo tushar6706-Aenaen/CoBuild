@@ -33,6 +33,7 @@ export default async function NewProjectPage() {
         visibility: "public",
         images: [],
         tags: [],
+        lookingFor: [],
         collaborators: [],
       }}
     />

@@ -7,22 +7,29 @@ import {
   getProjectComments,
   getViewerProjectState,
   getViewerCommentVotes,
+  getViewerCollabRequest,
+  getProjectCollabRequests,
   collectCommentIds,
   isFollowing,
   publicStorageUrl,
   transformedStorageUrl,
+  LOOKING_FOR_LABELS,
+  type LookingFor,
 } from "@cobuild/shared";
 import { createClient } from "@/lib/supabase/server";
 import { getAuthState } from "@/lib/auth/session";
+import { chip } from "@/components/ui/control-classes";
 import { Markdown } from "@/components/markdown";
 import { VoteButton } from "@/components/project/vote-button";
 import { BookmarkButton } from "@/components/project/bookmark-button";
 import { ShareProjectButton } from "@/components/project/share-button";
 import { FollowButton } from "@/components/project/follow-button";
+import { RequestToJoinButton } from "@/components/project/request-to-join";
 import { Gallery, type GalleryImage } from "./gallery";
 import { Comments } from "./comments";
 import { ViewTracker } from "./view-tracker";
 import { DeleteProjectButton } from "./delete-button";
+import { CollabRequests } from "./collab-requests";
 
 const STATUS_STYLE: Record<string, { label: string; color: string }> = {
   shipped: { label: "Shipped", color: "var(--color-status-shipped)" },
@@ -81,15 +88,27 @@ export default async function ProjectDetailPage({
   const { user: viewer } = await getAuthState();
   const isAuthor = viewer?.id === project.author.id;
 
-  const [comments, viewerState, viewerFollowsAuthor] = await Promise.all([
-    getProjectComments(supabase, project.id),
-    viewer
-      ? getViewerProjectState(supabase, project.id, viewer.id)
-      : Promise.resolve({ voted: false, bookmarked: false }),
-    viewer && !isAuthor
-      ? isFollowing(supabase, viewer.id, project.author.id)
-      : Promise.resolve(false),
-  ]);
+  const wantsCollaborators = project.looking_for.length > 0;
+
+  const [comments, viewerState, viewerFollowsAuthor, viewerCollabRequest, collabRequests] =
+    await Promise.all([
+      getProjectComments(supabase, project.id),
+      viewer
+        ? getViewerProjectState(supabase, project.id, viewer.id)
+        : Promise.resolve({ voted: false, bookmarked: false }),
+      viewer && !isAuthor
+        ? isFollowing(supabase, viewer.id, project.author.id)
+        : Promise.resolve(false),
+      viewer && !isAuthor && wantsCollaborators
+        ? getViewerCollabRequest(supabase, project.id, viewer.id)
+        : Promise.resolve(null),
+      // Author only. `collab_requests_select` would return the viewer's own
+      // request here too, so the guard is about not running a query nobody
+      // will read, not about authorization.
+      isAuthor ? getProjectCollabRequests(supabase, project.id) : Promise.resolve([]),
+    ]);
+
+  const pendingCollabRequests = collabRequests.filter((r) => r.status === "pending");
 
   // Keyed off the comment tree, so this can't join the Promise.all above.
   const votedCommentIds = viewer
@@ -144,6 +163,13 @@ export default async function ProjectDetailPage({
               <span className="text-[11.5px] text-[var(--color-text-tertiary)]">
                 {project.view_count.toLocaleString()} views · posted {timeAgo(project.published_at ?? project.created_at)}
               </span>
+              {project.looking_for.length > 0 && (
+                <span
+                  className={`${chip} border-[var(--color-accent)]/25 bg-[var(--color-accent)]/12 text-[var(--color-accent-muted)]`}
+                >
+                  Looking for {project.looking_for.map((v) => LOOKING_FOR_LABELS[v as LookingFor] ?? v).join(", ")}
+                </span>
+              )}
             </div>
 
             <h1 className="text-[29px] leading-tight font-medium tracking-tight">{project.title}</h1>
@@ -191,6 +217,15 @@ export default async function ProjectDetailPage({
               </a>
             )}
             <div className="flex-1" />
+            {!isAuthor && wantsCollaborators && (
+              <RequestToJoinButton
+                projectId={project.id}
+                projectPath={`/p/${username}/${slug}`}
+                viewerId={viewer?.id ?? null}
+                initialRequestId={viewerCollabRequest?.id ?? null}
+                initialStatus={viewerCollabRequest?.status ?? null}
+              />
+            )}
             <BookmarkButton projectId={project.id} viewerId={viewer?.id ?? null} initialBookmarked={viewerState.bookmarked} />
             <ShareProjectButton href={`/p/${username}/${slug}`} />
           </div>
@@ -214,6 +249,13 @@ export default async function ProjectDetailPage({
               <h2 className="text-[19px] font-bold tracking-tight">About this project</h2>
               <Markdown content={project.description} />
             </div>
+          )}
+
+          {isAuthor && (
+            <CollabRequests
+              requests={pendingCollabRequests}
+              avatarUrl={(path) => publicStorageUrl(supabase, "avatars", path)}
+            />
           )}
 
           {project.collaborators.length > 0 && (

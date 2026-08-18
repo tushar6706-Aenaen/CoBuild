@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getNotifications } from "@cobuild/shared";
+import { getNotifications, getCollabRequestSummaries, collabRequestKey } from "@cobuild/shared";
 import { createClient } from "@/lib/supabase/server";
 import { requireOnboardedUser } from "@/lib/auth/session";
 import { NotificationRow } from "./notification-row";
@@ -14,6 +14,17 @@ export default async function NotificationsPage() {
   const supabase = await createClient();
   const notifications = await getNotifications(supabase, user.id);
   const hasUnread = notifications.some((n) => !n.read);
+
+  // `collab_request` is the only row type whose payload — the requester's
+  // pitch — isn't reachable from `getNotifications`' embeds, and the only one
+  // carrying controls that must not stay live after the request is resolved.
+  // One extra query covers both, and only runs when such a row is on the page.
+  const collabSummaries = await getCollabRequestSummaries(
+    supabase,
+    notifications
+      .filter((n) => n.type === "collab_request" && n.actor_id && n.project_id)
+      .map((n) => ({ projectId: n.project_id!, requesterId: n.actor_id! })),
+  );
 
   return (
     <div className="flex max-w-[720px] flex-col gap-[18px]">
@@ -46,7 +57,15 @@ export default async function NotificationsPage() {
       ) : (
         <div className="flex flex-col gap-2">
           {notifications.map((n) => (
-            <NotificationRow key={n.id} notification={n} />
+            <NotificationRow
+              key={n.id}
+              notification={n}
+              collab={
+                n.actor_id && n.project_id
+                  ? collabSummaries.get(collabRequestKey(n.project_id, n.actor_id))
+                  : undefined
+              }
+            />
           ))}
         </div>
       )}

@@ -1,5 +1,10 @@
 import Link from "next/link";
-import type { ProjectStatus, TagHit } from "@cobuild/shared";
+import {
+  LOOKING_FOR_OPTIONS,
+  LOOKING_FOR_LABELS,
+  type ProjectStatus,
+  type TagHit,
+} from "@cobuild/shared";
 import { chipActive, chipInactive, microLabel } from "@/components/ui/control-classes";
 
 export const STATUS_LABELS: Record<ProjectStatus, string> = {
@@ -11,29 +16,40 @@ export const STATUS_LABELS: Record<ProjectStatus, string> = {
 const on = chipActive;
 const off = chipInactive;
 
+type SearchFacetKey = "status" | "tag" | "looking_for";
+
+type SearchBase = {
+  q: string;
+  statuses: readonly string[];
+  tags: readonly string[];
+  lookingFor: readonly string[];
+};
+
 /**
  * Builds the URL for toggling one facet value, preserving every other param.
  * Plain links rather than client-side state so the filter row costs no JS and
  * every filtered view is a real, shareable URL.
  */
-function toggleHref(
-  base: { q: string; statuses: readonly string[]; tags: readonly string[] },
-  key: "status" | "tag",
-  value: string,
-) {
+function toggleHref(base: SearchBase, key: SearchFacetKey, value: string) {
   const params = new URLSearchParams();
   if (base.q) params.set("q", base.q);
 
-  const current = key === "status" ? base.statuses : base.tags;
-  const other = key === "status" ? base.tags : base.statuses;
-  const otherKey = key === "status" ? "tag" : "status";
+  const facets: Record<SearchFacetKey, readonly string[]> = {
+    status: base.statuses,
+    tag: base.tags,
+    looking_for: base.lookingFor,
+  };
 
-  const next = current.includes(value)
-    ? current.filter((v) => v !== value)
-    : [...current, value];
-
-  for (const v of next) params.append(key, v);
-  for (const v of other) params.append(otherKey, v);
+  for (const paramKey of Object.keys(facets) as SearchFacetKey[]) {
+    const values = facets[paramKey];
+    const next =
+      paramKey === key
+        ? values.includes(value)
+          ? values.filter((v) => v !== value)
+          : [...values, value]
+        : values;
+    for (const v of next) params.append(paramKey, v);
+  }
 
   const qs = params.toString();
   return qs ? `/search?${qs}` : "/search";
@@ -50,14 +66,16 @@ export function SearchFilters({
   q,
   statuses,
   tags,
+  lookingFor,
   tagOptions,
 }: {
   q: string;
   statuses: readonly ProjectStatus[];
   tags: readonly string[];
+  lookingFor: readonly string[];
   tagOptions: TagHit[];
 }) {
-  const base = { q, statuses, tags };
+  const base: SearchBase = { q, statuses, tags, lookingFor };
   const selectedMissing = tags.filter((t) => !tagOptions.some((o) => o.slug === t));
   const options: TagHit[] = [
     ...tagOptions,
@@ -92,7 +110,18 @@ export function SearchFilters({
         </Link>
       ))}
 
-      {(statuses.length > 0 || tags.length > 0) && (
+      {LOOKING_FOR_OPTIONS.map((v) => (
+        <Link
+          key={`looking-for-${v}`}
+          href={toggleHref(base, "looking_for", v)}
+          aria-pressed={lookingFor.includes(v)}
+          className={lookingFor.includes(v) ? on : off}
+        >
+          {LOOKING_FOR_LABELS[v]}
+        </Link>
+      ))}
+
+      {(statuses.length > 0 || tags.length > 0 || lookingFor.length > 0) && (
         <Link
           href={q ? `/search?q=${encodeURIComponent(q)}` : "/search"}
           className="px-1 text-xs text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)]"

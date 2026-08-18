@@ -12,6 +12,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getAuthState } from "@/lib/auth/session";
 import { ProjectCard, type ProjectCardData } from "@/components/project/project-card";
 import { FeedLoadMore } from "../../feed-load-more";
+import { feedResetKey } from "../../feed-key";
 import { TagTabs, TAG_TAB_KEYS, type TagTab } from "./tag-tabs";
 import { FollowTagButton } from "./follow-tag-button";
 
@@ -81,6 +82,7 @@ export default async function TagPage({
       comment_count: item.comment_count,
       view_count: item.view_count,
       published_at: item.published_at,
+      looking_for: item.looking_for,
       author: item.author,
       tags: item.tags,
     };
@@ -132,6 +134,7 @@ export default async function TagPage({
               />
             ))}
             <FeedLoadMore
+              key={feedResetKey({ tab, window: "all", tag: slug })}
               tab={tab}
               window="all"
               viewerId={viewer?.id ?? null}

@@ -18,7 +18,7 @@ import { getAuthState } from "@/lib/auth/session";
 import { FollowButton } from "@/components/project/follow-button";
 import { ShareButton } from "./share-button";
 import { ProjectTileCard } from "./project-tile";
-import { pillActive, pillInactive, microLabel } from "@/components/ui/control-classes";
+import { pillActive, pillInactive, microLabel, chip } from "@/components/ui/control-classes";
 
 type Tab = "projects" | "contributions" | "bookmarks";
 
@@ -167,6 +167,16 @@ export default async function ProfilePage({
                 <span className="rounded border border-[var(--color-border-default)] bg-[var(--color-bg-raised)] px-2.5 py-1 text-[11.5px] text-[var(--color-text-secondary)]">
                   {profile.location}
                   {profile.timezone ? ` · ${profile.timezone}` : ""}
+                </span>
+              )}
+              {profile.open_to_collab && (
+                <span
+                  className={`${chip} border-[var(--color-status-shipped)]/28 bg-[var(--color-status-shipped)]/12 text-[var(--color-status-shipped)]`}
+                >
+                  Open to collaborate
+                  {profile.weekly_hours_available
+                    ? ` · ~${profile.weekly_hours_available} hrs/week`
+                    : ""}
                 </span>
               )}
             </div>

@@ -1,7 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import { transformedStorageUrl, IMAGE_SIZES } from "@cobuild/shared";
+import { transformedStorageUrl, IMAGE_SIZES, LOOKING_FOR_LABELS, type LookingFor } from "@cobuild/shared";
 import { storageUrl } from "@/lib/storage-url";
+import { chip } from "@/components/ui/control-classes";
 import { VoteButton } from "./vote-button";
 import { BookmarkButton } from "./bookmark-button";
 import { ShareProjectButton } from "./share-button";
@@ -24,6 +25,7 @@ export type ProjectCardData = {
   comment_count: number;
   view_count: number;
   published_at: string | null;
+  looking_for: string[];
   author: { username: string | null; display_name: string | null; avatar_url: string | null };
   tags: { slug: string; name: string }[];
 };
@@ -130,6 +132,14 @@ export function ProjectCard({
               </Link>
             ))}
           </div>
+        )}
+
+        {project.looking_for.length > 0 && (
+          <span
+            className={`${chip} w-fit border-[var(--color-accent)]/25 bg-[var(--color-accent)]/12 text-[var(--color-accent-muted)]`}
+          >
+            Looking for {project.looking_for.map((v) => LOOKING_FOR_LABELS[v as LookingFor] ?? v).join(", ")}
+          </span>
         )}
 
         <AuthorHoverCard username={username} avatarUrl={avatar} timeAgo={timeAgo(project.published_at)} />

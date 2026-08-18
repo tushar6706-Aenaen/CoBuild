@@ -33,6 +33,8 @@ type InitialProfile = {
   gradYear: number | null;
   location: string | null;
   timezone: string | null;
+  openToCollab: boolean;
+  weeklyHoursAvailable: number | null;
   links: Record<string, string>;
 };
 
@@ -109,6 +111,7 @@ export function SettingsForm({ userId, initial }: { userId: string; initial: Ini
 
   const [roles, setRoles] = useState<Set<string>>(new Set(initial.roles.filter((r) => r !== "student")));
   const [isStudent, setIsStudent] = useState(initial.isStudent);
+  const [openToCollab, setOpenToCollab] = useState(initial.openToCollab);
 
   // Controlled purely so the counters can read length. The server truncates at
   // the same caps; `maxLength` is what stops the text being lost in the first
@@ -379,6 +382,31 @@ export function SettingsForm({ userId, initial }: { userId: string; initial: Ini
             <div className="grid grid-cols-[1fr_130px] gap-2.5">
               <Input name="college" placeholder="College" defaultValue={initial.college ?? ""} maxLength={COLLEGE_MAX} className="rounded-[var(--radius-control)] border-[var(--color-border-default)] bg-[var(--color-bg-input)] py-3 text-sm" />
               <Input name="gradYear" placeholder="Year" type="number" defaultValue={initial.gradYear ?? undefined} className="rounded-[var(--radius-control)] border-[var(--color-border-default)] bg-[var(--color-bg-input)] py-3 text-sm" />
+            </div>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-3.5 pt-1">
+          <div className="flex items-center justify-between gap-3.5">
+            <div className="flex flex-col gap-0.5">
+              <span className="text-[13.5px] font-semibold">Open to collaborate</span>
+              <span className="text-xs text-[var(--color-text-tertiary)]">Shows an availability chip on your profile</span>
+            </div>
+            <Switch name="openToCollab" checked={openToCollab} onCheckedChange={setOpenToCollab} className="data-[state=checked]:bg-[var(--color-accent)]" />
+          </div>
+          {openToCollab && (
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="weeklyHours" className="text-[12.5px] font-semibold text-[var(--color-text-secondary-alt)]">
+                Hours available per week
+              </Label>
+              <Input
+                id="weeklyHours"
+                name="weeklyHours"
+                type="number"
+                defaultValue={initial.weeklyHoursAvailable ?? ""}
+                placeholder="Optional"
+                className="rounded-[var(--radius-control)] border-[var(--color-border-default)] bg-[var(--color-bg-input)] py-3 text-sm"
+              />
             </div>
           )}
         </div>

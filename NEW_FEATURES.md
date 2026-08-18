@@ -2,6 +2,9 @@
 
 Companion files: [PROJECT_INFO.md](PROJECT_INFO.md) · [WEB_APP_PLAN.md](WEB_APP_PLAN.md) · [CHECKLIST.md](CHECKLIST.md) · [MOBILE_APP_PLAN.md](MOBILE_APP_PLAN.md)
 
+**Working tracker: [NEW_FEATURES_TODO.md](NEW_FEATURES_TODO.md)** — this file is the *why*; that
+one is *where we are*. Update it as work lands.
+
 Everything in `WEB_APP_PLAN.md` Phases 0–6 is the *product*. This file is what makes it
 **outstanding** — the features that separate CoBuild from "a Reddit clone for projects".
 Same agent-assignment rules as the web plan: Sonnet owns broken-button bugs, Opus owns
@@ -29,13 +32,16 @@ Three groups, in this order, for a reason:
 
 ---
 
-## One thing that already exists and is unused
+## One thing that already existed and was unused (now finished — see Phase 8)
 
-`profiles.open_to_collab` (boolean) and `profiles.weekly_hours_available` (int) are in the
-live schema and populated by `packages/db/src/seed/seed.ts`, but **nothing reads or writes
-them**: they're absent from `PROFILE_COLUMNS` in `packages/shared/src/profiles.ts:34`, from
-the profile page, and from `/settings/profile`. The data model for collaboration is half-built
-already. Phase 8 finishes it rather than inventing it.
+`profiles.open_to_collab` (boolean) and `profiles.weekly_hours_available` (int) were in the
+live schema before Phase 8 started, but at that point **nothing read or wrote them, and nothing
+populated them either** — this section originally claimed they were "populated by
+`packages/db/src/seed/seed.ts`", which was false when written: neither column appeared anywhere
+in the seed script, and all 35 seeded profiles sat at the defaults (`false` / `null`). Phase 8
+Task 6 corrected the seed (a scoped, seeded `mulberry32` PRNG now assigns both to ~1/3 of
+profiles) and Task 1 wired them into `PROFILE_COLUMNS`, the profile page, and
+`/settings/profile`. The data model for collaboration was half-built; Phase 8 finished it.
 
 ---
 
@@ -128,10 +134,21 @@ client-writable, same guard pattern as the other counters).
 
 ---
 
-## Phase 8 — Collaboration ("Looking for")
+## Phase 8 — Collaboration ("Looking for") — **CODE-COMPLETE**
 
 The product is named CoBuild and is currently one-way. This is the defensible difference:
 Devpost, Dribbble, and Product Hunt are all pure showcases.
+
+All three slices (8.0 availability signals, 8.1 `looking_for` on projects, 8.2 request-to-join)
+are built and their evidence is in [CHECKLIST.md](CHECKLIST.md). **Read that evidence before
+assuming "complete" means "browser-verified everywhere":** 8.1 has full live browser evidence;
+8.0's `/settings/profile` write path and 8.2's two-account request/accept/decline/withdraw
+round-trip have not been run in a browser, both blocked on actions only a human can take. 8.2's
+adversarial RLS suite (Task 8) found and fixed a real security hole — both trigger functions
+shipped `SECURITY DEFINER` and were completely inert — full record in
+`docs/superpowers/evidence/2026-08-11-phase-8-collab-rls.md`. Design decisions and the one
+correction to this plan's own gotchas are in
+[docs/superpowers/specs/2026-08-11-phase-8-collaboration-design.md](docs/superpowers/specs/2026-08-11-phase-8-collaboration-design.md).
 
 | Task | Agent | Why |
 |---|---|---|
@@ -169,7 +186,7 @@ they *don't* have something to post.
 **Gotchas (Opus):**
 - This is the first path where a stranger writes a row that a project owner reads. RLS: requester can insert and read/withdraw their own; owner can read and update status on requests to *their* projects; nobody else can read either side. Test adversarially with real JWTs, the way Phase 2's bookmarks tab was tested.
 - Rate-limit at the DB level, not the UI — an unauthenticated-adjacent write path with a free-text field is a spam vector. `reports` exists but has no moderation queue behind it yet (see Backlog).
-- Accepting must not let the requester write to `projects`; collaborator ≠ editor unless you decide it is. **Open decision below.**
+- Accepting must not let the requester write to `projects`; collaborator ≠ editor unless you decide it is. **Decision #2 below was answered: credit-only, as shipped.**
 
 ---
 
@@ -255,7 +272,7 @@ reason to return and a badge worth competing for — which in turn drives postin
 ## Open decisions (need your call before the relevant phase starts)
 
 1. **GitHub verification mechanism (Phase 10)** — a GitHub App installation (durable, higher trust, more setup) vs. capturing `provider_token` at OAuth sign-in and verifying immediately in that window (simpler, one-shot, can't refresh later). This decides the whole shape of Phase 10.
-2. **Does an accepted collaborator get edit rights (Phase 8)?** Currently `project_collaborators` is credit-only. Editing means new RLS on `projects` and on the storage prefix, which is currently `{userId}/{projectId}/…` — a co-editor's uploads would land under a different user prefix. Non-trivial; credit-only is the safe default.
+2. **Does an accepted collaborator get edit rights (Phase 8)? ANSWERED: no — credit-only, as shipped.** `project_collaborators` is credit-only in the live schema; zero changes were made to any existing RLS policy. This entry previously warned that editing would require re-keying the `{userId}/{projectId}/…` storage prefix and updating the orphan-cleanup function — **both of those costs were checked against the live database during Phase 8's design and are false.** Storage needs no re-keying: the `project-media` policies scope writes to `(storage.foldername(name))[1] = auth.uid()`, so a co-editor uploading to `{theirOwnUserId}/{projectId}/{uuid}.webp` already satisfies the existing INSERT policy under their own prefix. `orphaned_project_media()` needs no change either: it does not derive ownership from the prefix, only filtering on folder depth and matching `project_images.storage_path`/`projects.cover_image_path` exactly — a co-editor's upload satisfies both and is never reported as an orphan. The real cost, for a future edit-rights phase: one new `private.can_edit_project()` helper swapped into the write policies of `projects`, `project_images`, and `project_tags`, with `projects` DELETE and all of `project_collaborators` deliberately left on `is_project_author` as the privilege-escalation guard. See the design spec's "Corrections to NEW_FEATURES.md's stated gotchas" for the full investigation.
 3. **Email provider (Phase 11)** — Resend is the obvious fit with Supabase Edge Functions. Confirm before the digest work starts.
 4. **Do devlog updates affect ranking (Phase 9)?** Recommendation: no.
 5. **Mobile parity** — none of Phase 7–11 is in `MOBILE_APP_PLAN.md`. Decide whether mobile ships Phases 0–6 parity first (recommended) or tracks these as they land.
@@ -276,13 +293,17 @@ Mirror into [CHECKLIST.md](CHECKLIST.md) once a phase starts.
 - [ ] Following feed unions people + tags, dedup verified, pagination re-verified at scale
 - [ ] Opus review: public-read paths filter `visibility='public'`, SVG escaping, cursor correctness
 
-### Phase 8 — Collaboration
-- [ ] `looking_for` on projects + composer + card chip
-- [ ] Feed + search facet
-- [ ] `open_to_collab` / `weekly_hours_available` surfaced in settings + profile
-- [ ] `collab_requests` table + RLS + rate limit
-- [ ] Request → notification → accept/decline → `project_collaborators`
-- [ ] Opus review: adversarial RLS with real JWTs on both sides of the request
+### Phase 8 — Collaboration — code-complete; see `CHECKLIST.md` for full evidence
+- [x] `looking_for` on projects + composer + card chip
+- [x] Feed + search facet
+- [x] `open_to_collab` / `weekly_hours_available` surfaced in settings + profile
+- [x] `collab_requests` table + RLS + rate limit
+- [x] Request → notification → accept/decline → `project_collaborators`
+- [x] Opus review: adversarial RLS with real JWTs on both sides of the request — found and fixed
+      a real security hole (both trigger functions shipped `SECURITY DEFINER` and were inert);
+      re-run after the fix GATE PASS (23 attacks, 22 blocked, 1 accepted gap, 9 positive controls)
+- [ ] Still open, human-blocked: live two-account browser round-trip (8.2) and the
+      `/settings/profile` write path (8.0) have not been verified in a browser
 
 ### Phase 9 — Devlogs
 - [ ] `project_updates` (+ images table) + RLS

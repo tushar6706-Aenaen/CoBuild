@@ -167,6 +167,243 @@ See [NEW_FEATURES.md](NEW_FEATURES.md) for the "why" behind each item.
   - [x] `og:image` meta resolves to the generated route at 1200×630 `image/png`, so the manual-`openGraph.images` override gotcha still holds. Note the real URL carries a per-route hash (`opengraph-image-y3nwlq`); the bare `/opengraph-image` path 404s
   - [ ] **One transient miss worth knowing about:** the very first render of one card came back coverless (55kB vs 119kB for the identical URL moments later) with no error surfaced. Not reproducible — 8/8 subsequent cold renders were fine, and cold transforms measure ~0.7s against `fetchOgImage`'s 3s timeout, so the timeout is not demonstrably the cause and was left alone. It matters anyway because `fetchOgImage` returns `null` on *any* failure by design, and social platforms cache the first response they get — so one blip on a project's first share caches a coverless card indefinitely. A single retry is the cheap mitigation; not added without evidence of the cause
 
+### Phase 8 — Collaboration ("Looking for")
+Migrations (filenames corrected in Task 10 — see the note at the end of this section; contents
+byte-unchanged): `20260811082728_add_projects_looking_for`, `20260811085500_feed_page_looking_for`,
+`20260811085656_search_projects_looking_for`, `20260811100818_add_collab_requests`,
+`20260811102131_project_collaborators_unique_credit`, `20260811104338_collab_requests_guard_invoker`.
+
+**Honest top line: 8.0 and 8.2 are code-complete but not end-to-end browser-verified. 8.1 is the
+only slice with full live browser evidence.** Details and exactly what *is* confirmed for each
+are below — do not read any `[x]` in this section as "verified in a browser" unless it says so.
+
+#### 8.0 — Availability signals (`open_to_collab`, `weekly_hours_available`)
+- [x] Both columns added to `PROFILE_COLUMNS` (`packages/shared/src/profiles.ts:35`)
+- [x] `/settings/profile`: toggle for `open_to_collab`, number input for `weekly_hours_available`,
+      server-side clamp (`WEEKLY_HOURS_MIN`–`WEEKLY_HOURS_MAX`; blank/out-of-range/unparseable all
+      collapse to `null` rather than erroring)
+- [x] `/u/[username]` chip — "Open to collaborate · ~N hrs/week", hours clause omitted when null
+- [x] Confirmed live via `execute_sql` that `profiles_guard_client_columns()` does **not** pin
+      either column — it only re-pins `id`/counters/`created_at`
+- [x] **Bug found by testing, not reading**: native `min`/`max` on the hours input triggered
+      whole-form HTML5 validation, blocking submission of unrelated edits too — contradicted the
+      "soft signal, not a gate" requirement. Fixed by removing `min`/`max` and keeping the
+      server-side clamp (commit `bd01639`)
+- [x] Profile chip **render path** verified live, in a visible browser tab on a production build,
+      both variants — `open_to_collab=true, hours=15` → "Open to collaborate · ~15 hrs/week";
+      `hours=null` → bare "Open to collaborate" — see the 8.1 evidence file below
+- [ ] **Not verified live**: the settings form *write* path itself (toggle, hours input, save,
+      toast). Deferred when this slice first landed and never re-confirmed in a later browser
+      session — still open
+
+#### 8.1 — "Looking for" on projects
+- [x] `projects.looking_for text[]` + CHECK constraint + partial GIN index
+- [x] `feed_page` extended with `p_looking_for` (OR-matches; pure filter, doesn't enter the sort
+      tuple or the keyset cursor) — precedent from Phase 5's `p_tag`, not a forked RPC
+- [x] `search_projects` extended with `p_looking_for` the same way
+- [x] Composer UI (`/new`, `/p/[username]/[slug]/edit`) — toggleable chip row, 0–4 values
+- [x] `ProjectCard` chip — stayed in the Server Component part (the card's client islands exist
+      so a feed page ships one card's worth of JS, not one per card; a static "Looking for …"
+      string doesn't belong in one)
+- [x] Project detail page chip, next to the status/visibility badges
+- [x] Feed filter (`/`, `?looking_for=`) — `FeedTabs` renders toggle links built fresh from
+      `{tab, window, lookingFor}` per request (no patched `location.search`), so tab/window
+      switches now preserve the filter and there is no way for a stray param to ride along
+- [x] `FeedLoadMore` threads the same `lookingFor` through client-side pagination
+- [x] Search facet row on `/search` (`SearchFilters`) — generalized the existing 2-facet
+      `toggleHref` (status/tag) to a 3rd facet rather than forking it
+- [x] Seed: `packages/db/src/seed/seed.ts` assigns `looking_for` to ~1/3 of projects (1–2 values,
+      drawn from `co-builder`/`feedback`/`beta-testers`/`designer`), and — closing the 8.0 gap —
+      now also assigns `open_to_collab`/`weekly_hours_available` to ~1/3 of profiles. Both draws
+      go through a small seeded `mulberry32` PRNG added for this purpose; the rest of the file is
+      unchanged and still runs on `Math.random()`/unseeded `faker`
+- [x] **Seed run** — 30 profiles / 80 projects. `looking_for`: 57 `(none)`, 6 `co-builder`, 4
+      `feedback`, 7 `beta-testers`, 6 `designer`, 5 with two values — all four values represented,
+      `(none)` the majority as intended. `open_to_collab`: 10/30 true (7 with an hours value, 3
+      null — both states of the "available, hours unspecified" chip present)
+- [x] **Full live browser verification — PASS**
+      (`docs/superpowers/evidence/2026-08-11-phase-8-slice-8.1-browser.md`, commits
+      `c627595..5e9ec02`, run in a visible tab against a production build):
+  - [x] Feed filter `/?looking_for=designer` — DOM extraction over every card: 9 rendered = 9 in
+        SQL, all 9 carry "Designer" including the two multi-value cards, confirming `&&` overlap
+        rather than equality
+  - [x] Composer round-trip (the path with **no** automated guard, since `saveProjectAction` takes
+        `payload: unknown`): real mouse clicks selected Co-builder + Designer, wrote
+        `looking_for = ["co-builder","designer"]` to the DB, and reopening the edit page read both
+        chips back `aria-pressed="true"`. Test draft deleted afterwards, 0 leftover rows
+  - [x] Search facet: `q=app&looking_for=designer` → 0 cards, confirmed correct (not broken) by
+        matching the RPC's own 0; `q=track&looking_for=designer` → 2 cards, matching the RPC's 2
+  - [x] Profile availability chip — both variants (see 8.0 above)
+- [x] `turbo run typecheck` (4/4 packages) + `pnpm --filter web build` clean (20 routes)
+- [x] Found (pre-existing, **not** a Phase 8 regression, logged for triage — see the end of this
+      section): `composer.tsx:379` captures the `beforeunload` dirty-check baseline once and never
+      refreshes it after a save, so the form is permanently dirty and prompts spuriously on every
+      navigation after any edit. Phase 6 tranche A's guard; line 383 disarms it during the save
+      itself, so saves themselves are never blocked — only the post-save prompt is spurious
+
+#### 8.2 — Request to join
+- [x] `collab_requests(id, project_id, requester_id, message, status, created_at, updated_at)` +
+      RLS: requester can insert/read/withdraw own; author can read/update status on requests to
+      their own projects; nobody else reads either side; no DELETE policy (withdrawal is a status
+      change, not a delete) — DELETE withheld at the GRANT level, stronger than RLS
+- [x] Partial unique index `collab_requests_one_pending` — one pending request per
+      (project, requester); partial on purpose so a decline doesn't permanently block a
+      better-argued retry
+- [x] Status-transition guard trigger (BEFORE UPDATE) + 10-per-24h rate-limit trigger
+      (BEFORE INSERT) + `notify_on_collab_request` (types `collab_request`, `collab_declined` —
+      **no** `collab_accepted`; see the spec correction below)
+- [x] `accept_collab_request(p_request_id, p_role_label)` — SECURITY INVOKER, atomic status flip +
+      `project_collaborators` insert with `on conflict do nothing` against Task 7's partial unique
+      index (`project_collaborators_project_profile_uniq`)
+- [x] Data layer `packages/shared/src/collab.ts` (7 functions) + UI: `request-to-join.tsx`,
+      `collab-actions.ts`, accept/decline inline on the `/notifications` collab_request row
+- [x] **Security bug found by adversarial RLS testing, not by reading.** Both
+      `collab_requests_guard()` and `collab_requests_rate_limit()` shipped as `SECURITY DEFINER`,
+      which made **both triggers completely inert for every real caller since creation** — inside
+      a DEFINER function `current_user` is the function owner (`postgres`), so the guards' own
+      `current_user not in ('anon','authenticated')` early-return always fired. Live attacks
+      confirmed all five holes this opened: requester self-accept/self-decline of their own
+      request, an author rewriting the requester's message and backdating `created_at` (and even
+      the primary key), a `declined → accepted` reopen, the 10-per-24h rate limit never firing,
+      and a requester repointing a request onto a project they cannot see. Fixed in
+      `20260811104338_collab_requests_guard_invoker.sql` (commit `3729db4`) by dropping the
+      SECURITY clause only — the two function bodies were proven byte-identical to the originals
+      by md5 across file, migration, and live `prosrc`. **This passed two rounds of code review
+      before the live-attack suite caught it.** Full record:
+      `docs/superpowers/evidence/2026-08-11-phase-8-collab-rls.md`
+- [x] **Adversarial RLS suite re-run against the fix — GATE PASS.** 23 attacks: 22 blocked as
+      expected, 1 expected/accepted success (an author can bypass the RPC via a direct PATCH and
+      end up with `status='accepted'` and no credit row — by design, since the guard must permit
+      the author's `pending → accepted` for the SECURITY INVOKER RPC to work at all; the
+      mitigation is that the server action must call the RPC exclusively and never write `status`
+      directly, and Task 9's reviewer independently confirmed this is true by tracing every write
+      to `status` in the diff), 0 surprises. Plus 9 positive controls proving no over-blocking
+      (rate limit allows exactly 10 requests, not 9) and 2 independent confirmations: the
+      rate-limit count stays complete under RLS even when 3 of 9 requested-against projects are
+      flipped to draft mid-transaction (9 counted, only 6 still visible), and
+      `private.is_project_author` resolves correctly from the now-INVOKER trigger in all three
+      directions (non-author/author/third-party)
+- [x] **Bug found by testing, not reading (Task 9)**: the inherited `requestToJoin` action never
+      returned the new request's id, so the `status === "pending" && requestId` render gate fell
+      through to the "Request to join" branch immediately after a successful send. Fixed by
+      reading back via `getViewerCollabRequest` and gating on status alone (commit `1aed241`)
+- [x] `turbo run typecheck` (4/4) + `pnpm --filter web build` clean (20 routes)
+- [ ] **NOT verified end-to-end in a live browser — this is genuinely outstanding.** The
+      two-account request → accept/decline/withdraw round-trip has not been run. It is blocked on
+      two things only a human can do: foregrounding the automation tab (a hidden tab never fires
+      `requestAnimationFrame`, so the page never hydrates and forms native-POST instead) and
+      running `auth.admin.generateLink` with the service-role key to sign in as a second account.
+      **What IS confirmed for 8.2**: the adversarial RLS suite above (23 attacks, 22 blocked, 1
+      expected success, 9 positive controls), `typecheck`, the production build, and a static
+      check that `/p/leviwunsch426/sprout` renders the "Request to join" control for a signed-in
+      non-author and the "Looking for Co-builder, Feedback" chip. **Do not read any of the above
+      as end-to-end verification of the request/accept/decline/withdraw flow — it is not.**
+- [~] Ten Minor findings from Task 9's review — full list in
+      `.superpowers/sdd/2026-08-11-phase-8-collaboration/progress.md`. One of the two named here is
+      now **fixed**: `revalidatePath()` with a client-supplied path was promoted to Important by
+      the final review and closed in the 8.3 pass below. Still open: the Postgres `23505` "you
+      already have a request pending" error is a UI dead end — the copy says a request is pending
+      but the button still offers "Request to join" with no way to withdraw, recoverable only by
+      a page reload
+- [x] `get_advisors` security — back at the documented intentional baseline (3 pre-existing
+      `rls_enabled_no_policy` INFOs, 3 pre-existing `SECURITY DEFINER`-callable-by-anon WARN pairs
+      for the leaderboard/view-count RPCs, 1 pre-existing leaked-password-protection WARN, moot
+      while sign-in is OAuth + magic-link only). No new findings attributable to Phase 8
+- [x] `get_advisors` performance — one new INFO: `collab_requests_project_idx` unused. Expected
+      and not a regression — `collab_requests` genuinely has 0 live rows (the browser round-trip
+      that would populate it hasn't been run yet), so there is nothing for the index to serve.
+      `projects_looking_for_idx` (8.1) **no longer reports as unused** — Task 6's seed and the
+      feed/search `looking_for` filter now exercise it
+
+#### 8.3 — Final whole-branch review fixes (2026-08-18, commit `ae7300b`)
+The final review (Opus, 5 passes over `ddc29e0..6e0bd15`) returned **0 Critical, 3 Important**.
+All three are closed here. Each was independently re-verified against the code before being
+fixed, not taken on the report's word.
+
+- [x] **I1 — the requester's message was collected and rendered nowhere.** `notifications.excerpt`
+      is not a column: it is derived in `getNotifications` from the embedded `comments.body`, and
+      a `collab_request` notification has no comment. The pitch — required, 1–500 chars,
+      CHECK-constrained — was therefore *structurally* invisible, and the author accepted or
+      declined a stranger on a username alone. Confirmed live: the notification row produced by a
+      real insert carries `comment_id = null` (P24 in the RLS evidence file). Two surfaces now
+      carry it, chosen so the hot `/notifications` SELECT (already three embeds serving seven row
+      types) did not have to grow a fourth:
+  - [x] `getCollabRequestSummaries` — one extra query, run **only** when a `collab_request` row is
+        on the page. Returns the message *and* the live status
+  - [x] `CollabRequests` on the project detail page, author-only — the first consumer
+        `getProjectCollabRequests` has ever had, and the durable surface: a notification feed
+        pages, so a request scrolled past the limit was previously stranded pending forever while
+        the requester's button read "Request sent" indefinitely
+  - [x] Accept/Decline controls no longer stay live on an already-resolved request. Previously
+        there was no resolved flag at all, so clicking a stale control only *then* surfaced the
+        "already handled" error
+- [x] **I2 — `FeedLoadMore` carried no `key`.** Its `items`/`cursor` are `useState` seeded at
+      mount, and every feed filter is a search param on the *same* route — so changing one is a
+      soft navigation that preserves them: stale cards under a filtered first page, and the next
+      "Load more" running a **filtered query from an unfiltered keyset**. Note this was wider than
+      the review stated: the `tab` and `window` axes had it too, so it **predates** the
+      `looking_for` filter, which only added a third way in. `feed-key.ts` covers every axis in
+      one place so a new filter cannot silently reintroduce it. Task 6's plan step aimed its
+      check at `?cursor=` in the URL, which this app does not have — the check as written could
+      not have detected this
+- [x] **I3 — `revalidatePath()` took a client-supplied path** from a hidden form field.
+      Under-graded as a Minor in Task 9 and promoted by the final review, correctly:
+      `withdrawRequest` carries no rate limit and *cannot fail* (a 0-row PATCH returns 204 with
+      `error` null), so any authenticated user could drive it at unlimited rate. The path shape is
+      fully known, so it is now validated rather than trusted
+- [x] **A17's mitigation is enforced, not just documented.** It was a code comment; the reviewer
+      noted a comment decays. `pnpm check:invariants` now fails on a direct `status: "accepted"`
+      write to `collab_requests`, or any `accept_collab_request` call outside its single wrapper.
+      **Negative-controlled** — deliberately introduced both violations and confirmed the check
+      exits 1 naming each, before wiring it up. (A guard nobody has watched fail is exactly what
+      shipped the inert SECURITY DEFINER triggers.)
+- [x] **Rate-limit copy corrected.** `collab_requests_rate_limit()` counts every row created in
+      the 24h window *whatever its status*, so withdrawing does not free a slot. The old copy
+      implied it might
+- [x] **The RLS evidence file's dangling migration filenames fixed** — it still named
+      `20260811T1430_`/`T1450_`, which stopped existing at Task 10's rename, while `CHECKLIST.md`
+      points readers at that file as the authoritative record of this phase's only real security
+      hole. The rename is recorded in-file so the historical commit references still resolve
+- [x] **The three notification links, positively controlled** (P24–P26, appended to the RLS
+      evidence file). The review found the suite proved only what *cannot* happen and never that
+      the author-side notification fires at all. Run against the live DB, each in its own
+      rolled-back transaction: insert ⇒ author's `collab_request`; decline ⇒ requester's
+      `collab_declined` (direction inverted, which is the point); `accept_collab_request` ⇒ status
+      **and** credit row **with** `role_label` **and** credit notification, from one call.
+      Residue verified zero afterwards
+- [x] **Lint run for the first time on this branch — and it is not in this project's gate.**
+      Standing rule 10 is typecheck + build; `turbo run lint` was never part of it, and it is
+      **already red on `main`** (13 problems / 6 errors). Measured across three trees: `main` 6
+      errors, `6e0bd15` (Phase 8 before these fixes) 10, this branch 8. So **Phase 8 introduced 4
+      `react-hooks` errors nobody saw**, and the 2026-08-18 fix pass introduced none. Two of the
+      four are now fixed (`collab-request-actions.tsx` — both effects deleted, the state they
+      mirrored is fully derived). The other two are deliberately left, in `request-to-join.tsx`:
+      its effects cannot be collapsed the same way, because `withdrawState.ok` stays true after a
+      withdrawal, so a naive derivation would report "withdrawn" for a *later* successful
+      request — breaking the withdraw-then-re-request cycle the partial unique index exists to
+      permit. Correcting it needs the blocked browser round-trip, so it is tracked, not changed
+      blind
+- [x] `turbo run typecheck` 4/4, `pnpm --filter web build` clean (20 routes), `check:invariants` OK
+- [ ] **Still not browser-verified.** These fixes are typechecked and built, not clicked through.
+      `collab_requests` has 0 live rows, so the two new surfaces have never rendered with real
+      data. Same blockers as 8.2 below
+
+#### Policy-drift check (Task 10, read-only — this phase must not touch existing RLS)
+- [x] `projects`/`project_images`/`project_tags`/`project_collaborators` policies queried directly
+      against the live DB and confirmed **identical to the pre-phase state**: `projects` still
+      gated on `author_id = auth.uid()` (`projects_update_own`, `projects_delete_own`); the three
+      child tables still on `private.is_project_author`/`private.can_see_project`. Phase 8 is
+      credit-only as designed (decision D-B) — no drift, no fix needed
+
+#### Migration filenames (Task 10)
+- [x] The six migration files above were renamed with `git mv` (contents byte-unchanged) from
+      their original `YYYYMMDDTHHMM_` on-disk names to the versions Supabase actually registered
+      in `supabase_migrations.schema_migrations` (`20260811082728`, `20260811085500`,
+      `20260811085656`, `20260811100818`, `20260811102131`, `20260811104338`). Left as they were,
+      a future `supabase db push` would have treated all six as new migrations, and
+      `add_projects_looking_for`'s `alter table ... add column` would have **failed** on re-apply
+      against a database that already has the column
+
 ### Web verification
 - [ ] All three sign-in methods work end-to-end
 - [ ] Post → multi-image gallery → reorder → cover change → co-builder credit shows on their profile

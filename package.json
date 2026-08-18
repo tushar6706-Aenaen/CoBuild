@@ -6,7 +6,8 @@
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",
     "lint": "turbo run lint",
-    "seed": "pnpm --filter @cobuild/db run seed"
+    "seed": "pnpm --filter @cobuild/db run seed",
+    "check:invariants": "node scripts/check-invariants.mjs"
   },
   "devDependencies": {
     "turbo": "2.10.7",
