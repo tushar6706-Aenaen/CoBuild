@@ -178,7 +178,7 @@ only slice with full live browser evidence.** Details and exactly what *is* conf
 are below — do not read any `[x]` in this section as "verified in a browser" unless it says so.
 
 #### 8.0 — Availability signals (`open_to_collab`, `weekly_hours_available`)
-- [x] Both columns added to `PROFILE_COLUMNS` (`packages/shared/src/profiles.ts:34`)
+- [x] Both columns added to `PROFILE_COLUMNS` (`packages/shared/src/profiles.ts:35`)
 - [x] `/settings/profile`: toggle for `open_to_collab`, number input for `weekly_hours_available`,
       server-side clamp (`WEEKLY_HOURS_MIN`–`WEEKLY_HOURS_MAX`; blank/out-of-range/unparseable all
       collapse to `null` rather than erroring)
@@ -298,11 +298,10 @@ are below — do not read any `[x]` in this section as "verified in a browser" u
       check that `/p/leviwunsch426/sprout` renders the "Request to join" control for a signed-in
       non-author and the "Looking for Co-builder, Feedback" chip. **Do not read any of the above
       as end-to-end verification of the request/accept/decline/withdraw flow — it is not.**
-- [ ] Ten Minor findings from Task 9's review, deferred and unfixed — full list in
-      `.superpowers/sdd/2026-08-11-phase-8-collaboration/progress.md`. The two worth naming here:
-      `revalidatePath()` is called with a client-supplied path read from a hidden input (blast
-      radius is cache-busting, not data — `projectId` is already present so the path could be
-      derived server-side instead of trusted from the client); and the Postgres `23505` "you
+- [~] Ten Minor findings from Task 9's review — full list in
+      `.superpowers/sdd/2026-08-11-phase-8-collaboration/progress.md`. One of the two named here is
+      now **fixed**: `revalidatePath()` with a client-supplied path was promoted to Important by
+      the final review and closed in the 8.3 pass below. Still open: the Postgres `23505` "you
       already have a request pending" error is a UI dead end — the copy says a request is pending
       but the button still offers "Request to join" with no way to withdraw, recoverable only by
       a page reload
@@ -315,6 +314,67 @@ are below — do not read any `[x]` in this section as "verified in a browser" u
       that would populate it hasn't been run yet), so there is nothing for the index to serve.
       `projects_looking_for_idx` (8.1) **no longer reports as unused** — Task 6's seed and the
       feed/search `looking_for` filter now exercise it
+
+#### 8.3 — Final whole-branch review fixes (2026-08-18, commit `ae7300b`)
+The final review (Opus, 5 passes over `ddc29e0..6e0bd15`) returned **0 Critical, 3 Important**.
+All three are closed here. Each was independently re-verified against the code before being
+fixed, not taken on the report's word.
+
+- [x] **I1 — the requester's message was collected and rendered nowhere.** `notifications.excerpt`
+      is not a column: it is derived in `getNotifications` from the embedded `comments.body`, and
+      a `collab_request` notification has no comment. The pitch — required, 1–500 chars,
+      CHECK-constrained — was therefore *structurally* invisible, and the author accepted or
+      declined a stranger on a username alone. Confirmed live: the notification row produced by a
+      real insert carries `comment_id = null` (P24 in the RLS evidence file). Two surfaces now
+      carry it, chosen so the hot `/notifications` SELECT (already three embeds serving seven row
+      types) did not have to grow a fourth:
+  - [x] `getCollabRequestSummaries` — one extra query, run **only** when a `collab_request` row is
+        on the page. Returns the message *and* the live status
+  - [x] `CollabRequests` on the project detail page, author-only — the first consumer
+        `getProjectCollabRequests` has ever had, and the durable surface: a notification feed
+        pages, so a request scrolled past the limit was previously stranded pending forever while
+        the requester's button read "Request sent" indefinitely
+  - [x] Accept/Decline controls no longer stay live on an already-resolved request. Previously
+        there was no resolved flag at all, so clicking a stale control only *then* surfaced the
+        "already handled" error
+- [x] **I2 — `FeedLoadMore` carried no `key`.** Its `items`/`cursor` are `useState` seeded at
+      mount, and every feed filter is a search param on the *same* route — so changing one is a
+      soft navigation that preserves them: stale cards under a filtered first page, and the next
+      "Load more" running a **filtered query from an unfiltered keyset**. Note this was wider than
+      the review stated: the `tab` and `window` axes had it too, so it **predates** the
+      `looking_for` filter, which only added a third way in. `feed-key.ts` covers every axis in
+      one place so a new filter cannot silently reintroduce it. Task 6's plan step aimed its
+      check at `?cursor=` in the URL, which this app does not have — the check as written could
+      not have detected this
+- [x] **I3 — `revalidatePath()` took a client-supplied path** from a hidden form field.
+      Under-graded as a Minor in Task 9 and promoted by the final review, correctly:
+      `withdrawRequest` carries no rate limit and *cannot fail* (a 0-row PATCH returns 204 with
+      `error` null), so any authenticated user could drive it at unlimited rate. The path shape is
+      fully known, so it is now validated rather than trusted
+- [x] **A17's mitigation is enforced, not just documented.** It was a code comment; the reviewer
+      noted a comment decays. `pnpm check:invariants` now fails on a direct `status: "accepted"`
+      write to `collab_requests`, or any `accept_collab_request` call outside its single wrapper.
+      **Negative-controlled** — deliberately introduced both violations and confirmed the check
+      exits 1 naming each, before wiring it up. (A guard nobody has watched fail is exactly what
+      shipped the inert SECURITY DEFINER triggers.)
+- [x] **Rate-limit copy corrected.** `collab_requests_rate_limit()` counts every row created in
+      the 24h window *whatever its status*, so withdrawing does not free a slot. The old copy
+      implied it might
+- [x] **The RLS evidence file's dangling migration filenames fixed** — it still named
+      `20260811T1430_`/`T1450_`, which stopped existing at Task 10's rename, while `CHECKLIST.md`
+      points readers at that file as the authoritative record of this phase's only real security
+      hole. The rename is recorded in-file so the historical commit references still resolve
+- [x] **The three notification links, positively controlled** (P24–P26, appended to the RLS
+      evidence file). The review found the suite proved only what *cannot* happen and never that
+      the author-side notification fires at all. Run against the live DB, each in its own
+      rolled-back transaction: insert ⇒ author's `collab_request`; decline ⇒ requester's
+      `collab_declined` (direction inverted, which is the point); `accept_collab_request` ⇒ status
+      **and** credit row **with** `role_label` **and** credit notification, from one call.
+      Residue verified zero afterwards
+- [x] `turbo run typecheck` 4/4, `pnpm --filter web build` clean (20 routes), `check:invariants` OK
+- [ ] **Still not browser-verified.** These fixes are typechecked and built, not clicked through.
+      `collab_requests` has 0 live rows, so the two new surfaces have never rendered with real
+      data. Same blockers as 8.2 below
 
 #### Policy-drift check (Task 10, read-only — this phase must not touch existing RLS)
 - [x] `projects`/`project_images`/`project_tags`/`project_collaborators` policies queried directly

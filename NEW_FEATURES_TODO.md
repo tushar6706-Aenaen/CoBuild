@@ -5,12 +5,15 @@ holds the **where we are**. [CHECKLIST.md](CHECKLIST.md) stays the permanent rec
 when a task here is finished *and verified*, mirror it there and mark it `[x]` in both.
 
 **Legend:** `[ ]` not started · `[~]` in progress · `[x]` done + verified · `[!]` blocked ·
-`[?]` needs a decision from Tushar
+`[?]` needs a decision from Tushar · `[c]` **code-complete: written, typechecked and built,
+but not exercised by a human in a browser** — a real state this tracker previously had no way
+to express, which is how ticked-but-unverified items ended up looking finished
 
-Last updated: 2026-08-18 · Current position: **Phase 7 shipped. Phase 8 code-complete
-(8.0/8.1/8.2 all landed) — 8.1 has full live browser evidence; 8.0's settings-form write path and
-8.2's two-account request/accept/decline/withdraw round-trip are still unverified in a browser.
-Not a regression: both are genuinely open, human-blocked items, not skipped work.**
+Last updated: 2026-08-18 · Current position: **Phase 7 shipped. Phase 8 code-complete and its
+final whole-branch review closed — 0 Critical, 3 Important, all three fixed (see §3.3). 8.1 has
+full live browser evidence; 8.0's settings-form write path, 8.2's two-account round-trip, and the
+new §3.3 surfaces are unverified in a browser. Not a regression: all are genuinely open,
+human-blocked items, not skipped work. The branch is not yet pushed and has no PR.**
 
 ---
 
@@ -20,14 +23,18 @@ Not a regression: both are genuinely open, human-blocked items, not skipped work
 |---|---|---|
 | 0–6 (product) | done | Web app is feature-complete per `WEB_APP_PLAN.md` |
 | 7 — Distribution | **done, 2 loose ends** | see §1 |
-| 8 — Collaboration | **code-complete, 2 items browser-unverified** | 8.1 fully verified live; 8.0 write-path and 8.2's two-account round-trip need a human browser session — see §3 |
+| 8 — Collaboration | **code-complete, reviewed, 3 items browser-unverified** | final review closed (3 Important, all fixed). 8.1 fully verified live; 8.0 write-path, 8.2's round-trip and §3.3's new surfaces need a human browser session — see §3 |
 | 9 — Devlogs | not started | |
 | 10 — Verified builds | not started | **blocked on decision D1** — shapes the whole phase |
 | 11 — Retention | not started | blocked on decision D3 (email provider) |
 | Mobile | not started | blocked on decision D5 |
 
-**Do not start Phase 8 schema work until §1 is closed.** `NEW_FEATURES.md` names the Phase 6
-Opus review as the gate before new schema lands, and new tables are exactly what Phase 8 adds.
+**This gate was consciously overrun, and that is a decision, not an oversight.** The rule was:
+do not start Phase 8 schema work until §1 is closed, because `NEW_FEATURES.md` names the Phase 6
+Opus review as the gate before new schema lands and new tables are exactly what Phase 8 adds.
+The Phase 6 review *did* close; what stayed open in §1 is Phase 7's OG-render loose end and a set
+of end-to-end browser checks — neither of which gates schema. Phase 8's tables shipped. The
+remaining §1 items are still open and still listed below.
 
 ---
 
@@ -50,7 +57,7 @@ Opus review as the gate before new schema lands, and new tables are exactly what
         Matters because `fetchOgImage` returns `null` on *any* failure and social platforms
         cache the first response forever. Decide: add a single retry, or close it as won't-fix
         with the reasoning written down. Do not leave it silently open.
-- [ ] Web verification items still unticked in `CHECKLIST.md:171`–`178` — these are end-to-end
+- [ ] Web verification items still unticked in `CHECKLIST.md`'s "Web verification" section — these are end-to-end
       checks that were never run, not regressions:
   - [ ] All three sign-in methods end-to-end (needs auth providers configured — see below)
   - [ ] Post → gallery → reorder → cover change → co-builder credit lands on their profile
@@ -98,7 +105,7 @@ this task's start, neither column appeared anywhere in `packages/db/src/seed/see
 seeded profiles sat at defaults (`false` / `null`). Fixed as part of Task 6's seed work (see 8.1
 below); the seed now assigns both. **No migration needed.** — *Sonnet*
 
-- [x] Add both columns to `PROFILE_COLUMNS` (`packages/shared/src/profiles.ts:34`)
+- [x] Add both columns to `PROFILE_COLUMNS` (`packages/shared/src/profiles.ts:35`)
 - [x] `/settings/profile`: toggle for `open_to_collab`, number input for `weekly_hours_available`
 - [x] Server-side validation (hours: bounds `WEEKLY_HOURS_MIN`–`WEEKLY_HOURS_MAX`, nullable) —
       manual `Number.isFinite` + range check in `settings/profile/actions.ts`, not a Zod schema
@@ -174,11 +181,35 @@ status `pending | accepted | declined | withdrawn`, unique partial index on
 - [x] `get_advisors` clean — security at the documented baseline; one new performance INFO
       (`collab_requests_project_idx` unused, expected at 0 live rows)
 - [x] Mirrored into `CHECKLIST.md` with evidence (Task 10)
+- [x] **Message now rendered, and resolved requests no longer offer live controls** — see §3.3
+- [x] **Author-facing "Requests to join" panel** on the project page — see §3.3
 - [ ] **Still open: the live two-account browser round-trip** (request → notification → accept /
       decline / withdraw) has never been run. Blocked on a human foregrounding the browser tab and
       running `auth.admin.generateLink` to sign in as a second account. Everything above is
-      verified by adversarial RLS, typecheck, and the production build — none of that substitutes
+      verified by adversarial RLS, typecheck, and the production build — which, for the UI items
+      specifically, proves only that they COMPILE — none of that substitutes
       for actually clicking through the flow as two real users
+
+### 3.3 Final whole-branch review fixes — *Opus* — code-complete, browser-unverified
+Review verdict: **0 Critical, 3 Important**, all three fixed in commit `ae7300b`. Full detail and
+evidence in `CHECKLIST.md`'s "8.3" section. Summary:
+
+- [x] **I1** — the request message was collected (required, 1–500 CHECK) and rendered nowhere.
+      `notifications.excerpt` is derived from an embedded `comments.body`, so it was structurally
+      null for every `collab_request`. Fixed on two surfaces: a scoped second query for
+      `/notifications` (message + live status, so resolved requests stop offering live controls),
+      and an author-only "Requests to join" panel on the project page — the durable surface, since
+      a notification feed pages and a scrolled-past request was stranded pending forever
+- [x] **I2** — `FeedLoadMore` had no `key`; client `items`/`cursor` survived a soft nav between
+      filters, so "Load more" could run a filtered query from an unfiltered keyset. `feed-key.ts`
+      keys every axis, including `tab`/`window`, which had the bug before `looking_for` existed
+- [x] **I3** — `revalidatePath()` took a client-supplied path on a write with no rate limit that
+      cannot fail. Now validated against the known shape
+- [x] **A17 enforced**, not just commented — `pnpm check:invariants`, negative-controlled
+- [x] **P24–P26 positive controls** for all three notification links, against the live DB
+- [x] `turbo run typecheck` 4/4 · `pnpm --filter web build` clean (20 routes) · `check:invariants` OK
+- [ ] **Browser-unverified.** `collab_requests` has 0 live rows; neither new surface has rendered
+      with real data. Same human-blocked prerequisites as 8.2
 
 ---
 
@@ -294,6 +325,28 @@ Learned the hard way in Phases 0–7. Violating one of these is how the known bu
 
 Newest first. One line per working session — what moved, what broke, what's next.
 
+- **2026-08-18 (later)** — Final whole-branch review triage. Verified all three Important
+  findings against the code before touching anything, and all three held. **I1**: the request
+  message was collected and rendered nowhere — `notifications.excerpt` turned out not to be a
+  column at all but a value derived from an embedded `comments.body`, so for a `collab_request`
+  it was structurally null and the author decided on a username alone. Fixed with a scoped second
+  query (`getCollabRequestSummaries`, message + live status) plus an author-only "Requests to
+  join" panel on the project page — the durable surface, and the first consumer
+  `getProjectCollabRequests` has ever had. Resolved requests no longer render live controls.
+  **I2**: `FeedLoadMore` had no `key`, so client `items`/`cursor` survived a soft nav between
+  filters. Wider than reported — `tab`/`window` had it too, so it predates the `looking_for`
+  filter; `feed-key.ts` now covers every axis in one place. **I3**: `revalidatePath()` took a
+  client-supplied path on a write that has no rate limit and cannot fail; now validated.
+  Also: `pnpm check:invariants` makes A17's mitigation enforceable rather than a comment
+  (negative-controlled against two deliberate violations first); rate-limit copy now admits that
+  withdrawing doesn't free a slot; the RLS evidence file's dangling pre-rename migration
+  filenames fixed. **Closed the review's other real gap**: the suite had no positive control that
+  the author-side notification fires at all — added P24–P26 against the live DB (insert ⇒ author's
+  `collab_request`; decline ⇒ requester's `collab_declined`; accept RPC ⇒ status + credit row with
+  role_label + credit notification, one call), each in a rolled-back transaction, residue verified
+  zero. typecheck 4/4, build clean at 20 routes. Commit `ae7300b`. **Nothing here is
+  browser-verified** — `collab_requests` still has 0 live rows, so the two new surfaces have never
+  rendered with real data.
 - **2026-08-18** — Task 10 (Phase 8 close): full advisors pass (security back at the documented
   baseline; performance shows one new expected INFO, `collab_requests_project_idx` unused at 0
   live rows, and confirms `projects_looking_for_idx` is **no longer** unused now that the seed and

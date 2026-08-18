@@ -1,5 +1,12 @@
 # Phase 8 — Collaboration Implementation Plan
 
+> **Completed 2026-08-18.** Kept as written, so the `supabase/migrations/20260811T14xx_` paths in
+> the steps below are the names the plan specified, not the names on disk. All six migrations were
+> `git mv`'d in Task 10 to the versions Supabase actually registered — `20260811082728`,
+> `20260811085500`, `20260811085656`, `20260811100818`, `20260811102131`, `20260811104338` —
+> contents byte-identical. Outcome, including the three Important findings from the final review
+> and their fixes, is recorded in `CHECKLIST.md`'s Phase 8 section.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Turn CoBuild from a one-way showcase into a collaboration surface — projects declare what help they want, profiles declare availability, and strangers can ask to join.
