@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useState } from "react";
 import { useFormStatus } from "react-dom";
+import type { CollabRequestStatus } from "@cobuild/shared";
 import {
   acceptRequest,
   declineRequest,
@@ -44,36 +45,56 @@ function DeclineSubmit() {
  * `(projectId, requesterId)` server-side before acting on it — that's why
  * only those two ids are passed in, not a request id.
  *
- * Tracks its own resolved/pending state locally so the buttons swap for a
+ * Tracks its own resolved state locally so the buttons swap for a
  * confirmation immediately, without waiting on the page's revalidation.
- * There's no way to hide these controls on a *later* visit once the request
- * has already been handled elsewhere (the notification row has no "resolved"
- * flag) — clicking a stale button then just surfaces the "already handled"
- * error the server action returns, which is the accepted tradeoff here.
+ *
+ * `status` is the live status of the underlying request, resolved by the page.
+ * The notification row itself has no "resolved" flag, so without it these
+ * controls stayed live forever — a request already handled from the project
+ * page, or withdrawn by the requester, still rendered Accept/Decline, and
+ * clicking one only then surfaced an "already handled" error. Passing the
+ * status in settles that on render instead.
  */
+const RESOLVED_LABEL: Record<Exclude<CollabRequestStatus, "pending">, string> = {
+  accepted: "Accepted",
+  declined: "Declined",
+  withdrawn: "Withdrawn",
+};
+
 export function CollabRequestActions({
   projectId,
   requesterId,
+  status = null,
 }: {
   projectId: string;
   requesterId: string;
+  /** Null when the request row could not be read — controls stay live and the
+   *  server action remains the authority, which is the pre-existing behaviour. */
+  status?: CollabRequestStatus | null;
 }) {
   const [acceptState, acceptAction] = useActionState(acceptRequest, idle);
   const [declineState, declineAction] = useActionState(declineRequest, idle);
-  const [resolved, setResolved] = useState<"accepted" | "declined" | null>(null);
+  const [justResolved, setJustResolved] = useState<
+    Exclude<CollabRequestStatus, "pending"> | null
+  >(null);
 
   useEffect(() => {
-    if (acceptState.ok) setResolved("accepted");
+    if (acceptState.ok) setJustResolved("accepted");
   }, [acceptState]);
 
   useEffect(() => {
-    if (declineState.ok) setResolved("declined");
+    if (declineState.ok) setJustResolved("declined");
   }, [declineState]);
+
+  // Derived, not seeded into state: a `useState` initialiser only runs at
+  // mount, so a status arriving from a later server render would be shadowed
+  // by the stale initial value for as long as the component stays mounted.
+  const resolved = justResolved ?? (status && status !== "pending" ? status : null);
 
   if (resolved) {
     return (
       <span className="text-[12px] font-semibold text-[var(--color-text-tertiary)]">
-        {resolved === "accepted" ? "Accepted" : "Declined"}
+        {RESOLVED_LABEL[resolved]}
       </span>
     );
   }

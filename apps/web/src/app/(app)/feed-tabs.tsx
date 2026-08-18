@@ -32,6 +32,11 @@ const inactive = pillInactive;
  * state, never the URL), but building fresh like this is what guarantees
  * that stays true: a param this function doesn't know about can never leak
  * through onto a filtered link.
+ *
+ * Note that keeping the cursor out of the URL does NOT make the link safe on
+ * its own — it moves the problem into React state, where changing a filter is
+ * a soft nav that preserves it. `feed-key.ts` is the other half of this; read
+ * it before adding a filter axis here.
  */
 function feedHref({
   tab,

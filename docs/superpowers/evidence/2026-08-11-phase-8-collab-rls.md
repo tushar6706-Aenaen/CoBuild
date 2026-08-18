@@ -1,14 +1,21 @@
 # Phase 8 slice 8.2 — adversarial RLS evidence for `collab_requests`
 
-**Current gate result: PASS**, against migration `20260811T1450_collab_requests_guard_invoker.sql`
+**Current gate result: PASS**, against migration `20260811104338_collab_requests_guard_invoker.sql`
 (commit `3729db4`).
 
 **This suite failed the first time it was run, and that failure is the most
 important thing in this document.** The original migration
-(`20260811T1430_add_collab_requests.sql`) shipped with **both** of its trigger
+(`20260811100818_add_collab_requests.sql`) shipped with **both** of its trigger
 functions completely inert. It had passed two rounds of code review. The defect was
 found only by executing attacks against the live schema. The full record of that
 failure is kept below in "Round 1"; do not delete it.
+
+> **On the filenames above.** Both migrations were written to disk under
+> `YYYYMMDDTHHMM_` names and later `git mv`'d to the versions Supabase actually
+> registered (`20260811100818_`, `20260811104338_`) — contents byte-identical,
+> verified by `similarity index 100%`. Commits `3cfc846` and `3729db4` therefore
+> show the old names. The names used throughout this document are the ones on
+> disk today.
 
 Date: 2026-08-11 · Task 8 · Supabase project `mwxokedrwjlyrqcwvdur` (live, seeded)
 
@@ -26,7 +33,7 @@ confirmations of the load-bearing consequences of the fix.
 `security definer` and both opened with:
 
 ```sql
--- 20260811T1430_add_collab_requests.sql, lines 50/54 and 95/98
+-- 20260811100818_add_collab_requests.sql, lines 50/54 and 95/98
 returns trigger language plpgsql security definer set search_path to '' as $function$
 ...
   if current_user not in ('anon', 'authenticated') then return new; end if;
@@ -121,7 +128,7 @@ back from the database, not by a block that merely completed without error.
 
 ## Fix applied
 
-Migration `20260811T1450_collab_requests_guard_invoker.sql` (commit `3729db4`)
+Migration `20260811104338_collab_requests_guard_invoker.sql` (commit `3729db4`)
 recreated both functions with identical bodies, minus `security definer`. Verified
 independently in the live database before re-running:
 
@@ -493,3 +500,40 @@ Task 9.
 Slice 8.2 is cleared. **Task 9's server action must call `accept_collab_request` and
 never write `status` directly** — that is now the only thing standing between an
 accepted request and a missing credit row.
+
+---
+
+## Addendum — 2026-08-18: the three notification links, positively controlled
+
+The final whole-branch review found a gap in the suite above: it had **no positive
+control for the author-side `collab_request` notification** — the one link the whole
+feature depends on. Every attack proved what *cannot* happen; nothing proved the
+trigger fires at all. Run now, as the project owner (service role), each inside its
+own transaction, all rolled back.
+
+| # | Link under test | Result |
+|---|---|---|
+| P24 | `insert into collab_requests` ⇒ notification to the **project author** | **PASS** — exactly one `collab_request` row, `recipient = leviwunsch426` (the author), `actor = p6_alice` (the requester), correct `project_id` |
+| P25 | `pending → declined` ⇒ notification to the **requester** | **PASS** — one `collab_declined` row, `recipient = p6_alice`, `actor = leviwunsch426`. Direction is inverted relative to P24, which is the point |
+| P26 | `accept_collab_request(id, 'Backend')` ⇒ status **and** credit **and** notification | **PASS** — request `accepted`; `project_collaborators` row `accepted / Backend`; `credit` notification to `p6_alice`. All three, from one RPC call |
+
+P26 is the atomicity claim in `acceptCollabRequest`'s comment, executed rather than
+asserted: one call produced the status change, the credit row *with* its `role_label`,
+and the requester's notification.
+
+**P24 also demonstrates the I1 defect directly.** The notification row it produced has
+`comment_id = null` — and `excerpt` is not a column on `notifications` at all, it is
+derived in `getNotifications` from the embedded `comments.body`. So for every
+`collab_request` notification the excerpt was *structurally* null, and the requester's
+message — required, 1–500 chars, CHECK-constrained — could never render. That is what
+the 2026-08-18 fix addresses.
+
+Also confirmed here, because `getCollabRequestSummaries` depends on it: after
+`pending → declined → new request`, `distinct on (project_id, requester_id) … order by
+created_at desc` returns the **new pending** row. The partial unique index permits only
+one `pending` request per pair, so "newest row is pending" is equivalent to "a live
+pending request exists" — which is the row `getPendingCollabRequestFor` will act on.
+
+**Residue: none.** Verified after all four transactions: `collab_requests` 0 rows,
+`collab_request`/`collab_declined` notifications 0, `project_collaborators` on the
+fixture project 0.

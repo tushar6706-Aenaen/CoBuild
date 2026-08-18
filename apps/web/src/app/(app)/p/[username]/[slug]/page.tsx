@@ -8,6 +8,7 @@ import {
   getViewerProjectState,
   getViewerCommentVotes,
   getViewerCollabRequest,
+  getProjectCollabRequests,
   collectCommentIds,
   isFollowing,
   publicStorageUrl,
@@ -28,6 +29,7 @@ import { Gallery, type GalleryImage } from "./gallery";
 import { Comments } from "./comments";
 import { ViewTracker } from "./view-tracker";
 import { DeleteProjectButton } from "./delete-button";
+import { CollabRequests } from "./collab-requests";
 
 const STATUS_STYLE: Record<string, { label: string; color: string }> = {
   shipped: { label: "Shipped", color: "var(--color-status-shipped)" },
@@ -88,18 +90,25 @@ export default async function ProjectDetailPage({
 
   const wantsCollaborators = project.looking_for.length > 0;
 
-  const [comments, viewerState, viewerFollowsAuthor, viewerCollabRequest] = await Promise.all([
-    getProjectComments(supabase, project.id),
-    viewer
-      ? getViewerProjectState(supabase, project.id, viewer.id)
-      : Promise.resolve({ voted: false, bookmarked: false }),
-    viewer && !isAuthor
-      ? isFollowing(supabase, viewer.id, project.author.id)
-      : Promise.resolve(false),
-    viewer && !isAuthor && wantsCollaborators
-      ? getViewerCollabRequest(supabase, project.id, viewer.id)
-      : Promise.resolve(null),
-  ]);
+  const [comments, viewerState, viewerFollowsAuthor, viewerCollabRequest, collabRequests] =
+    await Promise.all([
+      getProjectComments(supabase, project.id),
+      viewer
+        ? getViewerProjectState(supabase, project.id, viewer.id)
+        : Promise.resolve({ voted: false, bookmarked: false }),
+      viewer && !isAuthor
+        ? isFollowing(supabase, viewer.id, project.author.id)
+        : Promise.resolve(false),
+      viewer && !isAuthor && wantsCollaborators
+        ? getViewerCollabRequest(supabase, project.id, viewer.id)
+        : Promise.resolve(null),
+      // Author only. `collab_requests_select` would return the viewer's own
+      // request here too, so the guard is about not running a query nobody
+      // will read, not about authorization.
+      isAuthor ? getProjectCollabRequests(supabase, project.id) : Promise.resolve([]),
+    ]);
+
+  const pendingCollabRequests = collabRequests.filter((r) => r.status === "pending");
 
   // Keyed off the comment tree, so this can't join the Promise.all above.
   const votedCommentIds = viewer
@@ -240,6 +249,13 @@ export default async function ProjectDetailPage({
               <h2 className="text-[19px] font-bold tracking-tight">About this project</h2>
               <Markdown content={project.description} />
             </div>
+          )}
+
+          {isAuthor && (
+            <CollabRequests
+              requests={pendingCollabRequests}
+              avatarUrl={(path) => publicStorageUrl(supabase, "avatars", path)}
+            />
           )}
 
           {project.collaborators.length > 0 && (

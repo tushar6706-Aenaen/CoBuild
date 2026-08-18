@@ -136,5 +136,7 @@ export {
   acceptCollabRequest,
   declineCollabRequest,
   getPendingCollabRequestFor,
+  getCollabRequestSummaries,
+  collabRequestKey,
 } from "./collab";
-export type { CollabRequest, CollabRequestStatus } from "./collab";
+export type { CollabRequest, CollabRequestStatus, CollabRequestSummary } from "./collab";

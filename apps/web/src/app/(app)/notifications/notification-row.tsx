@@ -1,5 +1,10 @@
 import Link from "next/link";
-import { notificationHref, type NotificationItem, type NotificationType } from "@cobuild/shared";
+import {
+  notificationHref,
+  type NotificationItem,
+  type NotificationType,
+  type CollabRequestSummary,
+} from "@cobuild/shared";
 import { timeAgo } from "@/components/project/project-card";
 import { MarkReadOnClick } from "./mark-read-on-click";
 import { CollabRequestActions } from "./collab-request-actions";
@@ -92,8 +97,22 @@ function describe(n: NotificationItem): string {
   }
 }
 
-export function NotificationRow({ notification }: { notification: NotificationItem }) {
-  const { type, read, actor, actor_id, project_id, excerpt } = notification;
+export function NotificationRow({
+  notification,
+  collab,
+}: {
+  notification: NotificationItem;
+  /** The `collab_requests` row behind a `collab_request` notification, when
+   *  the page resolved one — carries the pitch to render and the status that
+   *  decides whether the controls are still live. Undefined for every other
+   *  row type, and for a request whose row is gone. */
+  collab?: CollabRequestSummary;
+}) {
+  const { type, read, actor, actor_id, project_id } = notification;
+  // A `collab_request` has no comment to excerpt, so it borrows the same slot
+  // for the requester's message — which is required at 1-500 chars and was,
+  // until this, collected and never shown to the person deciding on it.
+  const excerpt = type === "collab_request" ? (collab?.message ?? null) : notification.excerpt;
   const href = notificationHref(notification);
   const tone = iconTone(type);
   const who = actor?.username ? `@${actor.username}` : (actor?.display_name ?? "Someone");
@@ -166,7 +185,11 @@ export function NotificationRow({ notification }: { notification: NotificationIt
       <div className={rowClass}>
         {inner}
         <div className="flex flex-none items-start pt-0.5">
-          <CollabRequestActions projectId={project_id} requesterId={actor_id} />
+          <CollabRequestActions
+            projectId={project_id}
+            requesterId={actor_id}
+            status={collab?.status ?? null}
+          />
         </div>
         {unreadDot}
       </div>

@@ -6,6 +6,7 @@ import { ProjectCard, type ProjectCardData } from "@/components/project/project-
 import { FeedTabs, FEED_TABS } from "./feed-tabs";
 import { FeedEmpty } from "./feed-empty";
 import { FeedLoadMore } from "./feed-load-more";
+import { feedResetKey } from "./feed-key";
 import { FeedSidebar } from "./feed-sidebar";
 
 export const metadata: Metadata = {
@@ -94,6 +95,7 @@ export default async function Home({
               />
             ))}
             <FeedLoadMore
+              key={feedResetKey({ tab, window: topWindow, lookingFor })}
               tab={tab}
               window={topWindow}
               viewerId={viewer?.id ?? null}

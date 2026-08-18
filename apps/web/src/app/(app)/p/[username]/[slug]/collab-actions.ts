@@ -29,6 +29,26 @@ function pgCode(e: unknown): string | undefined {
 }
 
 /**
+ * `projectPath` arrives from a hidden form field, so it is attacker-controlled
+ * on every write path below. Handing it to `revalidatePath()` unchecked lets
+ * any authenticated user invalidate an arbitrary route — and `withdrawRequest`
+ * makes that unlimited, since it carries no rate limit and a 0-row PATCH comes
+ * back 204 with `error` null, so a loop against it never fails.
+ *
+ * The shape is fully known (`/p/${username}/${slug}` — see the mount site in
+ * `p/[username]/[slug]/page.tsx`), so it is validated rather than trusted:
+ * `USERNAME_REGEX`'s character class, and `slugify`'s `[a-z0-9-]` output plus
+ * `uniqueSlug`'s numeric suffix. Anything else revalidates nothing at all,
+ * which is the safe failure — the write itself has already succeeded and the
+ * pages involved are dynamic.
+ */
+const PROJECT_PATH_RE = /^\/p\/[a-zA-Z0-9_-]{2,39}\/[a-z0-9-]{1,120}$/;
+
+function safeProjectPath(raw: string): string | null {
+  return PROJECT_PATH_RE.test(raw) ? raw : null;
+}
+
+/**
  * Sends a request to join a project. The two DB errors that are expected
  * rather than exceptional — an existing pending request, and the 24h rate
  * limit — get real copy; anything else falls back to a generic message and
@@ -58,13 +78,20 @@ export async function requestToJoin(
       return { error: "You already have a request pending on this project." };
     }
     if (code === "53400") {
-      return { error: "You've sent a lot of requests today — try again tomorrow." };
+      // `collab_requests_rate_limit()` counts every row created in the window,
+      // whatever its status — withdrawing does not give a slot back. The copy
+      // says so, because "try again tomorrow" alone reads as though it might.
+      return {
+        error:
+          "You've hit the limit of 10 join requests in 24 hours. Withdrawing one doesn't free up a slot — try again tomorrow.",
+      };
     }
     console.error("[collab] request failed", e);
     return { error: "Something went wrong sending your request. Try again." };
   }
 
-  if (projectPath) revalidatePath(projectPath);
+  const safePath = safeProjectPath(projectPath);
+  if (safePath) revalidatePath(safePath);
 
   // Hand the new request's id back so the button can show "Request sent" plus
   // a working Withdraw control without a reload. `createCollabRequest` only
@@ -105,7 +132,8 @@ export async function withdrawRequest(
     return { error: "Couldn't withdraw your request. Try again." };
   }
 
-  if (projectPath) revalidatePath(projectPath);
+  const safePath = safeProjectPath(projectPath);
+  if (safePath) revalidatePath(safePath);
   return { ok: true };
 }
 
@@ -119,6 +147,10 @@ export async function withdrawRequest(
  * function must never write `status: "accepted"` itself — see the note on
  * `acceptCollabRequest` in `packages/shared/src/collab.ts` for why a direct
  * update would "succeed" while silently skipping the credit row.
+ *
+ * This is enforced, not just documented: `pnpm check:invariants` fails on a
+ * direct `status: "accepted"` write to `collab_requests` and on any call to
+ * the RPC outside its single wrapper.
  */
 export async function acceptRequest(
   _prev: CollabActionState,

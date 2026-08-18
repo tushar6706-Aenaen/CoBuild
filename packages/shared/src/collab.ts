@@ -152,3 +152,69 @@ export async function getPendingCollabRequestFor(
   if (error) throw error;
   return (data as CollabRequest | null) ?? null;
 }
+
+/** Just enough of a request to render and act on it from a notification row. */
+export type CollabRequestSummary = {
+  project_id: string;
+  requester_id: string;
+  message: string;
+  status: CollabRequestStatus;
+};
+
+/** Key for `CollabRequestSummary` lookups. Exported so callers can't drift from it. */
+export function collabRequestKey(projectId: string, requesterId: string): string {
+  return `${projectId}:${requesterId}`;
+}
+
+/**
+ * The newest request per `(project, requester)` pair across several projects,
+ * for the `collab_request` rows on `/notifications`.
+ *
+ * Deliberately a second query rather than a join added to `getNotifications`:
+ * that SELECT runs on every load of the page and already embeds three
+ * relations for seven row types, and `notifications` has no FK to
+ * `collab_requests` to embed through anyway. This one only runs when the page
+ * actually holds a `collab_request` row.
+ *
+ * Filtering on `project_id` alone is enough — `collab_requests_select` scopes
+ * reads to your own requests and requests against your own projects, so an id
+ * that isn't yours contributes nothing. Pairs are matched in memory because
+ * PostgREST has no tuple `IN`.
+ *
+ * The newest row per pair is the one to render: the partial unique index
+ * allows at most one `pending` request per pair, so a newer row can only exist
+ * once the previous one was resolved. That makes "newest is pending"
+ * equivalent to "a live pending request exists" — which is exactly what
+ * `getPendingCollabRequestFor` will find when the author clicks Accept.
+ */
+export async function getCollabRequestSummaries(
+  client: Client,
+  pairs: readonly { projectId: string; requesterId: string }[],
+): Promise<Map<string, CollabRequestSummary>> {
+  const out = new Map<string, CollabRequestSummary>();
+  if (pairs.length === 0) return out;
+
+  const projectIds = [...new Set(pairs.map((p) => p.projectId))];
+  const wanted = new Set(pairs.map((p) => collabRequestKey(p.projectId, p.requesterId)));
+
+  const { data, error } = await client
+    .from("collab_requests")
+    .select("project_id, requester_id, message, status, created_at")
+    .in("project_id", projectIds)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+
+  for (const row of (data ?? []) as (CollabRequestSummary & { created_at: string })[]) {
+    const key = collabRequestKey(row.project_id, row.requester_id);
+    // Rows arrive newest-first, so the first hit for a pair is the one to keep.
+    if (!wanted.has(key) || out.has(key)) continue;
+    out.set(key, {
+      project_id: row.project_id,
+      requester_id: row.requester_id,
+      message: row.message,
+      status: row.status,
+    });
+  }
+
+  return out;
+}
